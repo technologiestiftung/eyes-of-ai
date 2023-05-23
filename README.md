@@ -6,25 +6,11 @@
 
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-# {repo-template}
+# Through the eyes of AI
+An OpenAI-based prototype that uses the Dall-E API to create parametrically personalized image of it's users.
+More info coming soon...
 
-## TODO (after you generated the repo)
-
-- [ ] Review the content of the README.md and adjust to your liking
-- [ ] Read the README.md till the end and adjust the content licensing,
-      logos, etc (I know you stopped at tbd...)
-- [ ] Adjust the file [.github/CODEOWNERS](./.github/CODEOWNERS)
-- [ ] Adjust the files under [.github/ISSUE_TEMPLATE](./.github/ISSUE_TEMPLATE)
-- [ ] If you use staging and main branches use this template for [.github/renovate.json](./.github/renovate.json)
-
-```json
-{
-	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
-	"extends": ["github>technologiestiftung/renovate-config"],
-	"baseBranches": ["staging"]
-}
-```
-
+## Small Housekeeping TO DOs
 - [ ] Do you want to honor all kinds of contributions? Use [all-contributors](https://allcontributors.org/)
 
 ```bash
@@ -43,27 +29,15 @@ You can use it on GitHub just by commenting on PRs and issues:
 
 ## Prerequisites
 
-tbd...
+You'll need an OpenAI API Key. In order to recieve one create an OpenAI account, log into it, create an API key and copy and paste it into your `.env` file
 
 ## Installation
 
-tbd...
-
-## Usage or Deployment
-
-tbd...
+Run `npm install openai`
 
 ## Development
 
 tbd...
-
-## Tests
-
-tbd...
-
-## Contributing
-
-Before you create a pull request, write an issue so we can discuss your changes.
 
 ## Contributors
 
@@ -87,8 +61,6 @@ This project follows the [all-contributors](https://github.com/all-contributors/
 ## Content Licensing
 
 Texts and content available as [CC BY](https://creativecommons.org/licenses/by/3.0/de/).
-
-Illustrations by {MARIA_MUSTERFRAU}, all rights reserved.
 
 ## Credits
 
@@ -117,5 +89,3 @@ Illustrations by {MARIA_MUSTERFRAU}, all rights reserved.
     </td>
   </tr>
 </table>
-
-## Related Projects
