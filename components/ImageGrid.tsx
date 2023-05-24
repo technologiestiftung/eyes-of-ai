@@ -3,8 +3,8 @@ import path from "path";
 import fs from "fs";
 
 const ImageGrid = () => {
-  const filePath = "./images.json"
-  const existingContent = fs.readFileSync(filePath);
+  const filePath = "./images.json";
+  const existingContent = fs.readFileSync(filePath, "utf-8"); // Specify the encoding as "utf-8"
   const imageData = JSON.parse(existingContent);
   const imageCount = imageData.length;
   const imageUrls = Array.from(Array(imageCount), (_, i) => {
@@ -29,3 +29,4 @@ const ImageGrid = () => {
 };
 
 export default ImageGrid;
+
