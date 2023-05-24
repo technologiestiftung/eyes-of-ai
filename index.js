@@ -18,9 +18,32 @@ function getRandomAnimal() {
   return animals[randomIndex];
 }
 
+function getNextImageNumber() {
+  const filePath = 'images.json';
+
+  try {
+    if (fs.existsSync(filePath)) {
+      const existingContent = fs.readFileSync(filePath);
+      if (existingContent.length > 0) {
+        const existingData = JSON.parse(existingContent);
+        if (existingData.length > 0) {
+          const lastImage = existingData[existingData.length - 1];
+          return lastImage.number + 1;
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error occurred while reading images.json:", error);
+  }
+
+  return 1; // Start from 1 if no images or images.json file exist
+}
+
 async function createImage() {
   try {
     const randomAnimal = getRandomAnimal();
+    console.log("Your random animal is: ", randomAnimal);
+    console.log("Creating image... ");
     const response = await openai.createImage({
       prompt: `A wet on wet oil painting of a flying ${randomAnimal} by Bob Ross.`,
       n: 1,
@@ -29,7 +52,7 @@ async function createImage() {
     const image_url = response.data.data[0].url;
     const timestamp = new Date().toLocaleTimeString();
     const imageObj = {
-      number: images.length + 1,
+      number: getNextImageNumber(), // Increment the image number
       url: image_url,
       timestamp: timestamp
     };
@@ -49,6 +72,9 @@ async function writeImagesToFile(images) {
       const existingContent = fs.readFileSync(filePath);
       if (existingContent.length > 0) {
         existingData = JSON.parse(existingContent);
+      }
+      else {
+        existingData = []
       }
     }
 
