@@ -1,7 +1,8 @@
 import React from "react";
+import "../styles/globals.css";
 import { Header } from "../components/Header";
+import { Footer } from "../components/Footer";
 import ImageGrid from "../components/ImageGrid";
-import imagesData from "../images.json";
 
 export default function Page() {
   
@@ -9,7 +10,7 @@ export default function Page() {
     <div>
       <Header />  
       <ImageGrid />
-      <p>Lorem ipsum...</p>
+      <Footer />
     </div>
   );
 }
