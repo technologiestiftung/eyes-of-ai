@@ -14,16 +14,18 @@ const ImageGrid = () => {
   });
 
   return (
-    <div className="image-grid">
+    <div className="p-20">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {imageUrls.map((imageUrl, index) => (
         <img
           key={index}
           src={imageUrl}
           alt={`Image ${index + 1}`}
           className="image-item"
-          style={{ width: "300px", height: "300px", padding: "10px" }}
+          style={{ width: "100%", height: "100%" }}
         />
       ))}
+    </div>
     </div>
   );
 };
