@@ -31,13 +31,13 @@ You can use it on GitHub just by commenting on PRs and issues:
 
 You'll need an OpenAI API Key. In order to recieve one create an OpenAI account, log into it, create an API key and copy and paste it into your `.env` file
 
-## Installation
+## Installation 
 
-Run `npm install openai`
+Run `npm install`
 
 ## Development
 
-tbd...
+Run `npm rund dev`
 
 ## Contributors
 
