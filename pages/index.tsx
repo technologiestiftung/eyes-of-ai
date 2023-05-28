@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import ImageGrid from "../components/ImageGrid";
 import styles from "../styles/elements.module.css";
-import RunHuman from "../components/RunHuman";
+import RunHuman from "../components/RunHumanFn";
 import InitWebCam from "../components/InitWebCam";
 export default function Page() {
 	return (
