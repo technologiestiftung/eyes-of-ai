@@ -1,5 +1,5 @@
 {
-  "projectName": "template-default",
+  "projectName": "eyes-of-ai",
   "projectOwner": "technologiestiftung",
   "repoType": "github",
   "repoHost": "https://github.com",
@@ -10,7 +10,18 @@
   "commit": true,
   "commitConvention": "angular",
   "contributors": [
+    {
+      "login": "raphael-arce",
+      "name": "Raphael.A",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8709861?v=4",
+      "profile": "https://github.com/raphael-arce",
+      "contributions": [
+        "code",
+        "ideas"
+      ]
+    }
   ],
   "contributorsPerLine": 7,
-  "skipCi": true
+  "skipCi": true,
+  "commitType": "docs"
 }
