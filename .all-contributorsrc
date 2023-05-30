@@ -1,5 +1,5 @@
 {
-  "projectName": "template-default",
+  "projectName": "eyes-of-ai",
   "projectOwner": "technologiestiftung",
   "repoType": "github",
   "repoHost": "https://github.com",
@@ -10,7 +10,18 @@
   "commit": true,
   "commitConvention": "angular",
   "contributors": [
+    {
+      "login": "annameide",
+      "name": "anna",
+      "avatar_url": "https://avatars.githubusercontent.com/u/46717848?v=4",
+      "profile": "https://fhp.incom.org/profile/9200/projects",
+      "contributions": [
+        "design",
+        "ideas"
+      ]
+    }
   ],
   "contributorsPerLine": 7,
-  "skipCi": true
+  "skipCi": true,
+  "commitType": "docs"
 }
