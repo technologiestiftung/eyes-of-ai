@@ -11,6 +11,15 @@
   "commitConvention": "angular",
   "contributors": [
     {
+      "login": "annameide",
+      "name": "anna",
+      "avatar_url": "https://avatars.githubusercontent.com/u/46717848?v=4",
+      "profile": "https://fhp.incom.org/profile/9200/projects",
+      "contributions": [
+        "design",
+        "ideas"
+        ]
+    },
       "login": "julizet",
       "name": "Julia Zet",
       "avatar_url": "https://avatars.githubusercontent.com/u/52455010?v=4",
