@@ -1,0 +1,49 @@
+/*
+# Default request to our instance of Supabase
+
+*/
+GET {{SUPABASE_URL}}/rest/v1/
+apikey: {{SUPABASE_ANON_KEY}}
+/*
+
+*/
+###
+GET {{SUPABASE_URL}}/rest/v1/eotai_images
+apikey: {{SUPABASE_ANON_KEY}}
+
+HTTP/1.1 200  - OK
+date: Tue, 30 May 2023 12:45:16 GMT
+server: postgrest/10.1.2
+content-type: application/json; charset=utf-8
+content-range: 0-0/*
+content-location: /eotai_images
+content-profile: public
+access-control-allow-origin: *
+x-kong-upstream-latency: 2
+x-kong-proxy-latency: 1
+via: kong/2.8.1
+connection: close
+transfer-encoding: chunked
+/*
+# Making requests to the next/api
+*/
+###
+# @no-cookie-jar
+POST http://localhost:3000/api/images
+Content-Type: application/json
+Accept: application/json
+
+{"prompt":"A lovely scared collage of an 44 year old male, synthwave, black and white"}
+
+
+
+HTTP/1.1 401  - Unauthorized
+date: Tue, 30 May 2023 14:50:29 GMT
+set-cookie: csrf=eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiJlZTMwNjViZi1hZmYzLTQyZWQtYjA3NTRlZDk3NzdmMTMwOCIsImlhdCI6MTY4NTQ1ODIyOSwiZXhwIjoxNjg1NTQ0NjI5fQ.24ImEG7JwWA3plnWAVyxor9eJjBSHOMfWvHMZQqYU04; Path=/; Expires=Wed, 31 May 2023 14:50:29 GMT; Max-Age=86400
+content-type: text/plain;charset=UTF-8
+cookie: csrf=;
+vary: Accept-Encoding
+content-encoding: gzip
+connection: close
+transfer-encoding: chunked
+###
