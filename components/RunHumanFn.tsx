@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import type { Human, Config } from "@vladmandic/human";
 import { log, status } from "../lib/logging";
+import {useEyesOfAIStore} from "../store";
 
 const config: Partial<Config> = {
 	debug: false,
@@ -17,13 +18,27 @@ interface Props {
 }
 
 const RunHuman: React.FC<Props> = ({ inputId, outputId }) => {
-	const [ready, setReady] = useState(false);
-	const [frame, setFrame] = useState(0);
-	const timestampRef = useRef(0);
-	const fpsRef = useRef(0);
+	const ready = useEyesOfAIStore((state) => state.ready);
+	const setReady = useEyesOfAIStore((state) => state.setReady);
 
-	const HumanImport = useRef<any>(null);
-	const humanRef = useRef<Human | undefined>(undefined);
+	const frame = useEyesOfAIStore((state) => state.frame);
+	const setFrame = useEyesOfAIStore((state) => state.setFrame);
+
+	const timestamp = useEyesOfAIStore((state) => state.timestamp);
+	const setTimestamp = useEyesOfAIStore((state) => state.setTimestamp);
+
+	const fps = useEyesOfAIStore((state) => state.fps);
+	const setFps = useEyesOfAIStore((state) => state.setFps);
+
+	const human = useEyesOfAIStore((state) => state.human);
+	const setHuman = useEyesOfAIStore((state) => state.setHuman);
+
+	const age = useEyesOfAIStore((state) => state.age);
+	const setAge = useEyesOfAIStore((state) => state.setAge);
+
+	const gender = useEyesOfAIStore((state) => state.gender);
+	const setGender = useEyesOfAIStore((state) => state.setGender);
+
 	const videoRef = useRef<HTMLVideoElement | undefined>(undefined);
 	const canvasRef = useRef<HTMLCanvasElement | undefined>(undefined);
 
@@ -37,35 +52,36 @@ const RunHuman: React.FC<Props> = ({ inputId, outputId }) => {
 			document.createElement("canvas");
 
 		import("@vladmandic/human").then((H) => {
-			humanRef.current = new H.default(config) as Human;
+			const newHuman = new H.default(config) as Human;
+			setHuman(newHuman);
 			log(
 				"human version:",
-				humanRef.current.version,
+				newHuman.version,
 				"| tfjs version:",
-				humanRef.current.tf.version["tfjs-core"],
+				newHuman.tf.version["tfjs-core"],
 			);
 			log(
 				"platform:",
-				humanRef.current.env.platform,
+				newHuman.env.platform,
 				"| agent:",
-				humanRef.current.env.agent,
+				newHuman.env.agent,
 			);
 			status("loading models...");
-			humanRef.current.load().then(() => {
+			newHuman.load().then(() => {
 				log(
 					"backend:",
-					humanRef.current!.tf.getBackend(),
+					newHuman!.tf.getBackend(),
 					"| available:",
-					humanRef.current!.env.backends,
+					newHuman!.env.backends,
 				);
 				log(
 					"loaded models:" +
-						Object.values(humanRef.current!.models).filter(
+						Object.values(newHuman!.models).filter(
 							(model) => model !== null,
 						).length,
 				);
 				status("initializing...");
-				humanRef.current!.warmup().then(() => {
+				newHuman!.warmup().then(() => {
 					setReady(true);
 					status("ready...");
 				});
@@ -91,12 +107,15 @@ const RunHuman: React.FC<Props> = ({ inputId, outputId }) => {
 
 	useEffect(() => {
 		const detect = async () => {
-			if (!humanRef.current || !videoRef.current || !canvasRef.current) return;
-			await humanRef.current.detect(videoRef.current);
-			const now = humanRef.current.now();
-			fpsRef.current = 1000 / (now - timestampRef.current);
-			timestampRef.current = now;
-			setFrame((prevFrame) => prevFrame + 1);
+			if (!human || !videoRef.current || !canvasRef.current) return;
+
+			await human.detect(videoRef.current);
+
+			const now = human.now();
+			setFps(1000 / (now - timestamp));
+			setTimestamp(now);
+
+			setFrame(frame + 1);
 		};
 
 		if (ready) {
@@ -107,24 +126,30 @@ const RunHuman: React.FC<Props> = ({ inputId, outputId }) => {
 	if (
 		!videoRef.current ||
 		!canvasRef.current ||
-		!humanRef.current ||
-		!humanRef.current.result
+		!human ||
+		!human.result
 	)
 		return null;
 
 	if (!videoRef.current.paused) {
-		const interpolated = humanRef.current.next(humanRef.current.result);
-		humanRef.current.draw.canvas(videoRef.current, canvasRef.current);
-		humanRef.current.draw.all(canvasRef.current, interpolated);
+		const interpolated = human.next(human.result);
+
+		setAge(interpolated.face[0]?.age);
+		setGender(interpolated.face[0]?.gender);
+
+		human.draw.canvas(videoRef.current, canvasRef.current);
+		human.draw.all(canvasRef.current, interpolated);
 	}
 
 	status(
 		videoRef.current.paused
 			? "paused"
-			: `fps: ${fpsRef.current.toFixed(1).padStart(5, " ")}`,
+			: `fps: ${fps.toFixed(1).padStart(5, " ")}`,
 	);
 
-	return null;
+	return <>
+		Age: {age}, Gender: {gender}
+	</>;
 };
 
 export default RunHuman;
