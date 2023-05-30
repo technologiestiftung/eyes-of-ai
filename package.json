@@ -25,6 +25,8 @@
   },
   "homepage": "https://github.com/technologiestiftung/eyes-of-ai#readme",
   "dependencies": {
+    "@tensorflow/tfjs-node": "4.6.0",
+    "@vladmandic/human": "3.0.6",
     "dotenv": "^16.0.3",
     "next": "^13.4.3",
     "openai": "^3.2.1",

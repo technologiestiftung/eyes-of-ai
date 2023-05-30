@@ -1,14 +1,12 @@
 import * as React from "react";
 
-export const Header = () => {
+export default function Header() {
 	return (
-		<div className="flex sm:gap-5 flex-col items-center justify-center text-center pt-10">
-			<h1 className="text-5xl font-semibold pt-2">
-				Through the eyes of AI
-			</h1>
-			<p className="text-mdfont-mediumtext-xl text-center">
-				Hier findest du alle Informationen zu unserem Projekt. 
+		<div className="flex flex-col items-center justify-center pt-10 text-center sm:gap-5">
+			<h1 className="pt-2 text-5xl font-semibold">Through the eyes of AI</h1>
+			<p className="text-center text-mdfont-mediumtext-xl">
+				Hier findest du alle Informationen zu unserem Projekt.
 			</p>
 		</div>
 	);
-};
+}
