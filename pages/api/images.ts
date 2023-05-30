@@ -1,6 +1,17 @@
 import { NextRequest } from "next/server";
-import { EnvError, OpenAIError, UserError } from "../../lib/errors";
-
+import {
+	AppError,
+	AuthError,
+	EnvError,
+	OpenAIError,
+	UserError,
+} from "../../lib/errors";
+import { createClient } from "@supabase/supabase-js";
+import { decode } from "base64-arraybuffer";
+import { v4 as uuidv4 } from "uuid";
+import { Cookies } from "react-cookie";
+import { Database } from "../../lib/database";
+import { verifyCookie } from "../../lib/auth";
 // OpenAIApi does currently not work in Vercel Edge Functions as it uses Axios under the hood. So we use the api by making fetach calls directly
 export const config = {
 	runtime: "edge",
@@ -8,32 +19,77 @@ export const config = {
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_API_URL = "https://api.openai.com/v1/images/generations";
-
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 export default async (req: NextRequest) => {
+	const cookies = new Cookies(req.headers.get("cookie") ?? "");
+	const token = cookies.get("csrf");
+	let payload: unknown;
+
 	try {
+		payload = await verifyCookie(token);
+	} catch (error) {
+		if (error instanceof AuthError) {
+			const reponse = new Response(
+				JSON.stringify({ success: false, error: error.message }),
+				{
+					status: 401,
+					// headers: {
+					// cookie: `csrf=${""};`,
+					// },
+					// headers: resRateLimit.headers,
+				},
+			);
+			return reponse;
+		} else {
+			console.error(error);
+
+			const response = new Response(
+				JSON.stringify({ success: false, error: error.message }),
+				{
+					status: 500,
+					headers: {
+						cookie: `csrf=${""};`,
+					},
+					// headers: resRateLimit.headers,
+				},
+			);
+			return response;
+		}
+	}
+	try {
+		if (!SUPABASE_URL) {
+			throw new EnvError("SUPABASE_URL");
+		}
+		if (!SUPABASE_SERVICE_ROLE_KEY) {
+			throw new EnvError("SUPABASE_SERVICE_ROLE_KEY");
+		}
 		if (!OPENAI_API_KEY) {
 			throw new EnvError("OPENAI_API_KEY");
 		}
 		if (req.method !== "POST") {
 			throw new UserError("Only POST requests are allowed");
 		}
+		const supabase = createClient<Database>(
+			SUPABASE_URL,
+			SUPABASE_SERVICE_ROLE_KEY,
+		);
 
 		const body = await req.json();
 		if (!body) {
 			throw new UserError("Request body is missing");
 		}
-		console.log(body);
 		const { prompt } = body;
 		if (!prompt) {
 			throw new UserError("Prompt is missing");
 		}
 
-		return new Response(
-			JSON.stringify({ error: "api route not ready for deploy." }),
-			{
-				status: 201,
-			},
-		);
+		// return new Response(
+		// 	JSON.stringify({ error: "api route not ready for deploy." }),
+		// 	{
+		// 		status: 201,
+		// 	},
+		// );
 
 		const response = await fetch(OPENAI_API_URL, {
 			method: "POST",
@@ -45,15 +101,47 @@ export default async (req: NextRequest) => {
 				prompt,
 				n: 1,
 				size: "512x512",
+				response_format: "b64_json",
 			}),
 		});
 		if (!response.ok) {
 			throw new OpenAIError(response.statusText);
 		}
-		const data = await response.json();
-		console.log(data);
+		const json = (await response.json()) as {
+			created: number;
+			data: { b64_json: string }[];
+		};
 
-		return new Response(JSON.stringify(data), {
+		const imageId = uuidv4();
+		const { data: uploadData, error: uploadError } = await supabase.storage
+			.from("eotai_images")
+			.upload(`test/${imageId}.png`, decode(json.data[0].b64_json), {
+				contentType: "image/png",
+			});
+
+		if (uploadError) {
+			throw new AppError(uploadError.message);
+		}
+		if (!uploadData) {
+			throw new AppError("Upload failed");
+		}
+
+		const { data: publicImageUrl } = supabase.storage
+			.from("eotai_images")
+			.getPublicUrl(`test/${imageId}.png`);
+
+		const { data: metaData, error: metaError } = await supabase
+			.from("eotai_images")
+			.insert({ id: imageId, prompt: prompt, url: publicImageUrl.publicUrl })
+			.select("*");
+		if (metaError) {
+			throw new AppError(metaError.message);
+		}
+		if (!metaData) {
+			throw new AppError("Insert into database failed");
+		}
+
+		return new Response(JSON.stringify({ data: metaData[0] }), {
 			status: 201,
 			headers: {
 				"Content-Type": "application/json",
