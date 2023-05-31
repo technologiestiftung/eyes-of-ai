@@ -1,6 +1,7 @@
 import {create} from "zustand";
-import {Human} from "@vladmandic/human";
+import {Human, Result} from "@vladmandic/human";
 
+const HISTORY_SIZE_LIMIT = 9
 
 export type EyesOfAIStore = {
   ready: boolean;
@@ -18,15 +19,17 @@ export type EyesOfAIStore = {
   human: Human | undefined;
   setHuman: (human: Human | undefined) => void;
 
-  age: number,
-  setAge: (age: number) => void,
+  result: Partial<Result> | undefined;
+  setResult: (result: Partial<Result>) => void;
 
-  gender: string,
-  setGender: (gender: string) => void,
+  resultHistory: Partial<Result>[];
+  appendAndShiftResultHistory: (result: Partial<Result>) => void;
+
+  trigger: boolean;
+  checkIfShouldTrigger: () => void;
 }
 
-
-export const useEyesOfAIStore = create<EyesOfAIStore>()((set) => ({
+export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
   ready: false,
   setReady: (ready) => set(() => ({ ready })),
 
@@ -42,9 +45,64 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set) => ({
   human: undefined,
   setHuman: (human) => set(() => ({ human })),
 
-  age: 0,
-  setAge: (age) => set(() => ({age})),
+  result: undefined,
+  setResult: (result) => set(() => ({result })),
 
-  gender: '',
-  setGender: (gender) => set(() => ({gender})),
+  resultHistory: [],
+  appendAndShiftResultHistory: (result) => {
+    const resultHistory = get().resultHistory.slice(0);
+
+    if (resultHistory.length > HISTORY_SIZE_LIMIT) {
+      resultHistory.shift();
+    }
+
+    resultHistory.push(result)
+
+    set(() => ({ resultHistory }));
+  },
+
+  trigger: false,
+  checkIfShouldTrigger: () => {
+    const resultHistory = get().resultHistory;
+    const currentResult = get().result;
+
+    if (!hasConsistentlyOneFace(currentResult, resultHistory)) {
+      set(() => ({ trigger: false }));
+      return;
+    }
+
+    const ageSum = resultHistory.reduce(
+      (ageAccumulator, result) => ageAccumulator + (result.face[0]?.age ?? 0),
+      0
+    );
+    const ageAverage = Number((ageSum / resultHistory.length).toFixed(2));
+
+    const currentAge = currentResult.face[0].age;
+
+    const diff = Number(Math.abs(currentAge - ageAverage).toFixed(2));
+    const maxDiff = Number((currentAge * 0.1).toFixed(2));
+
+    if (diff > maxDiff) {
+      set(() => ({ trigger: false }));
+      return;
+    }
+
+    set(() => ({ trigger: true }))
+  }
 }))
+
+function hasConsistentlyOneFace(currentResult: Partial<Result>, resultHistory: Partial<Result>[]) {
+  if (currentResult.face.length === 0) {
+    return false;
+  }
+
+  if (!currentResult.face[0]?.age) {
+    return false;
+  }
+
+  if (resultHistory.length === 0) {
+    return false;
+  }
+
+  return resultHistory.length < HISTORY_SIZE_LIMIT ||resultHistory.every((result) => result.face.length === currentResult.face.length);
+}
