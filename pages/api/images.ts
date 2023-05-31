@@ -11,7 +11,6 @@ import { decode } from "base64-arraybuffer";
 import { v4 as uuidv4 } from "uuid";
 import { Cookies } from "react-cookie";
 import { Database } from "../../lib/database";
-import { verifyCookie } from "../../lib/auth";
 // OpenAIApi does currently not work in Vercel Edge Functions as it uses Axios under the hood. So we use the api by making fetach calls directly
 export const config = {
 	runtime: "edge",
@@ -22,41 +21,43 @@ const OPENAI_API_URL = "https://api.openai.com/v1/images/generations";
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 export default async (req: NextRequest) => {
-	const cookies = new Cookies(req.headers.get("cookie") ?? "");
-	const token = cookies.get("csrf");
+	// const cookies = new Cookies(req.headers.get("cookie") ?? "");
+	// const token = cookies.get("csrf");
+	console.log("req.headers", req.headers);
 	let payload: unknown;
 
-	try {
-		payload = await verifyCookie(token);
-	} catch (error) {
-		if (error instanceof AuthError) {
-			const reponse = new Response(
-				JSON.stringify({ success: false, error: error.message }),
-				{
-					status: 401,
-					// headers: {
-					// cookie: `csrf=${""};`,
-					// },
-					// headers: resRateLimit.headers,
-				},
-			);
-			return reponse;
-		} else {
-			console.error(error);
+	//TODO: DONT REMOVE might be needed for rate limiting
+	// try {
+	// 	payload = await verifyCookie(token);
+	// } catch (error) {
+	// 	if (error instanceof AuthError) {
+	// 		const reponse = new Response(
+	// 			JSON.stringify({ success: false, error: error.message }),
+	// 			{
+	// 				status: 401,
+	// 				// headers: {
+	// 				// cookie: `csrf=${""};`,
+	// 				// },
+	// 				// headers: resRateLimit.headers,
+	// 			},
+	// 		);
+	// 		return reponse;
+	// 	} else {
+	// 		console.error(error);
 
-			const response = new Response(
-				JSON.stringify({ success: false, error: error.message }),
-				{
-					status: 500,
-					headers: {
-						cookie: `csrf=${""};`,
-					},
-					// headers: resRateLimit.headers,
-				},
-			);
-			return response;
-		}
-	}
+	// 		const response = new Response(
+	// 			JSON.stringify({ success: false, error: error.message }),
+	// 			{
+	// 				status: 500,
+	// 				headers: {
+	// 					cookie: `csrf=${""};`,
+	// 				},
+	// 				// headers: resRateLimit.headers,
+	// 			},
+	// 		);
+	// 		return response;
+	// 	}
+	// }
 	try {
 		if (!SUPABASE_URL) {
 			throw new EnvError("SUPABASE_URL");
@@ -120,6 +121,7 @@ export default async (req: NextRequest) => {
 			});
 
 		if (uploadError) {
+			console.error(uploadError);
 			throw new AppError(uploadError.message);
 		}
 		if (!uploadData) {
