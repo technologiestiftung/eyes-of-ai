@@ -1,71 +1,48 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import type { Human, Config } from "@vladmandic/human";
-import { log, status } from "../lib/logging";
+import { status } from "../lib/logging";
+import {useEyesOfAIStore} from "../store";
 
 const config: Partial<Config> = {
 	debug: false,
-	modelBasePath: "https://cdn.jsdelivr.net/npm/@vladmandic/human/models",
-	face: { enabled: true },
+	modelBasePath: "https://cdn.jsdelivr.net/gh/vladmandic/human-models/models/",
+	face: { enabled: true, attention: { enabled: true } },
 	body: { enabled: false },
 	hand: { enabled: false },
 	object: { enabled: false },
 };
 
 interface Props {
-	inputId: string;
-	outputId: string;
+	videoRef: React.MutableRefObject<HTMLVideoElement>;
+	canvasRef: React.MutableRefObject<HTMLCanvasElement>;
 }
 
-const RunHuman: React.FC<Props> = ({ inputId, outputId }) => {
-	const [ready, setReady] = useState(false);
-	const [frame, setFrame] = useState(0);
-	const timestampRef = useRef(0);
-	const fpsRef = useRef(0);
+const RunHuman: React.FC<Props> = ({ videoRef, canvasRef }) => {
+	const ready = useEyesOfAIStore((state) => state.ready);
+	const setReady = useEyesOfAIStore((state) => state.setReady);
 
-	const HumanImport = useRef<any>(null);
-	const humanRef = useRef<Human | undefined>(undefined);
-	const videoRef = useRef<HTMLVideoElement | undefined>(undefined);
-	const canvasRef = useRef<HTMLCanvasElement | undefined>(undefined);
+	const human = useEyesOfAIStore((state) => state.human);
+	const setHuman = useEyesOfAIStore((state) => state.setHuman);
+
+	const result = useEyesOfAIStore((state) => state.result);
+	const setResult = useEyesOfAIStore((state) => state.setResult);
+
+	const trigger = useEyesOfAIStore((state) => state.trigger);
+	const checkIfShouldTrigger = useEyesOfAIStore((state) => state.checkIfShouldTrigger);
+
+	const appendAndShiftResultHistory = useEyesOfAIStore((state) => state.appendAndShiftResultHistory);
 
 	useEffect(() => {
 		if (typeof document === "undefined") return;
-		videoRef.current =
-			(document.getElementById(inputId) as HTMLVideoElement | undefined) ||
-			document.createElement("video");
-		canvasRef.current =
-			(document.getElementById(outputId) as HTMLCanvasElement | undefined) ||
-			document.createElement("canvas");
 
 		import("@vladmandic/human").then((H) => {
-			humanRef.current = new H.default(config) as Human;
-			log(
-				"human version:",
-				humanRef.current.version,
-				"| tfjs version:",
-				humanRef.current.tf.version["tfjs-core"],
-			);
-			log(
-				"platform:",
-				humanRef.current.env.platform,
-				"| agent:",
-				humanRef.current.env.agent,
-			);
+			const newHuman = new H.default(config) as Human;
+			setHuman(newHuman);
+			console.log('config:', newHuman.config);
 			status("loading models...");
-			humanRef.current.load().then(() => {
-				log(
-					"backend:",
-					humanRef.current!.tf.getBackend(),
-					"| available:",
-					humanRef.current!.env.backends,
-				);
-				log(
-					"loaded models:" +
-						Object.values(humanRef.current!.models).filter(
-							(model) => model !== null,
-						).length,
-				);
+			newHuman.load().then(() => {
 				status("initializing...");
-				humanRef.current!.warmup().then(() => {
+				newHuman.warmup().then(() => {
 					setReady(true);
 					status("ready...");
 				});
@@ -74,57 +51,57 @@ const RunHuman: React.FC<Props> = ({ inputId, outputId }) => {
 	}, []);
 
 	useEffect(() => {
-		if (videoRef.current) {
-			videoRef.current.onresize = () => {
-				canvasRef.current!.width = videoRef.current!.videoWidth;
-				canvasRef.current!.height = videoRef.current!.videoHeight;
-			};
-		}
-		if (canvasRef.current) {
-			canvasRef.current.onclick = () => {
-				videoRef.current?.paused
-					? videoRef.current?.play()
-					: videoRef.current?.pause();
-			};
-		}
-	}, []);
+		let timestamp = 0;
+		let fps = 0;
 
-	useEffect(() => {
 		const detect = async () => {
-			if (!humanRef.current || !videoRef.current || !canvasRef.current) return;
-			await humanRef.current.detect(videoRef.current);
-			const now = humanRef.current.now();
-			fpsRef.current = 1000 / (now - timestampRef.current);
-			timestampRef.current = now;
-			setFrame((prevFrame) => prevFrame + 1);
+			if (!human || !videoRef.current || !canvasRef.current) return;
+
+			await human.detect(videoRef.current);
+
+			const now = human.now();
+			fps = (1000 / (now - timestamp));
+			timestamp = now;
+
+			status(
+				videoRef.current.paused
+					? "paused"
+					: `fps: ${fps.toFixed(1).padStart(5, " ")}`,
+			);
+
+			if (!videoRef.current.paused) {
+				const interpolated = human.next(human.result);
+
+				setResult({ face: interpolated.face, gesture: interpolated.gesture });
+				appendAndShiftResultHistory({ face: interpolated.face, gesture: interpolated.gesture });
+
+				checkIfShouldTrigger();
+
+				human.draw.canvas(videoRef.current, canvasRef.current);
+				human.draw.all(canvasRef.current, interpolated);
+			}
+
+			detect();
 		};
 
 		if (ready) {
 			detect();
 		}
-	}, [ready, frame]);
+	}, [ready]);
 
-	if (
-		!videoRef.current ||
-		!canvasRef.current ||
-		!humanRef.current ||
-		!humanRef.current.result
-	)
-		return null;
-
-	if (!videoRef.current.paused) {
-		const interpolated = humanRef.current.next(humanRef.current.result);
-		humanRef.current.draw.canvas(videoRef.current, canvasRef.current);
-		humanRef.current.draw.all(canvasRef.current, interpolated);
-	}
-
-	status(
-		videoRef.current.paused
-			? "paused"
-			: `fps: ${fpsRef.current.toFixed(1).padStart(5, " ")}`,
-	);
-
-	return null;
+	return <>
+		{
+			result?.face.map((face) => (
+				<div key={face.age}>
+					Age: {face.age},
+					Gender: {face.gender},
+					Emotions: {face.emotion.map(({emotion, score}) => `${score*100}% ${emotion}`).join(', ')},
+					Gestures: {result.gesture.map(({ gesture }) => gesture).join(', ')}
+				</div>
+			))
+		}
+		Snapshot: {trigger ? 'yes' : 'no'}
+	</>;
 };
 
 export default RunHuman;
