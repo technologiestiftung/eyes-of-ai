@@ -7,8 +7,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 	// const csrfToken = await createToken();
 
 	const token = context.res.req.headers["x-csrf-token"] as string;
-	const cookies = new Cookies();
-	cookies.set("edge-csrf", token);
+	// const cookies = new Cookies();
+	// cookies.set("edge-csrf", token);
 	return { props: { csrf: token } };
 };
 const ApiExplorer: React.FC<
@@ -29,7 +29,6 @@ const ApiExplorer: React.FC<
 				},
 				body: JSON.stringify({
 					prompt: prompt,
-					csrf_token: csrf,
 				}),
 			});
 			if (!response.ok) {
