@@ -9,16 +9,19 @@ import path from "node:path";
 async function main() {
 	const __filename = fileURLToPath(import.meta.url);
 	const __dirname = path.dirname(__filename);
-	const SUPABASE_URL = process.env.SUPABASE_URL;
+	const NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 	const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-	if (!SUPABASE_URL) {
-		throw new EnvError("SUPABASE_URL");
+	if (!NEXT_PUBLIC_SUPABASE_URL) {
+		throw new EnvError("NEXT_PUBLIC_SUPABASE_URL");
 	}
 	if (!SUPABASE_SERVICE_ROLE_KEY) {
 		throw new EnvError("SUPABASE_SERVICE_ROLE_KEY");
 	}
 	// Create a single supabase client for interacting with your database
-	const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+	const supabase = createClient(
+		NEXT_PUBLIC_SUPABASE_URL,
+		SUPABASE_SERVICE_ROLE_KEY,
+	);
 
 	const { data: getData, error: getError } = await supabase.storage.getBucket(
 		"avatars",
