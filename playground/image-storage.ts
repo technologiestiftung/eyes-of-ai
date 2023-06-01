@@ -26,12 +26,12 @@ async function main() {
 
 	console.log(getData, getError);
 
-	// const contents = await readFile(
-	// 	path.resolve(__dirname, "./image-base64"),
-	// 	"utf8",
-	// );
+	const contents = await readFile(
+		path.resolve(__dirname, "./image-base64"),
+		"utf8",
+	);
 
-	const { data, error } = await supabase.storage
+	const { data: uploadData, error: uploadError } = await supabase.storage
 		.from("avatars")
 		.upload("public/avatar1.png", decode(contents), {
 			contentType: "image/png",
