@@ -18,7 +18,7 @@ export const config = {
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_API_URL = "https://api.openai.com/v1/images/generations";
-const SUPABASE_URL = process.env.SUPABASE_URL;
+const NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 export default async (req: NextRequest) => {
 	// const cookies = new Cookies(req.headers.get("cookie") ?? "");
@@ -59,8 +59,8 @@ export default async (req: NextRequest) => {
 	// 	}
 	// }
 	try {
-		if (!SUPABASE_URL) {
-			throw new EnvError("SUPABASE_URL");
+		if (!NEXT_PUBLIC_SUPABASE_URL) {
+			throw new EnvError("NEXT_PUBLIC_SUPABASE_URL");
 		}
 		if (!SUPABASE_SERVICE_ROLE_KEY) {
 			throw new EnvError("SUPABASE_SERVICE_ROLE_KEY");
@@ -72,7 +72,7 @@ export default async (req: NextRequest) => {
 			throw new UserError("Only POST requests are allowed");
 		}
 		const supabase = createClient<Database>(
-			SUPABASE_URL,
+			NEXT_PUBLIC_SUPABASE_URL,
 			SUPABASE_SERVICE_ROLE_KEY,
 		);
 
