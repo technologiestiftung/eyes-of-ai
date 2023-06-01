@@ -1,45 +1,58 @@
 {
-  "name": "eyes-of-ai",
-  "version": "1.0.0",
-  "description": "An OpenAI-based prototype that uses the Dall-E API to create parametrically personalized image of it's users.",
-  "main": "index.js",
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/technologiestiftung/eyes-of-ai.git"
-  },
-  "keywords": [
-    "ai",
-    "api",
-    "dall-e"
-  ],
-  "author": "Technologiestiftung Berlin",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/technologiestiftung/eyes-of-ai/issues"
-  },
-  "homepage": "https://github.com/technologiestiftung/eyes-of-ai#readme",
-  "dependencies": {
-    "@tensorflow/tfjs-node": "4.6.0",
-    "@vladmandic/human": "3.0.6",
-    "dotenv": "^16.0.3",
-    "next": "^13.4.3",
-    "openai": "^3.2.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "zustand": "4.3.8"
-  },
-  "devDependencies": {
-    "@types/node": "20.2.3",
-    "@types/react": "18.2.6",
-    "autoprefixer": "^10.4.14",
-    "postcss": "^8.4.23",
-    "tailwindcss": "^3.3.2",
-    "typescript": "5.0.4"
-  }
+	"name": "eyes-of-ai",
+	"version": "1.0.0",
+	"private": true,
+	"description": "An OpenAI-based prototype that uses the Dall-E API to create parametrically personalized image of it's users.",
+	"main": "index.js",
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "next lint",
+		"test": "vitest"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/technologiestiftung/eyes-of-ai.git"
+	},
+	"keywords": [
+		"ai",
+		"api",
+		"dall-e"
+	],
+	"author": "Technologiestiftung Berlin",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/technologiestiftung/eyes-of-ai/issues"
+	},
+	"homepage": "https://github.com/technologiestiftung/eyes-of-ai#readme",
+	"dependencies": {
+		"@tensorflow/tfjs-node": "4.6.0",
+		"@vladmandic/human": "3.0.6",
+		"dotenv": "16.0.3",
+		"next": "13.4.3",
+		"openai": "3.2.1",
+		"react": "18.2.0",
+		"react-dom": "18.2.0",
+		"zustand": "4.3.8",
+		"react-cookie": "4.1.1",
+		"@supabase/supabase-js": "2.24.0",
+		"edge-csrf": "1.0.3",
+		"uuid": "9.0.0",
+		"base64-arraybuffer": "1.0.2"
+	},
+	"devDependencies": {
+		"@testing-library/react": "14.0.0",
+		"@types/uuid": "9.0.1",
+		"@vitejs/plugin-react": "4.0.0",
+		"jsdom": "22.1.0",
+		"tsx": "3.12.7",
+		"@types/node": "20.2.3",
+		"@types/react": "18.2.6",
+		"autoprefixer": "10.4.14",
+		"postcss": "8.4.23",
+		"tailwindcss": "3.3.2",
+		"typescript": "5.0.4",
+		"vitest": "0.31.2"
+	}
 }

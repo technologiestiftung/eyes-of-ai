@@ -1,0 +1,39 @@
+/*
+# Default request to our instance of Supabase
+
+*/
+GET {{NEXT_PUBLIC_SUPABASE_URL}}/rest/v1/
+apikey: {{NEXT_PUBLIC_SUPABASE_ANON_KEY}}
+
+HTTP/1.1 200  - OK
+date: Wed, 31 May 2023 17:07:33 GMT
+server: postgrest/10.1.2
+content-type: application/openapi+json; charset=utf-8
+content-profile: public
+access-control-allow-origin: *
+x-kong-upstream-latency: 23
+x-kong-proxy-latency: 3
+via: kong/2.8.1
+connection: close
+transfer-encoding: chunked
+/*
+
+*/
+###
+GET {{NEXT_PUBLIC_SUPABASE_URL}}/rest/v1/eotai_images
+apikey: {{NEXT_PUBLIC_SUPABASE_ANON_KEY}}
+
+HTTP/1.1 200  - OK
+date: Wed, 31 May 2023 18:59:35 GMT
+server: postgrest/10.1.2
+content-type: application/json; charset=utf-8
+content-range: 0-8/*
+content-location: /eotai_images
+content-profile: public
+access-control-allow-origin: *
+x-kong-upstream-latency: 3
+x-kong-proxy-latency: 2
+via: kong/2.8.1
+connection: close
+transfer-encoding: chunked
+###

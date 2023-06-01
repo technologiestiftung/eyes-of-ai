@@ -15,3 +15,15 @@ export class OpenAIError extends Error {
 		super(`[OpenAIError]: ${message}`);
 	}
 }
+
+export class AppError extends Error {
+	constructor(message: string) {
+		super(`[AppError]: ${message}`);
+	}
+}
+
+export class AuthError extends Error {
+	constructor(message: string) {
+		super(`[AuthError]: ${message}`);
+	}
+}

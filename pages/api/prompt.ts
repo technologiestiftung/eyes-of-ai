@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { Collection } from "../../lib/collection";
 import { UserError } from "../../lib/errors";
-import { ifError } from "assert";
+import { calcGender } from "../../lib/properties";
 
 export const config = {
 	runtime: "edge",
@@ -14,6 +14,16 @@ const imageTypes = new Collection([
 	"event image",
 	"landscape image",
 	"still life imgae",
+]);
+const gazeDirections = new Collection([
+	"looking left",
+	"looking right",
+	"looking up",
+	"looking down",
+	"with closed eyes",
+	"looking away",
+	"looking at the viewer",
+	"looking at something outside the frame",
 ]);
 const materials = new Collection([
 	"oil painting",
@@ -105,15 +115,19 @@ export default async (req: NextRequest) => {
 		if (!body) {
 			throw new UserError("Request body is missing");
 		}
-		const { age, gender } = body;
+		const { age, gender } = body as {
+			age: number;
+			gender: { male: number; female: number };
+		};
 		if (!age) {
 			throw new UserError("`age` is missing");
 		}
 		if (!gender) {
 			throw new UserError("`gender` is missing");
 		}
+		const calculatedGender = calcGender(gender);
 
-		const prompt = `A ${adjectives.random()} ${expressions.random()} ${materials.random()} of an ${age} year old ${gender}, ${styles.random()}, ${colors.random()}`;
+		const prompt = `A ${adjectives.random()} ${materials.random()} of an ${age} year old ${expressions.random()} ${calculatedGender} ${gazeDirections.random()}, ${styles.random()}, ${colors.random()}`;
 
 		return new Response(JSON.stringify({ prompt }), {
 			status: 200,

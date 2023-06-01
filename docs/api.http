@@ -1,0 +1,14 @@
+# @no-cookie-jar
+POST http://localhost:3000/api/images
+Content-Type: application/json
+Accept: application/json
+
+{"prompt":"A lovely scared collage of an 44 year old male, synthwave, black and white"}
+
+HTTP/1.1 403  - Forbidden
+content-type: text/plain;charset=UTF-8
+date: Wed, 31 May 2023 16:58:26 GMT
+vary: Accept-Encoding
+content-encoding: gzip
+connection: close
+transfer-encoding: chunked
