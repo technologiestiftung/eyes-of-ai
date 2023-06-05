@@ -1,30 +1,37 @@
 import { NextRequest } from "next/server";
 import { Collection } from "../../lib/collection";
 import { UserError } from "../../lib/errors";
-import { calcGender } from "../../lib/properties";
+import { Emotion, FaceGesture, IrisGesture } from "@vladmandic/human";
+import { createValidator } from "../../lib/validation";
+
+export interface Body {
+	age: number;
+	gender: "male" | "female" | "non-binary";
+	emotions: Emotion[];
+	// TODO: What is going wrong with these typings?
+	gestures: (IrisGesture | FaceGesture | string)[];
+}
+
+const promptSchema = {
+	$schema: "http://json-schema.org/draft-07/schema#",
+	type: "object",
+	properties: {
+		age: { type: "number" },
+		gender: {
+			type: "string",
+			enum: ["male", "female", "non-binary"],
+		},
+		emotions: { type: "array", items: { type: "string" } },
+		gestures: { type: "array", items: { type: "string" } },
+	},
+	required: ["age", "gender", "emotions", "gestures"],
+	additionalProperties: false,
+};
 
 export const config = {
 	runtime: "edge",
 };
 
-const imageTypes = new Collection([
-	"portrait",
-	"candid image",
-	"documentary image",
-	"event image",
-	"landscape image",
-	"still life imgae",
-]);
-const gazeDirections = new Collection([
-	"looking left",
-	"looking right",
-	"looking up",
-	"looking down",
-	"with closed eyes",
-	"looking away",
-	"looking at the viewer",
-	"looking at something outside the frame",
-]);
 const materials = new Collection([
 	"oil painting",
 	"crayon drawing",
@@ -45,7 +52,7 @@ const styles = new Collection([
 	"concept art",
 	"abstract art",
 	"photography",
-	"pixel art",
+	"pixel art", // looks great
 	"synthwave",
 	"abstract",
 	"conceptual",
@@ -83,25 +90,6 @@ const colors = new Collection([
 	"infra-red",
 ]);
 
-const expressions = new Collection([
-	"happy",
-	"sad",
-	"angry",
-	"confused",
-	"surprised",
-	"scared",
-]);
-
-const adjectives = new Collection([
-	"expressive",
-	"pale",
-	"rainy",
-	"lovely",
-	"cute",
-]);
-const ages = new Collection([32, 42, 55, 65, 78, 90].map(String));
-const gender = new Collection(["male", "female", "non-binary"]);
-
 export default async (req: NextRequest) => {
 	try {
 		if (req.method !== "POST") {
@@ -111,23 +99,36 @@ export default async (req: NextRequest) => {
 			throw new UserError("Request body is missing");
 		}
 		const body = await req.json();
-		console.log(body);
 		if (!body) {
 			throw new UserError("Request body is missing");
 		}
-		const { age, gender } = body as {
-			age: number;
-			gender: { male: number; female: number };
-		};
-		if (!age) {
-			throw new UserError("`age` is missing");
-		}
-		if (!gender) {
-			throw new UserError("`gender` is missing");
-		}
-		const calculatedGender = calcGender(gender);
 
-		const prompt = `A ${adjectives.random()} ${materials.random()} of an ${age} year old ${expressions.random()} ${calculatedGender} ${gazeDirections.random()}, ${styles.random()}, ${colors.random()}`;
+		const validate = createValidator(promptSchema);
+		const valid = validate(body);
+		if (!valid) {
+			throw new UserError(
+				`Request body is invalid ${validate.errors
+					.map((error) => `${error.instancePath} ${error.message}`)
+					.join(", ")}`,
+			);
+		}
+
+		const validBody = body as Body;
+		const { age, gender, emotions, gestures } = validBody;
+		const gestureCollection = new Collection(
+			gestures.map((g) => {
+				return g.match(/^mouth \d{1,3}% open$/) ? "with open mouth" : g;
+			}),
+		);
+		const formatter = new Intl.ListFormat("en", {
+			style: "long",
+			type: "conjunction",
+		});
+		const prompt = `A ${materials.random()} of a ${Math.floor(
+			age,
+		)} year old ${formatter.format(
+			emotions,
+		)} looking ${gender}, ${gestureCollection.random()}, ${styles.random()}, ${colors.random()}`;
 
 		return new Response(JSON.stringify({ prompt }), {
 			status: 200,
@@ -135,10 +136,21 @@ export default async (req: NextRequest) => {
 				"Content-Type": "application/json",
 			},
 		});
-	} catch (error) {
-		console.error(error);
-		return new Response(JSON.stringify({ error: error.message }), {
-			status: 500,
-		});
+	} catch (error: unknown) {
+		if (error instanceof UserError) {
+			return new Response(JSON.stringify({ error: error.message }), {
+				status: 400,
+			});
+		} else if (error instanceof Error) {
+			console.error(error);
+			return new Response(JSON.stringify({ error: error.message }), {
+				status: 500,
+			});
+		} else {
+			console.error(error);
+			return new Response(JSON.stringify({ error: "Unknown error" }), {
+				status: 500,
+			});
+		}
 	}
 };
