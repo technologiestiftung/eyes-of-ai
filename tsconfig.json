@@ -27,7 +27,8 @@
     "next-env.d.ts",
     ".next/types/**/*.ts",
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "lib/validate_prompt.js"
   ],
   "exclude": [
     "node_modules"

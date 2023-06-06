@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { Collection } from "../../lib/collection";
 import { UserError } from "../../lib/errors";
 import { Emotion, FaceGesture, IrisGesture } from "@vladmandic/human";
-import { createValidator } from "../../lib/validation";
+import { Prompt } from "../../lib/validate-prompt";
 
 export interface Body {
 	age: number;
@@ -103,11 +103,12 @@ export default async (req: NextRequest) => {
 			throw new UserError("Request body is missing");
 		}
 
-		const validate = createValidator(promptSchema);
-		const valid = validate(body);
-		if (!valid) {
+		const validatePrompt = Prompt;
+
+		if (!validatePrompt(body)) {
 			throw new UserError(
-				`Request body is invalid ${validate.errors
+				// @ts-expect-error
+				`Request body is invalid ${validatePrompt.errors
 					.map((error) => `${error.instancePath} ${error.message}`)
 					.join(", ")}`,
 			);
