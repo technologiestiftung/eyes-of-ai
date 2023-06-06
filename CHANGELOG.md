@@ -1,3 +1,20 @@
+# [1.1.0](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.0.0...v1.1.0) (2023-06-06)
+
+
+### Bug Fixes
+
+* **seed:** Add bucket creation to seed ([1042140](https://github.com/technologiestiftung/eyes-of-ai/commit/1042140d1adf781e8cbad68da9225babfca2da9f))
+* **validation:** ajv does not work in edge runtime ([b262c67](https://github.com/technologiestiftung/eyes-of-ai/commit/b262c676e7a0b262da98bf0de15214313155cda8))
+
+
+### Features
+
+* **api explorer:** Make explorer embeddable ([f360cbb](https://github.com/technologiestiftung/eyes-of-ai/commit/f360cbb1dc7e8091d19b62a2f4321e10a3676813))
+* **csrf:** Use csrf tokens ([4b08026](https://github.com/technologiestiftung/eyes-of-ai/commit/4b08026a49a26801bf5d3766c6fd2da88535cd32))
+* **image grid:** Use stored images ([63e46db](https://github.com/technologiestiftung/eyes-of-ai/commit/63e46db5316c578898620f31433b75d8cfce59ac))
+* **prompt:** Use Human result as input ([a8c096b](https://github.com/technologiestiftung/eyes-of-ai/commit/a8c096b025b1ddf841b63918ebdbdd9fc6cb08a2))
+* **prompt:** Validate POST body with ajv ([e9dc975](https://github.com/technologiestiftung/eyes-of-ai/commit/e9dc975d3bb5710453e1f193c1e80b9954f68caf))
+
 # 1.0.0 (2023-06-01)
 
 
