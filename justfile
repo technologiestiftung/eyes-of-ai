@@ -9,3 +9,21 @@ migration:
 
 types:
 	gen types typescript --db-url $DATABASE_URL > lib/database.ts
+
+backup_images:
+	mkdir -p ./storage/stub/
+	mkdir /tmp/sync_temp
+	docker cp supabase_storage_eyes-of-ai:/var/lib/storage/ /tmp/sync_temp/
+	rsync --archive --verbose --update /tmp/sync_temp/ ./storage/stub/
+	rm -rf /tmp/sync_temp/
+
+restore_images:
+	docker cp ./storage/stub supabase_storage_eyes-of-ai:/var/lib/storage/
+
+
+backup_db:
+	mkdir -p backup
+	pg_dump -d $DATABASE_URL --data-only --no-owner -t public.eotai_images -t storage.objects -f backup/backup.sql
+
+restore_db:
+	psql -d $DATABASE_URL -f backup/backup.sql
