@@ -1,14 +1,18 @@
 ![](https://img.shields.io/badge/Built%20with%20%E2%9D%A4%EF%B8%8F-at%20Technologiestiftung%20Berlin-blue)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 # Through the eyes of AI
+
 An OpenAI-based prototype that uses the Dall-E API to create parametrically personalized image of it's users.
 More info coming soon...
 
 ## Small Housekeeping TO DOs
+
 - [ ] Do you want to honor all kinds of contributions? Use [all-contributors](https://allcontributors.org/)
 
 ```bash
@@ -29,13 +33,51 @@ You can use it on GitHub just by commenting on PRs and issues:
 
 You'll need an OpenAI API Key. In order to recieve one create an OpenAI account, log into it, create an API key and copy and paste it into your `.env` file
 
-## Installation 
+## Installation
 
 Run `npm install`
 
 ## Development
 
-Run `npm rund dev`
+Start your local supabase project
+
+Run `supabase start`
+
+Prepare your database:
+
+```sql
+
+insert into storage.buckets
+  (id, name)
+values
+  ('eotai_images', 'eotai_images');
+
+create policy "Public Access"
+  on storage.objects for select
+  using ( bucket_id = 'eotai_images' );
+
+update "storage".buckets set "public" = TRUE where buckets.id = 'eotai_images';
+
+create table public.eotai_images(
+	id uuid not null primary key,
+	created_at timestamp not null default now(),
+	prompt text not null
+);
+
+alter table eotai_images add COLUMN url text;
+
+alter table "public".eotai_images enable row level security;
+
+create policy "Enable read access for all users"
+on "public".eotai_images
+as permissive
+for select
+to public
+using (true);
+
+```
+
+Run `npm run dev`
 
 ## Contributors
 

@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Cookies } from "react-cookie";
 import { Database } from "../../lib/database";
 // OpenAIApi does currently not work in Vercel Edge Functions as it uses Axios under the hood. So we use the api by making fetach calls directly
+
 export const config = {
 	runtime: "edge",
 };

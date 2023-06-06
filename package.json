@@ -6,6 +6,7 @@
 	"main": "index.js",
 	"scripts": {
 		"dev": "next dev",
+		"prebuild": "node scripts/generate-prompt-validator.js",
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
@@ -48,6 +49,8 @@
 		"@types/react": "18.2.6",
 		"@types/uuid": "9.0.1",
 		"@vitejs/plugin-react": "4.0.0",
+		"ajv": "8.12.0",
+		"ajv-cli": "5.0.0",
 		"autoprefixer": "10.4.14",
 		"jsdom": "22.1.0",
 		"postcss": "8.4.23",

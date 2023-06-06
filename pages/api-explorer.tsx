@@ -1,19 +1,17 @@
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { useEffect, useState } from "react";
-import { Cookies } from "react-cookie";
+import { useEyesOfAIStore } from "../store";
+import { Emotion, FaceGesture, IrisGesture } from "@vladmandic/human";
+import { Body } from "./api/prompt";
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-	// const csrfToken = cookies.get("csrf") ?? "";
-	// const csrfToken = await createToken();
+const ApiExplorer: React.FC<{ csrf: string }> = ({ csrf }) => {
+	const result = useEyesOfAIStore((state) => state.result);
 
-	const token = context.res.req.headers["x-csrf-token"] as string;
-	// const cookies = new Cookies();
-	// cookies.set("edge-csrf", token);
-	return { props: { csrf: token } };
-};
-const ApiExplorer: React.FC<
-	InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ csrf }) => {
+	useEffect(() => {
+		if (result) {
+			console.log("result:", result);
+		}
+	}, [result]);
+
 	const createImage: () => Promise<void> = async () => {
 		if (prompt === "") {
 			setApiData({ prompt: "Please enter a prompt" });
@@ -47,21 +45,29 @@ const ApiExplorer: React.FC<
 		}
 	};
 	const createPrompt: () => Promise<void> = async () => {
+		const gestures = result.gesture.map((item) => item.gesture);
+		const emotions = result.face[0].emotion.map((e) => e.emotion);
+		const age = result.face[0].age;
+
+		const gender =
+			result.face[0].gender === "unknown" || result.face[0].genderScore < 0.6
+				? "non-binary"
+				: result.face[0].gender;
 		const randomGenderPercentage = Math.floor(Math.random() * 100);
 		try {
+			const body: Body = {
+				age,
+				gender,
+				emotions,
+				gestures,
+			};
 			const response = await fetch("/api/prompt", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 					"X-CSRF-Token": csrf,
 				},
-				body: JSON.stringify({
-					age: Math.floor(Math.random() * 100),
-					gender: {
-						male: randomGenderPercentage,
-						female: 100 - randomGenderPercentage,
-					},
-				}),
+				body: JSON.stringify(body),
 			});
 			if (!response.ok) {
 				const txt = await response.json();
@@ -91,7 +97,7 @@ const ApiExplorer: React.FC<
 	}, [apiData]);
 
 	return (
-		<main className="flex flex-col items-center justify-center h-screen mx-auto my-0">
+		<div className="flex flex-col items-center justify-center h-screen mx-auto my-0">
 			<h1 className="text-xl font-black">Api Explorer</h1>
 			<div className="flex flex-col self-center w-screen">
 				<form id="prompt">
@@ -154,7 +160,7 @@ const ApiExplorer: React.FC<
 					</figure>
 				)}
 			</div>
-		</main>
+		</div>
 	);
 };
 
