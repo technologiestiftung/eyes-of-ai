@@ -21,7 +21,7 @@ const Page: React.FC<
 > = ({ csrf }) => {
 	const videoRef = useRef<HTMLVideoElement | undefined>(undefined);
 	const canvasRef = useRef<HTMLCanvasElement | undefined>(undefined);
-	
+
 	const shouldTrigger = useEyesOfAIStore((state) => state.trigger);
 	const firstStillTime = useEyesOfAIStore((state) => state.firstStandStillTime);
 	const msInStill = useEyesOfAIStore((state) => state.msInStandStill);
@@ -30,13 +30,9 @@ const Page: React.FC<
 		<div>
 			<Header />
 			<div>
-				{shouldTrigger ? 'TRIGGER' : 'NO TRIGGER'}
-			</div>
-			<div>
-				{firstStillTime ? 'Stay like this' : 'Stay still'}
-			</div>
-			<div>
-				{msInStill} ms
+				<p>{shouldTrigger && 'PHOTO TRIGGERED'}</p>
+				<p>{firstStillTime ? 'Stay like this' : 'Stay still'}</p>
+				{firstStillTime && !shouldTrigger && <p>{Math.round(Math.min(100, msInStill / 2000 * 100))}%</p>}
 			</div>
 			<canvas
 				id="canvas"
@@ -70,8 +66,8 @@ const Page: React.FC<
 			{/* loads and start human using specified input video element and output canvas element */}
 			<ApiExplorer csrf={csrf} />
 
-			{/* <ImageGrid /> */}
-			{/* <Footer /> */}
+			<ImageGrid />
+			<Footer />
 		</div>
 	);
 };
