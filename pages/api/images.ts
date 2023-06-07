@@ -1,15 +1,8 @@
 import { NextRequest } from "next/server";
-import {
-	AppError,
-	AuthError,
-	EnvError,
-	OpenAIError,
-	UserError,
-} from "../../lib/errors";
+import { AppError, EnvError, OpenAIError, UserError } from "../../lib/errors";
 import { createClient } from "@supabase/supabase-js";
 import { decode } from "base64-arraybuffer";
 import { v4 as uuidv4 } from "uuid";
-import { Cookies } from "react-cookie";
 import { Database } from "../../lib/database";
 // OpenAIApi does currently not work in Vercel Edge Functions as it uses Axios under the hood. So we use the api by making fetach calls directly
 
@@ -22,9 +15,6 @@ const OPENAI_API_URL = "https://api.openai.com/v1/images/generations";
 const NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 export default async (req: NextRequest) => {
-	// const cookies = new Cookies(req.headers.get("cookie") ?? "");
-	// const token = cookies.get("csrf");
-	console.log("req.headers", req.headers);
 	let payload: unknown;
 
 	//TODO: DONT REMOVE might be needed for rate limiting
@@ -85,14 +75,6 @@ export default async (req: NextRequest) => {
 		if (!prompt) {
 			throw new UserError("Prompt is missing");
 		}
-
-		// return new Response(
-		// 	JSON.stringify({ error: "api route not ready for deploy." }),
-		// 	{
-		// 		status: 201,
-		// 	},
-		// );
-
 		const response = await fetch(OPENAI_API_URL, {
 			method: "POST",
 			headers: {
