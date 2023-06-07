@@ -33,10 +33,6 @@ export const config = {
 	runtime: "edge",
 };
 
-const collection = getCollection();
-const { material, style, color } = collection;
-
-
 export default async (req: NextRequest) => {
 	try {
 		if (req.method !== "POST") {
@@ -72,6 +68,9 @@ export default async (req: NextRequest) => {
 			style: "long",
 			type: "conjunction",
 		});
+		const collection = getCollection();
+		const { material, style, color } = collection;
+
 		const prompt = `${material} of a ${Math.floor(
 			age,
 		)} year old ${formatter.format(
