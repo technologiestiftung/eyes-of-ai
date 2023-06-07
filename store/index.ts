@@ -90,7 +90,7 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
     const currentResult = get().result
 
     if(currentResult.face.length === 0) {
-      set(() => ({humanDetected: false}))
+      set(() => ({ humanDetected: false, trigger: false, msInStandStill: 0, firstStandStillTime: undefined }))
       return;
     }
     set(() => ({humanDetected: true}))

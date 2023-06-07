@@ -39,7 +39,7 @@ const HumanDetectionDisplay: React.FC<Props> = ({ videoRef, canvasRef }) => {
 		</div>
 		<div style={{ display: 'flex', width: '100vw', height: '100vh', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', backgroundColor: 'black', color: 'white', fontSize: 'xx-large' }}>
 			<div>
-				{detectionText?.map((label) => <p>{label}</p>)}
+				{detectionText?.map((label) => <p key={label}>{label}</p>)}
 			</div>
 		</div>
 	</>;

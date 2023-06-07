@@ -59,9 +59,9 @@ const Page: React.FC<
 			<InitWebCam elementId="video" />{" "}
 
 			<HumanDetection videoRef={videoRef} canvasRef={canvasRef}></HumanDetection>
+			
 			{!triggered && humanDetected && <HumanDetectionDisplay videoRef={videoRef} canvasRef={canvasRef}/>}
 			{triggered && <ImageGenerator csrf={csrf} />}
-
 			{!triggered && !humanDetected && <ImageGrid></ImageGrid>}
 		</div>
 	);

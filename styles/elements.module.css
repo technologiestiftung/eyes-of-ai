@@ -24,10 +24,6 @@
 	box-shadow: 2px 2px black;
 	font-family: monospace;
 }
-.log {
-	border-top: 1px solid #eaeaea;
-	padding: 8px;
-}
 .performance {
 	position: absolute;
 	bottom: 0;
