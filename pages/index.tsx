@@ -8,6 +8,7 @@ import RunHuman from "../components/RunHumanFn";
 import InitWebCam from "../components/InitWebCam";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import ApiExplorer from "./api-explorer";
+import { useEyesOfAIStore } from "../store";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
 	const token = context.res.req.headers["x-csrf-token"] as string;
@@ -20,10 +21,23 @@ const Page: React.FC<
 > = ({ csrf }) => {
 	const videoRef = useRef<HTMLVideoElement | undefined>(undefined);
 	const canvasRef = useRef<HTMLCanvasElement | undefined>(undefined);
+	
+	const shouldTrigger = useEyesOfAIStore((state) => state.trigger);
+	const firstStillTime = useEyesOfAIStore((state) => state.firstStillTime);
+	const msInStill = useEyesOfAIStore((state) => state.msInStill);
 
 	return (
 		<div>
 			<Header />
+			<div>
+				{shouldTrigger ? 'TRIGGER' : 'NO TRIGGER'}
+			</div>
+			<div>
+				{firstStillTime ? 'Stay like this' : 'Stay still'}
+			</div>
+			<div>
+				{msInStill} ms
+			</div>
 			<canvas
 				id="canvas"
 				ref={canvasRef}
@@ -55,8 +69,9 @@ const Page: React.FC<
 			<RunHuman videoRef={videoRef} canvasRef={canvasRef} />{" "}
 			{/* loads and start human using specified input video element and output canvas element */}
 			<ApiExplorer csrf={csrf} />
-			<ImageGrid />
-			<Footer />
+
+			{/* <ImageGrid /> */}
+			{/* <Footer /> */}
 		</div>
 	);
 };

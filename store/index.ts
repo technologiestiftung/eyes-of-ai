@@ -1,11 +1,20 @@
-import {create} from "zustand";
-import {Human, Result} from "@vladmandic/human";
+import { create } from "zustand";
+import { Human, Result } from "@vladmandic/human";
 
 const HISTORY_SIZE_LIMIT = 9
+const ROTATION_THRESHOLD = 0.05
+const DISTANCE_THRESHOLD = 0.15
+const STILLSTAND_THRESHOLD_MS = 2000
+
+const standardDeviation = (xs: Array<number>) => {
+  const n = xs.length
+  const mean = xs.reduce((a, b) => a + b) / n
+  return Math.sqrt(xs.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / n)
+}
 
 export type EyesOfAIStore = {
   ready: boolean;
-  setReady: (ready:boolean) => void;
+  setReady: (ready: boolean) => void;
 
   frame: number;
   setFrame: (frame: number) => void;
@@ -27,6 +36,12 @@ export type EyesOfAIStore = {
 
   trigger: boolean;
   checkIfShouldTrigger: () => void;
+
+  firstStillTime: Date | undefined,
+  setFirstStillTime: (date: Date) => void;
+
+  msInStill: number;
+  setMsInStill: (timeInStill: number) => void;
 }
 
 export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
@@ -37,7 +52,7 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
   setFrame: (frame) => set(() => ({ frame })),
 
   timestamp: 0,
-  setTimestamp: (timestamp) => set(() => ({timestamp})),
+  setTimestamp: (timestamp) => set(() => ({ timestamp })),
 
   fps: 0,
   setFps: (fps) => set(() => ({ fps })),
@@ -46,7 +61,7 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
   setHuman: (human) => set(() => ({ human })),
 
   result: undefined,
-  setResult: (result) => set(() => ({result })),
+  setResult: (result) => set(() => ({ result })),
 
   resultHistory: [],
   appendAndShiftResultHistory: (result) => {
@@ -56,38 +71,54 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
       resultHistory.shift();
     }
 
-    resultHistory.push(result)
+    resultHistory.push(JSON.parse(JSON.stringify(result)))
 
     set(() => ({ resultHistory }));
   },
 
+  msInStill: 0,
+  setMsInStill: (msInStill) => set(() => ({ msInStill })),
+
+  firstStillTime: undefined,
+  setFirstStillTime: (firstStillTime) => set(() => ({ firstStillTime })),
+
   trigger: false,
   checkIfShouldTrigger: () => {
+
     const resultHistory = get().resultHistory;
-    const currentResult = get().result;
+    const currentResult = get().result
 
-    if (!hasConsistentlyOneFace(currentResult, resultHistory)) {
-      set(() => ({ trigger: false }));
-      return;
+    if(!hasConsistentlyOneFace(currentResult, resultHistory)) {
+      return
     }
 
-    const ageSum = resultHistory.reduce(
-      (ageAccumulator, result) => ageAccumulator + (result.face[0]?.age ?? 0),
-      0
-    );
-    const ageAverage = Number((ageSum / resultHistory.length).toFixed(2));
+    const distances = resultHistory.map(result => result.face[0].distance)
+    const rolls = resultHistory.map(result => result.face[0].rotation.angle.roll)
+    const pitches = resultHistory.map(result => result.face[0].rotation.angle.pitch)
+    const yaws = resultHistory.map(result => result.face[0].rotation.angle.yaw)
 
-    const currentAge = currentResult.face[0].age;
-
-    const diff = Number(Math.abs(currentAge - ageAverage).toFixed(2));
-    const maxDiff = Number((currentAge * 0.1).toFixed(2));
-
-    if (diff > maxDiff) {
-      set(() => ({ trigger: false }));
-      return;
+    if (distances.length === 0 || rolls.length === 0 || pitches.length === 0 || yaws.length === 0) {
+      return
     }
 
-    set(() => ({ trigger: true }))
+    const sdDistances = standardDeviation(distances);
+    const sdRolls = standardDeviation(rolls);
+    const sdPitches = standardDeviation(pitches);
+    const sdYaws = standardDeviation(yaws);
+
+    if (sdDistances < DISTANCE_THRESHOLD && sdRolls < ROTATION_THRESHOLD && sdPitches < ROTATION_THRESHOLD && sdYaws < ROTATION_THRESHOLD) {
+      if (!get().firstStillTime) {
+        set(() => ({ firstStillTime: new Date() }))
+      } else {
+        const timeInStillStandMs = new Date().getTime() - get().firstStillTime.getTime()
+        set(() => ({ msInStill: timeInStillStandMs }))
+        if (timeInStillStandMs > STILLSTAND_THRESHOLD_MS) {
+          set(() => ({ trigger: true }));
+        }
+      }
+    } else {
+       set(() => ({ trigger: false, msInStill: 0, firstStillTime: undefined }))
+    }
   }
 }))
 
@@ -104,5 +135,5 @@ function hasConsistentlyOneFace(currentResult: Partial<Result>, resultHistory: P
     return false;
   }
 
-  return resultHistory.length < HISTORY_SIZE_LIMIT ||resultHistory.every((result) => result.face.length === currentResult.face.length);
+  return resultHistory.length < HISTORY_SIZE_LIMIT || resultHistory.every((result) => result.face.length === currentResult.face.length);
 }
