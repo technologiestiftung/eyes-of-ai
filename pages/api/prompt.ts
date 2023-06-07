@@ -72,7 +72,7 @@ export default async (req: NextRequest) => {
 			style: "long",
 			type: "conjunction",
 		});
-		const prompt = `A ${material} of a ${Math.floor(
+		const prompt = `${material} of a ${Math.floor(
 			age,
 		)} year old ${formatter.format(
 			emotions,

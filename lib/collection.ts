@@ -11,16 +11,16 @@ export class Collection {
 }
 
 const materials = {
-	"dripping liquid oil painting": ["realistic", "modern"],
-	"retro-futuristic cinematic etching": ["synthwave"],
-	"inky watercolour painting": ["abstract", "art nouveau", "pre-raphaelite"], 
-	"expressive gouache illustration": ["surreal art"], // Salvador Dalí 
-	"lithography": ["pixel art", "distorted pixel art"], 
-	"sharp focused lithography": ["flat woodblock prints", "ornamental curvilinear lines"], 
-	"detailed pastel drawing": ["conceptual art"], // Craig Mullins
-	"ink drawing": ["digital art", "art deco"],
-	"purist acrylic painting": ["cubism"], 
-	"spiritual acrylic painting": ["folk art"]
+	"A dripping liquid oil painting": ["realistic", "modern"],
+	"A retro-futuristic cinematic etching": ["synthwave"],
+	"An inky watercolour painting": ["abstract", "art nouveau", "pre-raphaelite"], 
+	"An expressive gouache illustration": ["surreal art"], // Salvador Dalí 
+	"A lithography": ["pixel art", "distorted pixel art"], 
+	"A sharp focused lithography": ["flat woodblock prints", "ornamental curvilinear lines"], 
+	"A detailed pastel drawing": ["conceptual art"], // Craig Mullins
+	"An ink drawing": ["digital art", "art deco"],
+	"A purist acrylic painting": ["cubism"], 
+	"A spiritual acrylic painting": ["folk art"]
 }
 
 const styles = {
