@@ -2,6 +2,7 @@
 /** @type {import('next').NextConfig} */
 
 module.exports = {
+	output: "standalone",
 	reactStrictMode: false,
 	poweredByHeader: false,
 	typescript: {
