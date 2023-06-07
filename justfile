@@ -27,3 +27,16 @@ backup_db:
 
 restore_db:
 	psql -d $DATABASE_URL -f backup/backup.sql
+
+docker_build:
+	echo $NEXT_PUBLIC_SUPABASE_ANON_KEY
+	echo $NEXT_PUBLIC_SUPABASE_URL
+	docker build \
+		--progress=plain \
+		--no-cache \
+		--build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY \
+		--build-arg NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
+		-t technologiestiftung:eyes-of-the-ai .
+
+docker_run:
+	docker run --env-file ./.env -p 3000:3000 technologiestiftung:eyes-of-the-ai
