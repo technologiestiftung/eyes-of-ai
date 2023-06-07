@@ -99,10 +99,15 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
       return
     }
 
-    const distances = resultHistory.map(result => result.face[0].distance)
-    const rolls = resultHistory.map(result => result.face[0].rotation.angle.roll)
-    const pitches = resultHistory.map(result => result.face[0].rotation.angle.pitch)
-    const yaws = resultHistory.map(result => result.face[0].rotation.angle.yaw)
+    const faces = resultHistory.filter(result => result.face && result.face!.length > 0).map(result => result.face![0])
+    if(faces.length === 0) {
+      return
+    }
+
+    const distances = faces.map(face => face.distance)
+    const rolls = faces.map(face => face.rotation.angle.roll)
+    const pitches = faces.map(face => face.rotation.angle.pitch)
+    const yaws = faces.map(face => face.rotation.angle.yaw)
 
     if (distances.length === 0 || rolls.length === 0 || pitches.length === 0 || yaws.length === 0) {
       return
