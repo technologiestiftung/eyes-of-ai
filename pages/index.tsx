@@ -23,8 +23,8 @@ const Page: React.FC<
 	const canvasRef = useRef<HTMLCanvasElement | undefined>(undefined);
 	
 	const shouldTrigger = useEyesOfAIStore((state) => state.trigger);
-	const firstStillTime = useEyesOfAIStore((state) => state.firstStillTime);
-	const msInStill = useEyesOfAIStore((state) => state.msInStill);
+	const firstStillTime = useEyesOfAIStore((state) => state.firstStandStillTime);
+	const msInStill = useEyesOfAIStore((state) => state.msInStandStill);
 
 	return (
 		<div>

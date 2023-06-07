@@ -2,10 +2,10 @@ import { create } from "zustand";
 import { Human, Result } from "@vladmandic/human";
 import MathUtils from "../utils/MathUtils";
 
-const HISTORY_SIZE_LIMIT = 9
-const ROTATION_THRESHOLD = 0.05
-const DISTANCE_THRESHOLD = 0.15
-const STILLSTAND_THRESHOLD_MS = 2000
+const HISTORY_SIZE_LIMIT_FRAMES = 20
+const ROTATION_THRESHOLD_DEGRESS = 0.05
+const DISTANCE_THRESHOLD_METERS = 0.15
+const STANDSTILL_THRESHOLD_MS = 2000
 
 export type EyesOfAIStore = {
   ready: boolean;
@@ -32,11 +32,11 @@ export type EyesOfAIStore = {
   trigger: boolean;
   checkIfShouldTrigger: () => void;
 
-  firstStillTime: Date | undefined,
-  setFirstStillTime: (date: Date) => void;
+  firstStandStillTime: Date | undefined,
+  setFirstStandStillTime: (date: Date) => void;
 
-  msInStill: number;
-  setMsInStill: (timeInStill: number) => void;
+  msInStandStill: number;
+  setMsInStandStill: (timeInStill: number) => void;
 }
 
 export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
@@ -62,7 +62,7 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
   appendAndShiftResultHistory: (result) => {
     const resultHistory = get().resultHistory.slice(0);
 
-    if (resultHistory.length > HISTORY_SIZE_LIMIT) {
+    if (resultHistory.length > HISTORY_SIZE_LIMIT_FRAMES) {
       resultHistory.shift();
     }
 
@@ -71,11 +71,11 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
     set(() => ({ resultHistory }));
   },
 
-  msInStill: 0,
-  setMsInStill: (msInStill) => set(() => ({ msInStill })),
+  msInStandStill: 0,
+  setMsInStandStill: (msInStill) => set(() => ({ msInStandStill: msInStill })),
 
-  firstStillTime: undefined,
-  setFirstStillTime: (firstStillTime) => set(() => ({ firstStillTime })),
+  firstStandStillTime: undefined,
+  setFirstStandStillTime: (firstStillTime) => set(() => ({ firstStandStillTime: firstStillTime })),
 
   trigger: false,
   checkIfShouldTrigger: () => {
@@ -101,18 +101,18 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
     const sdPitches = MathUtils.standardDeviation(pitches);
     const sdYaws = MathUtils.standardDeviation(yaws);
 
-    if (sdDistances < DISTANCE_THRESHOLD && sdRolls < ROTATION_THRESHOLD && sdPitches < ROTATION_THRESHOLD && sdYaws < ROTATION_THRESHOLD) {
-      if (!get().firstStillTime) {
-        set(() => ({ firstStillTime: new Date() }))
+    if (sdDistances < DISTANCE_THRESHOLD_METERS && sdRolls < ROTATION_THRESHOLD_DEGRESS && sdPitches < ROTATION_THRESHOLD_DEGRESS && sdYaws < ROTATION_THRESHOLD_DEGRESS) {
+      if (!get().firstStandStillTime) {
+        set(() => ({ firstStandStillTime: new Date() }))
       } else {
-        const timeInStillStandMs = new Date().getTime() - get().firstStillTime.getTime()
-        set(() => ({ msInStill: timeInStillStandMs }))
-        if (timeInStillStandMs > STILLSTAND_THRESHOLD_MS) {
+        const standStillTimeMs = new Date().getTime() - get().firstStandStillTime.getTime()
+        set(() => ({ msInStandStill: standStillTimeMs }))
+        if (standStillTimeMs > STANDSTILL_THRESHOLD_MS) {
           set(() => ({ trigger: true }));
         }
       }
     } else {
-       set(() => ({ trigger: false, msInStill: 0, firstStillTime: undefined }))
+       set(() => ({ trigger: false, msInStandStill: 0, firstStandStillTime: undefined }))
     }
   }
 }))
@@ -130,5 +130,5 @@ function hasConsistentlyOneFace(currentResult: Partial<Result>, resultHistory: P
     return false;
   }
 
-  return resultHistory.length < HISTORY_SIZE_LIMIT || resultHistory.every((result) => result.face.length === currentResult.face.length);
+  return resultHistory.length < HISTORY_SIZE_LIMIT_FRAMES || resultHistory.every((result) => result.face.length === currentResult.face.length);
 }
