@@ -37,6 +37,9 @@ export type EyesOfAIStore = {
 
   msInStandStill: number;
   setMsInStandStill: (timeInStill: number) => void;
+
+  humanDetected: boolean;
+  setHumanDetected: (humanDetected: boolean) => void;
 }
 
 export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
@@ -77,11 +80,20 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
   firstStandStillTime: undefined,
   setFirstStandStillTime: (firstStillTime) => set(() => ({ firstStandStillTime: firstStillTime })),
 
+  humanDetected: false,
+  setHumanDetected: (humanDetected) => set(() => ({ humanDetected })),
+
   trigger: false,
   checkIfShouldTrigger: () => {
 
     const resultHistory = get().resultHistory;
     const currentResult = get().result
+
+    if(currentResult.face.length === 0) {
+      set(() => ({humanDetected: false}))
+      return;
+    }
+    set(() => ({humanDetected: true}))
 
     if(!hasConsistentlyOneFace(currentResult, resultHistory)) {
       return

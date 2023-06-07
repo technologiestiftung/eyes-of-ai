@@ -3,14 +3,24 @@ import { useEyesOfAIStore } from "../store";
 import { Emotion, FaceGesture, IrisGesture, Result } from "@vladmandic/human";
 import { Body } from "./api/prompt";
 
-const ApiExplorer: React.FC<{ csrf: string }> = ({ csrf }) => {
+const ImageGenerator: React.FC<{ csrf: string }> = ({ csrf }) => {
 	const result = useEyesOfAIStore((state) => state.result);
+	const shouldTrigger = useEyesOfAIStore((state) => state.trigger);
+	const [prompt, setPrompt] = useState<string>("");
+	const [apiData, setApiData] = useState<Record<string, unknown> | null>(null);
+	const [imageSrc, setImageSrc] = useState<string>("");
 
 	useEffect(() => {
-		if (result) {
-			console.log("result:", result);
+		if (shouldTrigger) {
+			createPrompt()
 		}
-	}, [result]);
+	}, [shouldTrigger]);
+
+	useEffect(() => {
+		if (prompt && imageSrc === '') {
+			createImage();
+		}
+	}, [prompt])
 
 	const createImage: () => Promise<void> = async () => {
 		if (prompt === "") {
@@ -44,6 +54,7 @@ const ApiExplorer: React.FC<{ csrf: string }> = ({ csrf }) => {
 			console.log(error, "Error in fetch");
 		}
 	};
+
 	const createPrompt: () => Promise<void> = async () => {
 		const gestures = result.gesture.map((item) => item.gesture);
 		const emotions = result.face[0].emotion.map((e) => e.emotion);
@@ -83,10 +94,6 @@ const ApiExplorer: React.FC<{ csrf: string }> = ({ csrf }) => {
 		}
 	};
 
-	const [prompt, setPrompt] = useState<string>("");
-
-	const [apiData, setApiData] = useState<Record<string, unknown> | null>(null);
-	const [imageSrc, setImageSrc] = useState<string>("");
 
 	useEffect(() => {
 		if (apiData) {
@@ -97,71 +104,12 @@ const ApiExplorer: React.FC<{ csrf: string }> = ({ csrf }) => {
 	}, [apiData]);
 
 	return (
-		<div className="flex flex-col items-center justify-center h-screen mx-auto my-0">
-			<h1 className="text-xl font-black">Api Explorer</h1>
-			<div className="flex flex-col self-center w-screen">
-				<form id="prompt">
-					<div className="flex flex-row items-center w-full p-2">
-						<label htmlFor="prompt" className="pr-2">
-							Prompt:
-						</label>
-						<input
-							id="prompt"
-							type="text"
-							className="w-full p-2 m-2 border border-cyan-600"
-							value={prompt}
-							onChange={(e) => {
-								setPrompt(e.target.value);
-							}}
-						/>
-					</div>
-					<div className="flex flex-row justify-between p-2">
-						<button
-							id="get-prompt"
-							type="button"
-							onClick={(e) => {
-								e.preventDefault();
-
-								createPrompt().catch((err) => {
-									console.log(err);
-								});
-							}}
-							className="w-32 p-2 m-2 text-white bg-black rounded-md hover:bg-gray-500"
-						>
-							Get Prompt
-						</button>
-						<button
-							id="get-image"
-							type="button"
-							onClick={(e) => {
-								console.log("clicked get image");
-								e.preventDefault();
-								createImage().catch((err) => {
-									console.log(err);
-								});
-							}}
-							className="w-32 p-2 m-2 text-white bg-black rounded-md m-2text-white hover:bg-gray-500"
-						>
-							Get Image
-						</button>
-					</div>
-				</form>
-			</div>
-			<div className="flex flex-col self-center w-screen">
-				<pre className="p-5 whitespace-pre-wrap">
-					<code>{JSON.stringify(apiData, null, 2)}</code>
-				</pre>
-			</div>
-			<div className="flex flex-col self-center w-screen p-5">
-				{imageSrc && (
-					<figure className="flex flex-col self-center w-screen p-5">
-						<img src={imageSrc} alt={prompt} className="max-w-sm" />
-						<figcaption>{prompt}</figcaption>
-					</figure>
-				)}
-			</div>
+		<div style={{ display: 'flex', width: '100vw', height: '100vh', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', backgroundColor: 'black', color: 'white', fontSize: 'xx-large', gap: '48px' }}>
+			<div style={{width: '50%'}}>{prompt}</div>
+			{imageSrc === '' && <div style={{width: '50%', fontSize: 'large', padding: '20px'}}>Generating AI interpretation...</div>}
+			<img style={{width: '50%'}} src={imageSrc} alt="" />
 		</div>
 	);
 };
 
-export default ApiExplorer;
+export default ImageGenerator;
