@@ -42,8 +42,6 @@ const styles = {
 
 }
 
-//pleas write a function that first selects a random object key from materials, then get rendom style from material key and then gets a random color from style key
-
 export function getCollection(): { material: string, style: string, color: string } {
 	const materialKeys = Object.keys(materials);
 	const randomMaterialKey = materialKeys[Math.floor(Math.random() * materialKeys.length)];
