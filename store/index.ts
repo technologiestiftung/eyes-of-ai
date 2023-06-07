@@ -1,16 +1,11 @@
 import { create } from "zustand";
 import { Human, Result } from "@vladmandic/human";
+import MathUtils from "../utils/MathUtils";
 
 const HISTORY_SIZE_LIMIT = 9
 const ROTATION_THRESHOLD = 0.05
 const DISTANCE_THRESHOLD = 0.15
 const STILLSTAND_THRESHOLD_MS = 2000
-
-const standardDeviation = (xs: Array<number>) => {
-  const n = xs.length
-  const mean = xs.reduce((a, b) => a + b) / n
-  return Math.sqrt(xs.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / n)
-}
 
 export type EyesOfAIStore = {
   ready: boolean;
@@ -101,10 +96,10 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
       return
     }
 
-    const sdDistances = standardDeviation(distances);
-    const sdRolls = standardDeviation(rolls);
-    const sdPitches = standardDeviation(pitches);
-    const sdYaws = standardDeviation(yaws);
+    const sdDistances = MathUtils.standardDeviation(distances);
+    const sdRolls = MathUtils.standardDeviation(rolls);
+    const sdPitches = MathUtils.standardDeviation(pitches);
+    const sdYaws = MathUtils.standardDeviation(yaws);
 
     if (sdDistances < DISTANCE_THRESHOLD && sdRolls < ROTATION_THRESHOLD && sdPitches < ROTATION_THRESHOLD && sdYaws < ROTATION_THRESHOLD) {
       if (!get().firstStillTime) {
