@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Human, Result } from "@vladmandic/human";
-import MathUtils from "../utils/MathUtils";
+import MathUtils from "../lib/math-utils";
 
 const HISTORY_SIZE_LIMIT_FRAMES = 20
 const ROTATION_THRESHOLD_DEGRESS = 0.05
