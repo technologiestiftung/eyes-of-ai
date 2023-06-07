@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.1.0...v1.2.0) (2023-06-07)
+
+
+### Features
+
+* **docker:** Add docker build of project ([220f971](https://github.com/technologiestiftung/eyes-of-ai/commit/220f9716def247241e9a9eea1d3a6ab87e796e7b))
+
 # [1.1.0](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.0.0...v1.1.0) (2023-06-06)
 
 

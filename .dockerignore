@@ -1,0 +1,17 @@
+__tests__
+backup
+CHANGELOG.md
+Dockerfile
+docs
+eyes-of-ai.code-workspace
+justfile
+LICENSE
+node_modules
+playground
+release.config.cjs
+scripts
+!scripts/generate-prompt-validator.js
+storage
+supabase
+vitest.config.ts
+.env
