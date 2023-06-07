@@ -47,11 +47,12 @@ const styles = {
 export function getCollection(): { material: string, style: string, color: string } {
 	const materialKeys = Object.keys(materials);
 	const randomMaterialKey = materialKeys[Math.floor(Math.random() * materialKeys.length)];
-	const randomStyle = materials[randomMaterialKey][Math.floor(Math.random() * materials[randomMaterialKey].length)];
+
+	const stylesForMaterial = materials[randomMaterialKey];
+	const randomStyle = stylesForMaterial[Math.floor(Math.random() * stylesForMaterial.length)];
   
-	const styleKeys = Object.keys(styles);
-	const randomStyleKey = styleKeys[Math.floor(Math.random() * styleKeys.length)];
-	const randomColor = styles[randomStyleKey][Math.floor(Math.random() * styles[randomStyleKey].length)];
+	const colorsForStyle = styles[randomStyle];
+	const randomColor = colorsForStyle[Math.floor(Math.random() * colorsForStyle.length)];
   
 	return {
 	  material: randomMaterialKey,
