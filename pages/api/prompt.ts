@@ -33,7 +33,7 @@ export const config = {
 	runtime: "edge",
 };
 
-export default async (req: NextRequest) => {
+const handler = async (req: NextRequest) => {
 	try {
 		if (req.method !== "POST") {
 			throw new UserError("Only POST requests are allowed");
@@ -53,7 +53,7 @@ export default async (req: NextRequest) => {
 				// @ts-expect-error
 				`Request body is invalid ${validatePrompt.errors
 					.map((error) => `${error.instancePath} ${error.message}`)
-					.join(", ")}`,
+					.join(", ")}`
 			);
 		}
 
@@ -62,7 +62,7 @@ export default async (req: NextRequest) => {
 		const gestureCollection = new Collection(
 			gestures.map((g) => {
 				return g.match(/^mouth \d{1,3}% open$/) ? "with open mouth" : g;
-			}),
+			})
 		);
 		const formatter = new Intl.ListFormat("en", {
 			style: "long",
@@ -72,9 +72,9 @@ export default async (req: NextRequest) => {
 		const { material, style, color } = collection;
 
 		const prompt = `${material} of a ${Math.floor(
-			age,
+			age
 		)} year old ${formatter.format(
-			emotions,
+			emotions
 		)} looking ${gender}, ${gestureCollection.random()}, ${style}, ${color}`;
 
 		return new Response(JSON.stringify({ prompt }), {
@@ -101,3 +101,5 @@ export default async (req: NextRequest) => {
 		}
 	}
 };
+
+export default handler;

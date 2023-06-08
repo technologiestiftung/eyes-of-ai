@@ -1,6 +1,8 @@
 {
 	"recommendations": [
 		"anweber.vscode-httpyac",
-		"anweber.httpbook"
+		"anweber.httpbook",
+		"dbaeumer.vscode-eslint",
+		"esbenp.prettier-vscode"
 	]
 }

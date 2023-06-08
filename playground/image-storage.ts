@@ -20,18 +20,18 @@ async function main() {
 	// Create a single supabase client for interacting with your database
 	const supabase = createClient(
 		NEXT_PUBLIC_SUPABASE_URL,
-		SUPABASE_SERVICE_ROLE_KEY,
+		SUPABASE_SERVICE_ROLE_KEY
 	);
 
 	const { data: getData, error: getError } = await supabase.storage.getBucket(
-		"avatars",
+		"avatars"
 	);
 
 	console.log(getData, getError);
 
 	const contents = await readFile(
 		path.resolve(__dirname, "./image-base64"),
-		"utf8",
+		"utf8"
 	);
 
 	const { data: uploadData, error: uploadError } = await supabase.storage

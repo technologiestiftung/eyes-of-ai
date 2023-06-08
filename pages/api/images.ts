@@ -14,7 +14,7 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_API_URL = "https://api.openai.com/v1/images/generations";
 const NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-export default async (req: NextRequest) => {
+const handler = async (req: NextRequest) => {
 	let payload: unknown;
 
 	//TODO: DONT REMOVE might be needed for rate limiting
@@ -64,7 +64,7 @@ export default async (req: NextRequest) => {
 		}
 		const supabase = createClient<Database>(
 			NEXT_PUBLIC_SUPABASE_URL,
-			SUPABASE_SERVICE_ROLE_KEY,
+			SUPABASE_SERVICE_ROLE_KEY
 		);
 
 		const body = await req.json();
@@ -139,3 +139,5 @@ export default async (req: NextRequest) => {
 		});
 	}
 };
+
+export default handler;
