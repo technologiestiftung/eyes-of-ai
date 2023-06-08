@@ -46,13 +46,13 @@ class RunHuman extends Component<Props, State> {
 				"human version:",
 				this.human.version,
 				"| tfjs version:",
-				this.human.tf.version["tfjs-core"],
+				this.human.tf.version["tfjs-core"]
 			);
 			log(
 				"platform:",
 				this.human.env.platform,
 				"| agent:",
-				this.human.env.agent,
+				this.human.env.agent
 			);
 			status("loading models...");
 			this.human.load().then(() => {
@@ -61,12 +61,12 @@ class RunHuman extends Component<Props, State> {
 					"backend:",
 					this.human!.tf.getBackend(),
 					"| available:",
-					this.human!.env.backends,
+					this.human!.env.backends
 				);
 				log(
 					"loaded models:" +
 						Object.values(this.human!.models).filter((model) => model !== null)
-							.length,
+							.length
 				);
 				status("initializing...");
 				this.human!.warmup().then(() => {
@@ -109,7 +109,7 @@ class RunHuman extends Component<Props, State> {
 		status(
 			this.video.paused
 				? "paused"
-				: `fps: ${this.fps.toFixed(1).padStart(5, " ")}`,
+				: `fps: ${this.fps.toFixed(1).padStart(5, " ")}`
 		); // write status
 		return null;
 	}
