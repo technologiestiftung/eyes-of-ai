@@ -1,5 +1,5 @@
+import type { Config, Human } from "@vladmandic/human";
 import React, { useEffect } from "react";
-import type { Human, Config } from "@vladmandic/human";
 import { status } from "../lib/logging";
 import { useEyesOfAIStore } from "../store";
 
@@ -17,23 +17,20 @@ interface Props {
 	canvasRef: React.MutableRefObject<HTMLCanvasElement>;
 }
 
-const RunHuman: React.FC<Props> = ({ videoRef, canvasRef }) => {
+const HumanDetection: React.FC<Props> = ({ videoRef, canvasRef }) => {
 	const ready = useEyesOfAIStore((state) => state.ready);
 	const setReady = useEyesOfAIStore((state) => state.setReady);
 
 	const human = useEyesOfAIStore((state) => state.human);
 	const setHuman = useEyesOfAIStore((state) => state.setHuman);
 
-	const result = useEyesOfAIStore((state) => state.result);
 	const setResult = useEyesOfAIStore((state) => state.setResult);
 
-	const trigger = useEyesOfAIStore((state) => state.trigger);
 	const checkIfShouldTrigger = useEyesOfAIStore(
-		(state) => state.checkIfShouldTrigger
+		(state) => state.checkIfShouldTrigger,
 	);
-
 	const appendAndShiftResultHistory = useEyesOfAIStore(
-		(state) => state.appendAndShiftResultHistory
+		(state) => state.appendAndShiftResultHistory,
 	);
 
 	useEffect(() => {
@@ -70,22 +67,17 @@ const RunHuman: React.FC<Props> = ({ videoRef, canvasRef }) => {
 			status(
 				videoRef.current.paused
 					? "paused"
-					: `fps: ${fps.toFixed(1).padStart(5, " ")}`
+					: `fps: ${fps.toFixed(1).padStart(5, " ")}`,
 			);
 
 			if (!videoRef.current.paused) {
 				const interpolated = human.next(human.result);
-
 				setResult({ face: interpolated.face, gesture: interpolated.gesture });
 				appendAndShiftResultHistory({
 					face: interpolated.face,
 					gesture: interpolated.gesture,
 				});
-
 				checkIfShouldTrigger();
-
-				human.draw.canvas(videoRef.current, canvasRef.current);
-				human.draw.all(canvasRef.current, interpolated);
 			}
 
 			detect();
@@ -96,20 +88,7 @@ const RunHuman: React.FC<Props> = ({ videoRef, canvasRef }) => {
 		}
 	}, [ready]);
 
-	return (
-		<>
-			{result?.face.map((face) => (
-				<div key={face.age}>
-					Age: {face.age}, Gender: {face.gender}, Emotions:{" "}
-					{face.emotion
-						.map(({ emotion, score }) => `${score * 100}% ${emotion}`)
-						.join(", ")}
-					, Gestures: {result.gesture.map(({ gesture }) => gesture).join(", ")}
-				</div>
-			))}
-			Snapshot: {trigger ? "yes" : "no"}
-		</>
-	);
+	return <></>;
 };
 
-export default RunHuman;
+export default HumanDetection;
