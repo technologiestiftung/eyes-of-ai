@@ -95,7 +95,8 @@ const RunHuman: React.FC<Props> = ({ videoRef, canvasRef }) => {
 				<div key={face.age}>
 					Age: {face.age},
 					Gender: {face.gender},
-					Emotions: {face.emotion.map(({emotion, score}) => `${score*100}% ${emotion}`).join(', ')},
+					First Emotion: {result.face[0].emotion.map(({ emotion, score }) => `${score * 100}% ${emotion}`).slice(0, 1)},
+					Second Emotion: {result.face[0].emotion.map(({ emotion, score }) => `${score * 100}% ${emotion}`).slice(1, 2)},
 					Gestures: {result.gesture.map(({ gesture }) => gesture).join(', ')}
 				</div>
 			))

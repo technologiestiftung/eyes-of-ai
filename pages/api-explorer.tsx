@@ -46,11 +46,12 @@ const ApiExplorer: React.FC<{ csrf: string }> = ({ csrf }) => {
 	};
 	const createPrompt: () => Promise<void> = async () => {
 		const gestures = result.gesture.map((item) => item.gesture);
-		const emotions = result.face[0].emotion.map((e) => e.emotion);
+		const emotions = result.face[0].emotion.map((e) => e.emotion).slice(0, 2);
+		console.log("my emotions:", emotions);
 		const age = result.face[0].age;
 
 		const gender =
-			result.face[0].gender === "unknown" || result.face[0].genderScore < 0.6
+			result.face[0].gender === "unknown" || result.face[0].genderScore < 0.4
 				? "non-binary"
 				: result.face[0].gender;
 		const randomGenderPercentage = Math.floor(Math.random() * 100);
