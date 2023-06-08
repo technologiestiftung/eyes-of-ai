@@ -1,6 +1,6 @@
 {
 	"name": "eyes-of-ai",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"private": true,
 	"description": "An OpenAI-based prototype that uses the Dall-E API to create parametrically personalized image of it's users.",
 	"main": "index.js",
