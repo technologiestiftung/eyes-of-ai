@@ -10,10 +10,10 @@ const PrintPage: React.FC<{}> = ({}) => {
   const PAGE_SIZE = 16;
   const [page, setPage] = useState(0);
   const [allImageData, setAllImageData] = useState<Image[]>([]);
-  const { fetchData, isLoading } = useImages();
+  const { fetchPaginatedImages, isLoading } = useImages();
 
   const loadImageData = async () => {
-    fetchData(page, PAGE_SIZE, (data) => {
+    fetchPaginatedImages(page, PAGE_SIZE, (data) => {
       setAllImageData(allImageData.concat(data));
     });
   };

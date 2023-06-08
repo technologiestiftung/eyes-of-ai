@@ -4,10 +4,10 @@ import { anonClient } from "../lib/supabase";
 
 type Image = Database["public"]["Tables"]["eotai_images"]["Row"];
 
-const useFetchData = () => {
+const usePaginatedImages = () => {
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchData = async (
+  const fetchPaginatedImages = async (
     page: number,
     pageSize: number,
     callback: (imageData: Image[]) => void
@@ -23,7 +23,7 @@ const useFetchData = () => {
     callback(data);
   };
 
-  return { fetchData, isLoading };
+  return { fetchPaginatedImages, isLoading };
 };
 
-export default useFetchData;
+export default usePaginatedImages;
