@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { anonClient } from "../lib/supabase";
 import { Database } from "../lib/database";
+import styles from "../styles/elements.module.css";
 
 type Image = Database["public"]["Tables"]["eotai_images"]["Row"];
 const ImageGrid = () => {
@@ -17,7 +18,7 @@ const ImageGrid = () => {
 	}, []);
 
 	return (
-		<div className="p-20" style={{backgroundColor: 'black', color: 'white', width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+		<div className={styles.imageGridContainer}>
 			<div className="grid grid-cols-4 gap-10">
 				{imageData &&
 					imageData.map(({ id, url, prompt }) => (

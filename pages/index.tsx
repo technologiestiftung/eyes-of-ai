@@ -5,7 +5,7 @@ import styles from "../styles/elements.module.css";
 import InitWebCam from "../components/InitWebCam";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { useEyesOfAIStore } from "../store";
-import ImageGenerator from "./image-generator";
+import ImageGenerator from "../components/ImageGenerator";
 import ImageGrid from "../components/ImageGrid";
 import HumanDetection from "../components/HumanDetection";
 import HumanDetectionDisplay from "../components/HumanDetectionDisplay";
@@ -23,6 +23,19 @@ const Page: React.FC<
 	const canvasRef = useRef<HTMLCanvasElement | undefined>(undefined);
 	const triggered = useEyesOfAIStore((state) => state.trigger);
 	const humanDetected = useEyesOfAIStore((state) => state.humanDetected);
+	const generatedImageExpired = useEyesOfAIStore((state) => state.generatedImageExpired);
+	const resetDetection = useEyesOfAIStore((state) => state.resetDetection);
+
+	useEffect(() => {
+		if(generatedImageExpired) {
+			resetDetection();
+			if (videoRef && videoRef.current) {
+				if (triggered) {
+					videoRef.current.play()
+				}
+			}
+		}
+	}, [generatedImageExpired])
 
 	useEffect(() => {
 		if (videoRef && videoRef.current) {

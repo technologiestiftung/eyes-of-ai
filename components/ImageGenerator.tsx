@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react";
+import { Body } from "../pages/api/prompt";
 import { useEyesOfAIStore } from "../store";
-import { Emotion, FaceGesture, IrisGesture, Result } from "@vladmandic/human";
-import { Body } from "./api/prompt";
+import styles from "../styles/elements.module.css";
+import ProgressBar from "./ProgressBar";
 
 const ImageGenerator: React.FC<{ csrf: string }> = ({ csrf }) => {
+	const EXPIRATION_SECONDS = 20;
 	const result = useEyesOfAIStore((state) => state.result);
 	const shouldTrigger = useEyesOfAIStore((state) => state.trigger);
 	const [prompt, setPrompt] = useState<string>("");
 	const [apiData, setApiData] = useState<Record<string, unknown> | null>(null);
 	const [imageSrc, setImageSrc] = useState<string>("");
+	const [imageGeneratedTime, setImageGeneratedTime] = useState<Date>();
+	const [expirationProgress, setExpirationProgress] = useState<number>(0.0);
+	const setGeneratedImageExpired = useEyesOfAIStore((state) => state.setGeneratedImageExpired);
 
 	useEffect(() => {
 		if (shouldTrigger) {
@@ -50,6 +55,7 @@ const ImageGenerator: React.FC<{ csrf: string }> = ({ csrf }) => {
 			if (data.data?.url) {
 				setImageSrc(data.data.url);
 			}
+			setImageGeneratedTime(new Date())
 		} catch (error) {
 			console.log(error, "Error in fetch");
 		}
@@ -103,8 +109,30 @@ const ImageGenerator: React.FC<{ csrf: string }> = ({ csrf }) => {
 		}
 	}, [apiData]);
 
+	useEffect(() => {
+		const interval = setInterval(() => {
+		  if(imageGeneratedTime) {
+			const elapsed = (new Date().getTime() - imageGeneratedTime.getTime()) / 1000.0
+			const progress = Math.min(1, elapsed / EXPIRATION_SECONDS);
+			setExpirationProgress(progress)
+			if(progress >= 1) {
+				setGeneratedImageExpired(true)
+			}
+		  }		
+		}, 200);
+	
+		return () => {
+		  clearInterval(interval);
+		};
+	  }, [imageGeneratedTime]);
+	
+
 	return (
-		<div style={{ display: 'flex', width: '100vw', height: '100vh', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', backgroundColor: 'black', color: 'white', fontSize: 'xx-large', gap: '48px' }}>
+		<div className={styles.generatedImageContainer}>
+			<div style={{position: 'fixed', left:0, top: 0}}>
+			<ProgressBar width={window.innerWidth} height={20} progress={expirationProgress}></ProgressBar>
+			</div>
+
 			<div style={{width: '50%'}}>{prompt}</div>
 			{imageSrc === '' && <div style={{width: '50%', fontSize: 'large', padding: '20px'}}>Generating AI interpretation...</div>}
 			<img style={{width: '50%'}} src={imageSrc} alt="" />

@@ -1,5 +1,7 @@
 import React, { useMemo } from "react";
 import { useEyesOfAIStore } from "../store";
+import styles from "../styles/elements.module.css";
+import ProgressBar from "./ProgressBar";
 
 interface Props {
 	videoRef: React.MutableRefObject<HTMLVideoElement>;
@@ -26,18 +28,18 @@ const HumanDetectionDisplay: React.FC<Props> = ({ videoRef, canvasRef }) => {
 	}, [result])
 
 	return <>
-		<div style={{ backgroundColor: 'black', color: 'white', fontSize: 'xx-large', textAlign: 'center', width: '100vw'}}>
+		<div className={styles.standStillHint}>
 			{!triggered &&
 				firstStillTime ? 
 				<div>
-					<div style={{width: `calc(${Math.min(100, msInStill / 2000)} * 100vw)`, height: '20px', backgroundColor: 'white'}}></div>
+					<ProgressBar progress={Math.min(100, msInStill / 2000)} width={window.innerWidth} height={20}></ProgressBar>
 					<div>Stay like this!</div>
 				</div>	
 				 : <div style={{paddingTop: '20px'}}>Stay still!</div>
 			}
 			{triggered && <div>'Triggered'</div>}
 		</div>
-		<div style={{ display: 'flex', width: '100vw', height: '100vh', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', backgroundColor: 'black', color: 'white', fontSize: 'xx-large' }}>
+		<div className={styles.detectionText}>
 			<div>
 				{detectionText?.map((label) => <p key={label}>{label}</p>)}
 			</div>

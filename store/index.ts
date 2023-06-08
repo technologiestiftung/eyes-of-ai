@@ -40,6 +40,11 @@ export type EyesOfAIStore = {
 
   humanDetected: boolean;
   setHumanDetected: (humanDetected: boolean) => void;
+
+  generatedImageExpired: boolean;
+  setGeneratedImageExpired: (generatedImageExpired: boolean) => void;
+
+  resetDetection: () => void;
 }
 
 export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
@@ -82,6 +87,11 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
 
   humanDetected: false,
   setHumanDetected: (humanDetected) => set(() => ({ humanDetected })),
+
+  generatedImageExpired: false,
+  setGeneratedImageExpired: (generatedImageExpired) => set(() => ({ generatedImageExpired })),
+
+  resetDetection: () => set(() => ({trigger: false, msInStandStill: 0, firstStandStillTime: undefined, humanDetected: false, human: undefined, generatedImageExpired: false, result: undefined, resultHistory: []})),
 
   trigger: false,
   checkIfShouldTrigger: () => {
