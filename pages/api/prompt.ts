@@ -33,7 +33,7 @@ export const config = {
 	runtime: "edge",
 };
 
-export default async (req: NextRequest) => {
+const handler = async (req: NextRequest) => {
 	try {
 		if (req.method !== "POST") {
 			throw new UserError("Only POST requests are allowed");
@@ -101,3 +101,5 @@ export default async (req: NextRequest) => {
 		}
 	}
 };
+
+export default handler;
