@@ -11,7 +11,7 @@ export class Collection {
 }
 
 const materials = {
-	"A dripping liquid oil painting": ["realistic", "modern"],
+	"A dripping liquid oil painting": ["realistic", "modern", "pop art"],
 	"A retro-futuristic cinematic etching": ["synthwave"],
 	"An inky watercolour painting": ["abstract", "art nouveau", "pre-raphaelite"], 
 	"An expressive gouache illustration": ["surreal art"], // Salvador Dalí 
@@ -25,16 +25,19 @@ const materials = {
 
 const styles = {
 	"realistic": ["vibrant colours", "global lightning", "atmospheric vivid lightning"],
+	"modern": ["vibrant colors", "serene color palette"],
+	"pop art": ["primary colors with black and white", "halftone patterns"],
 	"synthwave": ["neon colours", "chromatic material", "geometrical, luminous lines", "colourful luminous lines"],
-	"abstract": ["colourful"], 
+	"abstract": ["colourful", "vibrant magenta, electric blue, fiery orange"], 
 	"art nouveau": ["vibrant splashes"],
 	"pre-raphaelite": ["vibrant colours"], 
-	"dark-vintage": ["vaporwave neon"], 
+	"dark-vintage": ["vaporwave neon", "retro color palettes"], 
 	"surreal art": ["vaporwave neon", "vaporwave neon and clear shapes", "mind-bending shapes and colours"], 
 	"pixel art": ["monochrome"], 
 	"distorted pixel art": ["black and white"],
 	"ornamental curvilinear lines": ["black and white"],
 	"flat woodblock prints": ["black and white"],
+	"conceptual art": ["dynamic and vivid lightning and rich hues", "atmospheric vivid lightning"],
 	"digital art": ["vibrant colors", "lgbtiq colours"],
 	"art deco": ["vibrant colors", "lgbtiq colours"], 
 	"cubism": ["raw light pastel colours", "contrast-rich and monochromatic"],
