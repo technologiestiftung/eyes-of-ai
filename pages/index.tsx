@@ -5,10 +5,10 @@ import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import HumanDetection from "../components/HumanDetection";
 import HumanDetectionDisplay from "../components/HumanDetectionDisplay";
 import ImageGenerator from "../components/ImageGenerator";
+import ImageGrid from "../components/ImageGrid";
 import InitWebCam from "../components/InitWebCam";
 import { useEyesOfAIStore } from "../store";
 import styles from "../styles/elements.module.css";
-import PrintPage from "./print";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const token = context.res.req.headers["x-csrf-token"] as string;
@@ -80,7 +80,9 @@ const Page: React.FC<
         <HumanDetectionDisplay videoRef={videoRef} canvasRef={canvasRef} />
       )}
       {triggered && <ImageGenerator csrf={csrf} />}
-      {!triggered && !humanDetected && <PrintPage></PrintPage>}
+      {!triggered && !humanDetected && (
+        <ImageGrid showCaption={false} showMoreButton={false}></ImageGrid>
+      )}
     </div>
   );
 };
