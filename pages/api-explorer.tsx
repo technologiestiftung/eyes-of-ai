@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useEyesOfAIStore } from "../store";
-import { Emotion, FaceGesture, IrisGesture } from "@vladmandic/human";
+import { Emotion, FaceGesture, IrisGesture, Result } from "@vladmandic/human";
 import { Body } from "./api/prompt";
 
 const ApiExplorer: React.FC<{ csrf: string }> = ({ csrf }) => {

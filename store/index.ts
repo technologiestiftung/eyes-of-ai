@@ -1,7 +1,11 @@
 import { create } from "zustand";
 import { Human, Result } from "@vladmandic/human";
+import MathUtils from "../lib/math-utils";
 
-const HISTORY_SIZE_LIMIT = 9;
+const HISTORY_SIZE_LIMIT_FRAMES = 20;
+const ROTATION_THRESHOLD_DEGRESS = 0.05;
+const DISTANCE_THRESHOLD_METERS = 0.15;
+const STANDSTILL_THRESHOLD_MS = 2000;
 
 export type EyesOfAIStore = {
 	ready: boolean;
@@ -27,6 +31,12 @@ export type EyesOfAIStore = {
 
 	trigger: boolean;
 	checkIfShouldTrigger: () => void;
+
+	firstStandStillTime: Date | undefined;
+	setFirstStandStillTime: (date: Date) => void;
+
+	msInStandStill: number;
+	setMsInStandStill: (timeInStill: number) => void;
 };
 
 export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
@@ -52,14 +62,21 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
 	appendAndShiftResultHistory: (result) => {
 		const resultHistory = get().resultHistory.slice(0);
 
-		if (resultHistory.length > HISTORY_SIZE_LIMIT) {
+		if (resultHistory.length > HISTORY_SIZE_LIMIT_FRAMES) {
 			resultHistory.shift();
 		}
 
-		resultHistory.push(result);
+		resultHistory.push(JSON.parse(JSON.stringify(result)));
 
 		set(() => ({ resultHistory }));
 	},
+
+	msInStandStill: 0,
+	setMsInStandStill: (msInStill) => set(() => ({ msInStandStill: msInStill })),
+
+	firstStandStillTime: undefined,
+	setFirstStandStillTime: (firstStillTime) =>
+		set(() => ({ firstStandStillTime: firstStillTime })),
 
 	trigger: false,
 	checkIfShouldTrigger: () => {
@@ -67,27 +84,57 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
 		const currentResult = get().result;
 
 		if (!hasConsistentlyOneFace(currentResult, resultHistory)) {
-			set(() => ({ trigger: false }));
 			return;
 		}
 
-		const ageSum = resultHistory.reduce(
-			(ageAccumulator, result) => ageAccumulator + (result.face[0]?.age ?? 0),
-			0
+		const distances = resultHistory.map((result) => result.face[0].distance);
+		const rolls = resultHistory.map(
+			(result) => result.face[0].rotation.angle.roll
 		);
-		const ageAverage = Number((ageSum / resultHistory.length).toFixed(2));
+		const pitches = resultHistory.map(
+			(result) => result.face[0].rotation.angle.pitch
+		);
+		const yaws = resultHistory.map(
+			(result) => result.face[0].rotation.angle.yaw
+		);
 
-		const currentAge = currentResult.face[0].age;
-
-		const diff = Number(Math.abs(currentAge - ageAverage).toFixed(2));
-		const maxDiff = Number((currentAge * 0.1).toFixed(2));
-
-		if (diff > maxDiff) {
-			set(() => ({ trigger: false }));
+		if (
+			distances.length === 0 ||
+			rolls.length === 0 ||
+			pitches.length === 0 ||
+			yaws.length === 0
+		) {
 			return;
 		}
 
-		set(() => ({ trigger: true }));
+		const sdDistances = MathUtils.standardDeviation(distances);
+		const sdRolls = MathUtils.standardDeviation(rolls);
+		const sdPitches = MathUtils.standardDeviation(pitches);
+		const sdYaws = MathUtils.standardDeviation(yaws);
+
+		if (
+			sdDistances < DISTANCE_THRESHOLD_METERS &&
+			sdRolls < ROTATION_THRESHOLD_DEGRESS &&
+			sdPitches < ROTATION_THRESHOLD_DEGRESS &&
+			sdYaws < ROTATION_THRESHOLD_DEGRESS
+		) {
+			if (!get().firstStandStillTime) {
+				set(() => ({ firstStandStillTime: new Date() }));
+			} else {
+				const standStillTimeMs =
+					new Date().getTime() - get().firstStandStillTime.getTime();
+				set(() => ({ msInStandStill: standStillTimeMs }));
+				if (standStillTimeMs > STANDSTILL_THRESHOLD_MS) {
+					set(() => ({ trigger: true }));
+				}
+			}
+		} else {
+			set(() => ({
+				trigger: false,
+				msInStandStill: 0,
+				firstStandStillTime: undefined,
+			}));
+		}
 	},
 }));
 
@@ -108,7 +155,7 @@ function hasConsistentlyOneFace(
 	}
 
 	return (
-		resultHistory.length < HISTORY_SIZE_LIMIT ||
+		resultHistory.length < HISTORY_SIZE_LIMIT_FRAMES ||
 		resultHistory.every(
 			(result) => result.face.length === currentResult.face.length
 		)
