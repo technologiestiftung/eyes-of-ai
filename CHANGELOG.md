@@ -1,3 +1,12 @@
+## [1.2.1](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.2.0...v1.2.1) (2023-06-08)
+
+
+### Bug Fixes
+
+* change logic of function ([84eba54](https://github.com/technologiestiftung/eyes-of-ai/commit/84eba54ce33bdfce7e4420d4c64e653a44307ed1))
+* position of function call ([dd928d9](https://github.com/technologiestiftung/eyes-of-ai/commit/dd928d975de6be0729c12330110b355f1fc0fdcb))
+* **types:** Added some type safety ([93b42fa](https://github.com/technologiestiftung/eyes-of-ai/commit/93b42fa9b41661f4c9225947e7f6ee94e95d40b8))
+
 # [1.2.0](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.1.0...v1.2.0) (2023-06-07)
 
 
