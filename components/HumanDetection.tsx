@@ -1,7 +1,7 @@
+import type { Config, Human } from "@vladmandic/human";
 import React, { useEffect } from "react";
-import type { Human, Config } from "@vladmandic/human";
 import { status } from "../lib/logging";
-import {useEyesOfAIStore} from "../store";
+import { useEyesOfAIStore } from "../store";
 
 const config: Partial<Config> = {
 	debug: false,
@@ -17,20 +17,21 @@ interface Props {
 	canvasRef: React.MutableRefObject<HTMLCanvasElement>;
 }
 
-const RunHuman: React.FC<Props> = ({ videoRef, canvasRef }) => {
+const HumanDetection: React.FC<Props> = ({ videoRef, canvasRef }) => {
 	const ready = useEyesOfAIStore((state) => state.ready);
 	const setReady = useEyesOfAIStore((state) => state.setReady);
 
 	const human = useEyesOfAIStore((state) => state.human);
 	const setHuman = useEyesOfAIStore((state) => state.setHuman);
 
-	const result = useEyesOfAIStore((state) => state.result);
 	const setResult = useEyesOfAIStore((state) => state.setResult);
 
-	const trigger = useEyesOfAIStore((state) => state.trigger);
-	const checkIfShouldTrigger = useEyesOfAIStore((state) => state.checkIfShouldTrigger);
-
-	const appendAndShiftResultHistory = useEyesOfAIStore((state) => state.appendAndShiftResultHistory);
+	const checkIfShouldTrigger = useEyesOfAIStore(
+		(state) => state.checkIfShouldTrigger,
+	);
+	const appendAndShiftResultHistory = useEyesOfAIStore(
+		(state) => state.appendAndShiftResultHistory,
+	);
 
 	useEffect(() => {
 		if (typeof document === "undefined") return;
@@ -38,7 +39,7 @@ const RunHuman: React.FC<Props> = ({ videoRef, canvasRef }) => {
 		import("@vladmandic/human").then((H) => {
 			const newHuman = new H.default(config) as Human;
 			setHuman(newHuman);
-			console.log('config:', newHuman.config);
+			console.log("config:", newHuman.config);
 			status("loading models...");
 			newHuman.load().then(() => {
 				status("initializing...");
@@ -60,7 +61,7 @@ const RunHuman: React.FC<Props> = ({ videoRef, canvasRef }) => {
 			await human.detect(videoRef.current);
 
 			const now = human.now();
-			fps = (1000 / (now - timestamp));
+			fps = 1000 / (now - timestamp);
 			timestamp = now;
 
 			status(
@@ -71,14 +72,12 @@ const RunHuman: React.FC<Props> = ({ videoRef, canvasRef }) => {
 
 			if (!videoRef.current.paused) {
 				const interpolated = human.next(human.result);
-
 				setResult({ face: interpolated.face, gesture: interpolated.gesture });
-				appendAndShiftResultHistory({ face: interpolated.face, gesture: interpolated.gesture });
-
+				appendAndShiftResultHistory({
+					face: interpolated.face,
+					gesture: interpolated.gesture,
+				});
 				checkIfShouldTrigger();
-
-				human.draw.canvas(videoRef.current, canvasRef.current);
-				human.draw.all(canvasRef.current, interpolated);
 			}
 
 			detect();
@@ -89,20 +88,7 @@ const RunHuman: React.FC<Props> = ({ videoRef, canvasRef }) => {
 		}
 	}, [ready]);
 
-	return <>
-		{
-			result?.face.map((face) => (
-				<div key={face.age}>
-					Age: {face.age},
-					Gender: {face.gender},
-					First Emotion: {result.face[0].emotion.map(({ emotion, score }) => `${score * 100}% ${emotion}`).slice(0, 1)},
-					Second Emotion: {result.face[0].emotion.map(({ emotion, score }) => `${score * 100}% ${emotion}`).slice(1, 2)},
-					Gestures: {result.gesture.map(({ gesture }) => gesture).join(', ')}
-				</div>
-			))
-		}
-		Snapshot: {trigger ? 'yes' : 'no'}
-	</>;
+	return <></>;
 };
 
-export default RunHuman;
+export default HumanDetection;
