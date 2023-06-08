@@ -38,7 +38,7 @@ jobs:
         with:
           node-version-file: ".nvmrc"
       - run: |
-          npm ci
+          npm ci --force
           npx semantic-release --ci
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
