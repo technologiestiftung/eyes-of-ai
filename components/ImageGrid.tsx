@@ -1,35 +1,61 @@
 import React, { useEffect, useState } from "react";
-import { anonClient } from "../lib/supabase";
+
+import usePaginatedImages from "../hooks/usePaginatedImages";
 import { Database } from "../lib/database";
-import styles from "../styles/elements.module.css";
 
 type Image = Database["public"]["Tables"]["eotai_images"]["Row"];
-const ImageGrid = () => {
-	const [imageData, setImageData] = useState<Image[]>(null); // Initialize the state with an empty array
-	// const filePath = "/images.json";
 
-	const loadImageData = async () => {
-		const { data, error } = await anonClient.from("eotai_images").select("*");
-		if (error) throw new Error(error.message);
-		setImageData(data.slice(0,16));
-	};
-	useEffect(() => {
-		loadImageData().catch(console.error);
-	}, []);
+interface Props {
+  showCaption: boolean;
+  showMoreButton: boolean;
+}
 
-	return (
-		<div className={styles.imageGridContainer}>
-			<div className="grid grid-cols-4 gap-10">
-				{imageData &&
-					imageData.map(({ id, url, prompt }) => (
-						<figure style={{ width: "100%", height: "100%" }} key={id}>
-							<img key={id} src={url} alt={prompt} className="image-item" />
-							{/* <figcaption>{prompt}</figcaption> */}
-						</figure>
-					))}
-			</div>
-		</div>
-	);
+const ImageGrid: React.FC<Props> = ({ showCaption, showMoreButton }) => {
+  const PAGE_SIZE = 16;
+  const [page, setPage] = useState(0);
+  const [allImageData, setAllImageData] = useState<Image[]>([]);
+  const { fetchPaginatedImages, isLoading } = usePaginatedImages();
+
+  const loadImageData = async () => {
+    fetchPaginatedImages(page, PAGE_SIZE, (data) => {
+      setAllImageData(allImageData.concat(data));
+    });
+  };
+
+  useEffect(() => {
+    loadImageData();
+  }, []);
+
+  useEffect(() => {
+    loadImageData();
+  }, [page]);
+
+  const onShowMoreClick = () => {
+    setPage(page + 1);
+  };
+  return (
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 bg-black">
+        {allImageData.map((image) => (
+          <div key={image.id} className="p-4 text-white">
+            <figure>
+              <img
+                src={image.url}
+                alt={image.prompt}
+                className="w-full h-auto rounded-md"
+              />
+              {showCaption && <figcaption>{image.prompt}</figcaption>}
+            </figure>
+          </div>
+        ))}
+        {onShowMoreClick && (
+          <div className="p-4 text-white">
+            <button onClick={onShowMoreClick}>Show more</button>
+          </div>
+        )}
+      </div>
+    </>
+  );
 };
 
 export default ImageGrid;
