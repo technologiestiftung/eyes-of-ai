@@ -26,8 +26,12 @@ const HumanDetection: React.FC<Props> = ({ videoRef, canvasRef }) => {
 
 	const setResult = useEyesOfAIStore((state) => state.setResult);
 
-	const checkIfShouldTrigger = useEyesOfAIStore((state) => state.checkIfShouldTrigger);
-	const appendAndShiftResultHistory = useEyesOfAIStore((state) => state.appendAndShiftResultHistory);
+	const checkIfShouldTrigger = useEyesOfAIStore(
+		(state) => state.checkIfShouldTrigger,
+	);
+	const appendAndShiftResultHistory = useEyesOfAIStore(
+		(state) => state.appendAndShiftResultHistory,
+	);
 
 	useEffect(() => {
 		if (typeof document === "undefined") return;
@@ -35,7 +39,7 @@ const HumanDetection: React.FC<Props> = ({ videoRef, canvasRef }) => {
 		import("@vladmandic/human").then((H) => {
 			const newHuman = new H.default(config) as Human;
 			setHuman(newHuman);
-			console.log('config:', newHuman.config);
+			console.log("config:", newHuman.config);
 			status("loading models...");
 			newHuman.load().then(() => {
 				status("initializing...");
@@ -57,7 +61,7 @@ const HumanDetection: React.FC<Props> = ({ videoRef, canvasRef }) => {
 			await human.detect(videoRef.current);
 
 			const now = human.now();
-			fps = (1000 / (now - timestamp));
+			fps = 1000 / (now - timestamp);
 			timestamp = now;
 
 			status(
@@ -69,7 +73,10 @@ const HumanDetection: React.FC<Props> = ({ videoRef, canvasRef }) => {
 			if (!videoRef.current.paused) {
 				const interpolated = human.next(human.result);
 				setResult({ face: interpolated.face, gesture: interpolated.gesture });
-				appendAndShiftResultHistory({ face: interpolated.face, gesture: interpolated.gesture });
+				appendAndShiftResultHistory({
+					face: interpolated.face,
+					gesture: interpolated.gesture,
+				});
 				checkIfShouldTrigger();
 			}
 

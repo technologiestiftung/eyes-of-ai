@@ -3,6 +3,7 @@ import { Collection } from "../../lib/collection";
 import { UserError } from "../../lib/errors";
 import { Emotion, FaceGesture, IrisGesture } from "@vladmandic/human";
 import { Prompt } from "../../lib/validate-prompt";
+import { getCollection } from "../../lib/collection";
 
 export interface Body {
 	age: number;
@@ -31,64 +32,6 @@ const promptSchema = {
 export const config = {
 	runtime: "edge",
 };
-
-const materials = new Collection([
-	"oil painting",
-	"crayon drawing",
-	"watercolor",
-	"acrylic painting",
-	"gouache painting",
-	"pastel drawing",
-	"charcoal drawing",
-	"pencil sketching",
-	"ink drawing",
-	"collage",
-	"etching",
-	"lithography",
-]);
-const styles = new Collection([
-	"folk art",
-	"digital art",
-	"concept art",
-	"abstract art",
-	"photography",
-	"pixel art", // looks great
-	"synthwave",
-	"abstract",
-	"conceptual",
-	"surreal",
-	"minimalist",
-	"realistic",
-	"impressionist",
-	"expressionist",
-	"cubist",
-	"modern",
-	"post-modern",
-	"contemporary",
-	"pop art",
-	"fauvist",
-	"dadaist",
-	"symbolist",
-	"romanticist",
-	"renaissance",
-	"baroque",
-	"gothic",
-	"rococo",
-	"classical",
-	"neoclassical",
-	"pre-raphaelite",
-	"art nouveau",
-	"art deco",
-]);
-const colors = new Collection([
-	"vibrant colors",
-	"monochrome",
-	"sepia",
-	"pastels",
-	"black and white",
-	"neon colors",
-	"infra-red",
-]);
 
 export default async (req: NextRequest) => {
 	try {
@@ -125,11 +68,14 @@ export default async (req: NextRequest) => {
 			style: "long",
 			type: "conjunction",
 		});
-		const prompt = `A ${materials.random()} of a ${Math.floor(
+		const collection = getCollection();
+		const { material, style, color } = collection;
+
+		const prompt = `${material} of a ${Math.floor(
 			age,
 		)} year old ${formatter.format(
 			emotions,
-		)} looking ${gender}, ${gestureCollection.random()}, ${styles.random()}, ${colors.random()}`;
+		)} looking ${gender}, ${gestureCollection.random()}, ${style}, ${color}`;
 
 		return new Response(JSON.stringify({ prompt }), {
 			status: 200,
