@@ -5,7 +5,8 @@ import { useEyesOfAIStore } from "../store";
 
 const config: Partial<Config> = {
 	debug: false,
-	modelBasePath: "https://cdn.jsdelivr.net/gh/vladmandic/human-models/models/",
+	modelBasePath: "/node_modules/@vladmandic/human-models/models",
+	wasmPath: "/node_modules/@tensorflow/tfjs-backend-wasm/dist/",
 	face: { enabled: true, attention: { enabled: true } },
 	body: { enabled: false },
 	hand: { enabled: false },
@@ -27,10 +28,10 @@ const HumanDetection: React.FC<Props> = ({ videoRef, canvasRef }) => {
 	const setResult = useEyesOfAIStore((state) => state.setResult);
 
 	const checkIfShouldTrigger = useEyesOfAIStore(
-		(state) => state.checkIfShouldTrigger,
+		(state) => state.checkIfShouldTrigger
 	);
 	const appendAndShiftResultHistory = useEyesOfAIStore(
-		(state) => state.appendAndShiftResultHistory,
+		(state) => state.appendAndShiftResultHistory
 	);
 
 	useEffect(() => {
@@ -67,7 +68,7 @@ const HumanDetection: React.FC<Props> = ({ videoRef, canvasRef }) => {
 			status(
 				videoRef.current.paused
 					? "paused"
-					: `fps: ${fps.toFixed(1).padStart(5, " ")}`,
+					: `fps: ${fps.toFixed(1).padStart(5, " ")}`
 			);
 
 			if (!videoRef.current.paused) {
