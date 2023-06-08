@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
-import useImages from "../hooks/useImages";
+import usePaginatedImages from "../hooks/usePaginatedImages";
 import { Database } from "../lib/database";
 
 type Image = Database["public"]["Tables"]["eotai_images"]["Row"];
@@ -10,7 +10,7 @@ const PrintPage: React.FC<{}> = ({}) => {
   const PAGE_SIZE = 16;
   const [page, setPage] = useState(0);
   const [allImageData, setAllImageData] = useState<Image[]>([]);
-  const { fetchPaginatedImages, isLoading } = useImages();
+  const { fetchPaginatedImages, isLoading } = usePaginatedImages();
 
   const loadImageData = async () => {
     fetchPaginatedImages(page, PAGE_SIZE, (data) => {
