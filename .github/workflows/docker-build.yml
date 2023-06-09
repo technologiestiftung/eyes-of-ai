@@ -95,6 +95,8 @@ jobs:
           build-args: |
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ env.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
             NEXT_PUBLIC_SUPABASE_URL=${{ env.NEXT_PUBLIC_SUPABASE_URL }}
+            NEXT_PUBLIC_HUMAN_MODELS_PATH=${{ env.NEXT_PUBLIC_HUMAN_MODELS_PATH }}
+            NEXT_PUBLIC_TENSOR_WASM_PATH=${{ env.NEXT_PUBLIC_TENSOR_WASM_PATH }}
           context: .
           file: ./Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
