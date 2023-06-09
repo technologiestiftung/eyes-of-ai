@@ -7,7 +7,8 @@
 	"scripts": {
 		"dev": "next dev",
 		"dev:test": "NODE_ENV=test next dev",
-		"prebuild": "node scripts/generate-prompt-validator.js",
+		"prebuild": "node scripts/generate-prompt-validator.cjs",
+		"postbuild": "node scripts/copy-human-assets-to-public.cjs",
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",

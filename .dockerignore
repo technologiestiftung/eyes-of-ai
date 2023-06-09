@@ -10,8 +10,10 @@ node_modules
 playground
 release.config.cjs
 scripts
-!scripts/generate-prompt-validator.js
+!scripts/generate-prompt-validator.cjs
+!scripts/copy-human-assets-to-public.cjs
 storage
 supabase
 vitest.config.ts
 .env
+.DS_Store

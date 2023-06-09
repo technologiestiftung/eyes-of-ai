@@ -36,6 +36,8 @@ docker_build:
 		--no-cache \
 		--build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY \
 		--build-arg NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
+		--build-arg NEXT_PUBLIC_HUMAN_MODELS_PATH=$NEXT_PUBLIC_HUMAN_MODELS_PATH \
+		--build-arg NEXT_PUBLIC_TENSOR_WASM_PATH=$NEXT_PUBLIC_TENSOR_WASM_PATH \
 		-t technologiestiftung:eyes-of-the-ai .
 
 docker_run:
