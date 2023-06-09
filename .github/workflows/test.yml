@@ -7,6 +7,8 @@ env:
   # Get your key at https://platform.openai.com/account/api-keys
   OPENAI_API_KEY: sk-123
   NODE_ENV: test
+  NEXT_PUBLIC_HUMAN_MODELS_PATH: /models
+  NEXT_PUBLIC_TENSOR_WASM_PATH: /tfjs-backend-wasm/
 
 on:
   push:

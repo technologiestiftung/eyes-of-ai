@@ -5,8 +5,8 @@ import { useEyesOfAIStore } from "../store";
 
 const config: Partial<Config> = {
 	debug: false,
-	modelBasePath: "/node_modules/@vladmandic/human-models/models",
-	wasmPath: "/node_modules/@tensorflow/tfjs-backend-wasm/dist/",
+	modelBasePath: process.env.NEXT_PUBLIC_HUMAN_MODELS_PATH,
+	wasmPath: process.env.NEXT_PUBLIC_TENSOR_WASM_PATH,
 	face: { enabled: true, attention: { enabled: true } },
 	body: { enabled: false },
 	hand: { enabled: false },
