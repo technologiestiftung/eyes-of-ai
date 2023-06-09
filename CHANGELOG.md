@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.2.2...v1.2.3) (2023-06-09)
+
+
+### Bug Fixes
+
+* **loading:** Adds models to standalone build ([e3db9aa](https://github.com/technologiestiftung/eyes-of-ai/commit/e3db9aa891a38062553a9ce6f90823a1dc8c3339))
+
 ## [1.2.2](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.2.1...v1.2.2) (2023-06-08)
 
 
