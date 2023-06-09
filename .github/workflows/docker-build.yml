@@ -4,7 +4,8 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY}}
   NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-
+  NEXT_PUBLIC_HUMAN_MODELS_PATH: /models
+  NEXT_PUBLIC_TENSOR_WASM_PATH: /tfjs-backend-wasm/
 on:
   push:
     branches: [main]
