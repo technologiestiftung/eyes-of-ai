@@ -5,7 +5,7 @@ import { useEyesOfAIStore } from "../store";
 
 const config: Partial<Config> = {
 	debug: false,
-	modelBasePath: `http://localhost:3000${process.env.NEXT_PUBLIC_HUMAN_MODELS_PATH}`,
+	modelBasePath: `${process.env.NEXT_PUBLIC_HUMAN_MODELS_PATH}`,
 
 	face: {
 		enabled: true,
