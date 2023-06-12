@@ -6,19 +6,17 @@ import { useEyesOfAIStore } from "../store";
 const config: Partial<Config> = {
 	debug: false,
 	modelBasePath: `${process.env.NEXT_PUBLIC_HUMAN_MODELS_PATH}`,
-
 	face: {
 		enabled: true,
 		attention: { enabled: true },
-		// TODO: Eval which options can be disabled to speed things up
-		// antispoof: { enabled: false },
-		// mesh: { enabled: true },
-		// iris: { enabled: true },
-		// gear: { enabled: true },
-		// emotion: { enabled: true },
-		// detector: { enabled: true },
-		// description: { enabled: true },
-		// liveness: { enabled: true },
+		antispoof: { enabled: false },
+		mesh: { enabled: true },
+		iris: { enabled: false },
+		gear: { enabled: false },
+		emotion: { enabled: true },
+		detector: { enabled: false },
+		description: { enabled: true },
+		liveness: { enabled: false },
 	},
 	warmup: "face",
 	body: { enabled: false },
