@@ -1,11 +1,11 @@
 {
 	"name": "eyes-of-ai",
-	"version": "1.2.3",
+	"version": "1.2.4",
 	"private": true,
 	"description": "An OpenAI-based prototype that uses the Dall-E API to create parametrically personalized image of it's users.",
 	"main": "index.js",
 	"scripts": {
-		"predev":"npm run postbuild && npm run prebuild",
+		"predev": "npm run postbuild && npm run prebuild",
 		"dev": "next dev",
 		"dev:test": "NODE_ENV=test next dev",
 		"prebuild": "node scripts/generate-prompt-validator.cjs",
