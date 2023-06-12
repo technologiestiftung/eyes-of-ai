@@ -14,21 +14,13 @@ const ImageGrid: React.FC<Props> = ({ showCaption, showMoreButton }) => {
   const PAGE_SIZE = 16;
   const [page, setPage] = useState(0);
   const [allImageData, setAllImageData] = useState<Image[]>([]);
-  const { fetchPaginatedImages, isLoading } = usePaginatedImages();
+  const { fetchPaginatedImages } = usePaginatedImages();
 
-  const loadImageData = async () => {
+  useEffect(() => {
     fetchPaginatedImages(page, PAGE_SIZE, (data) => {
-      setAllImageData(allImageData.concat(data));
+      setAllImageData((prevImageData) => prevImageData.concat(data));
     });
-  };
-
-  useEffect(() => {
-    loadImageData();
-  }, []);
-
-  useEffect(() => {
-    loadImageData();
-  }, [page]);
+  }, [fetchPaginatedImages, page]);
 
   const onShowMoreClick = () => {
     setPage(page + 1);
@@ -48,7 +40,7 @@ const ImageGrid: React.FC<Props> = ({ showCaption, showMoreButton }) => {
             </figure>
           </div>
         ))}
-        {onShowMoreClick && (
+        {showMoreButton && onShowMoreClick && (
           <div className="p-4 text-white">
             <button onClick={onShowMoreClick}>Show more</button>
           </div>

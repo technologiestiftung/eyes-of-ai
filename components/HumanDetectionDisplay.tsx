@@ -1,64 +1,90 @@
-import React, { useMemo } from "react";
-import { useEyesOfAIStore } from "../store";
+import Human from "@vladmandic/human";
+import React, { useEffect, useRef } from "react";
+import { DetectionText } from "../pages";
 import styles from "../styles/elements.module.css";
 import ProgressBar from "./ProgressBar";
 
 interface Props {
-	videoRef: React.MutableRefObject<HTMLVideoElement>;
-	canvasRef: React.MutableRefObject<HTMLCanvasElement>;
+  canvasDrawWidth: number;
+  canvasDrawHeight: number;
+  detectedHuman: Human | undefined;
+  detectionText: DetectionText;
+  snapshotTriggered: boolean;
+  standStillDetected: boolean;
+  standStillProgress: number | undefined;
 }
 
-const HumanDetectionDisplay: React.FC<Props> = ({ videoRef, canvasRef }) => {
-	const result = useEyesOfAIStore((state) => state.result);
-	const triggered = useEyesOfAIStore((state) => state.trigger);
-	const firstStillTime = useEyesOfAIStore((state) => state.firstStandStillTime);
-	const msInStill = useEyesOfAIStore((state) => state.msInStandStill);
+const HumanDetectionDisplay: React.FC<Props> = ({
+  canvasDrawWidth,
+  canvasDrawHeight,
+  detectedHuman,
+  detectionText,
+  snapshotTriggered,
+  standStillDetected,
+  standStillProgress,
+}) => {
+  const canvasRef = useRef<HTMLCanvasElement | undefined>(undefined);
 
-	const detectionText = useMemo(() => {
-		const text = result?.face.map((face) => {
-			const distinctGestures = result.gesture
-				.map(({ gesture }) => gesture.toString())
-				.filter((x, i, a) => a.indexOf(x) == i);
+  useEffect(() => {
+    if (canvasRef.current) {
+      canvasRef.current!.width = canvasDrawWidth;
+      canvasRef.current!.height = canvasDrawHeight;
+    }
+  }, [canvasDrawWidth, canvasDrawHeight]);
 
-			const coreLabel = `${Math.round(face.age)} years old ${
-				face.gender
-			} person`;
-			const emotionLabel = `${face.emotion
-				.map(({ emotion, score }) => `${Math.round(score * 100)}% ${emotion}`)
-				.join(", ")}`;
-			const gesturesLabel = `${distinctGestures.join(", ")}`;
+  useEffect(() => {
+    if (canvasRef.current && detectedHuman) {
+      var ctx = canvasRef.current.getContext("2d");
+      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+      detectedHuman.draw.all(
+        canvasRef.current,
+        detectedHuman.next(detectedHuman.result),
+        {
+          color: "#F64C72",
+          roundRect: 0,
+          lineWidth: 2,
+          drawPolygons: true,
+          drawLabels: false,
+          drawBoxes: standStillDetected,
+          drawGaze: false,
+          drawPoints: false,
+          drawAttention: false,
+          drawGestures: false,
+        }
+      );
+    }
+  }, [detectedHuman, canvasRef, detectionText, standStillDetected]);
 
-			return [coreLabel, emotionLabel, gesturesLabel];
-		})[0];
-		return text;
-	}, [result]);
-
-	return (
-		<>
-			<div className={styles.standStillHint}>
-				{!triggered && firstStillTime ? (
-					<div>
-						<ProgressBar
-							progress={Math.min(100, msInStill / 2000)}
-							width={window.innerWidth}
-							height={20}
-						></ProgressBar>
-						<div>Stay like this!</div>
-					</div>
-				) : (
-					<div style={{ paddingTop: "20px" }}>Stay still!</div>
-				)}
-				{triggered && <div>&apos;Triggered&apos;</div>}
-			</div>
-			<div className={styles.detectionText}>
-				<div>
-					{detectionText?.map((label) => (
-						<p key={label}>{label}</p>
-					))}
-				</div>
-			</div>
-		</>
-	);
+  return (
+    <>
+      <div className={styles.standStillHint}>
+        {!snapshotTriggered && standStillDetected ? (
+          <div>
+            <ProgressBar
+              progress={standStillProgress}
+              width={window.innerWidth}
+              height={20}
+            ></ProgressBar>
+            <div>Stay like this!</div>
+          </div>
+        ) : (
+          <div style={{ paddingTop: "20px" }}>Stay still!</div>
+        )}
+      </div>
+      <canvas id="canvas" ref={canvasRef} className={styles.output} />
+      {detectionText && (
+        <div className={styles.detectionText}>
+          <div>
+            <p>{detectionText.core}</p>
+            <p>{detectionText.emotion}</p>
+            <p>{detectionText.gesture}</p>
+          </div>
+        </div>
+      )}
+    </>
+  );
 };
 
 export default HumanDetectionDisplay;
