@@ -5,6 +5,7 @@
 	"description": "An OpenAI-based prototype that uses the Dall-E API to create parametrically personalized image of it's users.",
 	"main": "index.js",
 	"scripts": {
+		"predev":"npm run postbuild && npm run prebuild",
 		"dev": "next dev",
 		"dev:test": "NODE_ENV=test next dev",
 		"prebuild": "node scripts/generate-prompt-validator.cjs",
@@ -31,7 +32,6 @@
 	"homepage": "https://github.com/technologiestiftung/eyes-of-ai#readme",
 	"dependencies": {
 		"@supabase/supabase-js": "2.24.0",
-		"@tensorflow/tfjs-backend-wasm": "4.5.0",
 		"@tensorflow/tfjs-node": "4.6.0",
 		"@vladmandic/human": "3.0.6",
 		"@vladmandic/human-models": "3.0.4",

@@ -6,8 +6,11 @@ import { useEyesOfAIStore } from "../store";
 const config: Partial<Config> = {
 	debug: false,
 	modelBasePath: process.env.NEXT_PUBLIC_HUMAN_MODELS_PATH,
-	wasmPath: process.env.NEXT_PUBLIC_TENSOR_WASM_PATH,
-	face: { enabled: true, attention: { enabled: true } },
+
+	face: {
+		enabled: true,
+		attention: { enabled: true },
+	},
 	body: { enabled: false },
 	hand: { enabled: false },
 	object: { enabled: false },

@@ -274,3 +274,4 @@ cython_debug/
 .vscode/settings.json
 storage/*
 backup/backup.sql
+public/models/*
