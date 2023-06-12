@@ -1,3 +1,10 @@
+## [1.2.5](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.2.4...v1.2.5) (2023-06-12)
+
+
+### Bug Fixes
+
+* Detection ([e5baebb](https://github.com/technologiestiftung/eyes-of-ai/commit/e5baebb011d0557cab74d5ee6eb6845db45a7059))
+
 ## [1.2.4](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.2.3...v1.2.4) (2023-06-12)
 
 
