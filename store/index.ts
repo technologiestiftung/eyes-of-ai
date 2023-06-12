@@ -132,10 +132,10 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
 			return;
 		}
 
-		const distances = faces.map((face) => face.distance);
-		const rolls = faces.map((face) => face.rotation.angle.roll);
-		const pitches = faces.map((face) => face.rotation.angle.pitch);
-		const yaws = faces.map((face) => face.rotation.angle.yaw);
+		const distances = faces.map((face) => (face.distance ? face.distance : 0));
+		const rolls = faces.map((face) => face.rotation?.angle.roll);
+		const pitches = faces.map((face) => face.rotation?.angle.pitch);
+		const yaws = faces.map((face) => face.rotation?.angle.yaw);
 
 		if (
 			distances.length === 0 ||

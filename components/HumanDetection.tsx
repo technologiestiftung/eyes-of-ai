@@ -5,12 +5,22 @@ import { useEyesOfAIStore } from "../store";
 
 const config: Partial<Config> = {
 	debug: false,
-	modelBasePath: process.env.NEXT_PUBLIC_HUMAN_MODELS_PATH,
+	modelBasePath: `http://localhost:3000${process.env.NEXT_PUBLIC_HUMAN_MODELS_PATH}`,
 
 	face: {
 		enabled: true,
 		attention: { enabled: true },
+		// TODO: Eval which options can be disabled to speed things up
+		// antispoof: { enabled: false },
+		// mesh: { enabled: true },
+		// iris: { enabled: true },
+		// gear: { enabled: true },
+		// emotion: { enabled: true },
+		// detector: { enabled: true },
+		// description: { enabled: true },
+		// liveness: { enabled: true },
 	},
+	warmup: "face",
 	body: { enabled: false },
 	hand: { enabled: false },
 	object: { enabled: false },
@@ -40,20 +50,37 @@ const HumanDetection: React.FC<Props> = ({ videoRef, canvasRef }) => {
 	useEffect(() => {
 		if (typeof document === "undefined") return;
 
-		import("@vladmandic/human").then((H) => {
-			const newHuman = new H.default(config) as Human;
-			setHuman(newHuman);
-			console.log("config:", newHuman.config);
-			status("loading models...");
-			newHuman.load().then(() => {
-				status("initializing...");
-				newHuman.warmup().then(() => {
-					setReady(true);
-					status("ready...");
-				});
+		import("@vladmandic/human")
+			.then((H) => {
+				const newHuman = new H.default(config) as Human;
+				setHuman(newHuman);
+				console.log("config:", newHuman.config);
+				status("loading models...");
+				newHuman
+					.load()
+					.then(() => {
+						status("initializing...");
+						newHuman
+							.warmup()
+							.then(() => {
+								setReady(true);
+								status("ready...");
+							})
+							.catch((err) => {
+								console.error("warumup error", err);
+								status("error...");
+							});
+					})
+					.catch((err) => {
+						console.error("load error", err);
+						status("error...");
+					});
+			})
+			.catch((err) => {
+				console.error("import error", err);
+				status("error...");
 			});
-		});
-	}, []);
+	}, [setHuman, setReady]);
 
 	useEffect(() => {
 		let timestamp = 0;
