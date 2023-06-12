@@ -11,21 +11,18 @@ import ImageGrid from "../components/ImageGrid";
 import useGeneratedImage from "../hooks/useGeneratedImage";
 import usePrompt from "../hooks/usePrompt";
 import GeneratedImageDisplay from "../components/GeneratedImageDisplay";
+import useDetectionText from "../hooks/useDetectionText";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const token = context.res.req.headers["x-csrf-token"] as string;
   return { props: { csrf: token } };
 };
 
-export interface DetectionText {
-  core: string;
-  emotion: string;
-  gesture: string;
-}
-
 const Page: React.FC<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ csrf }) => {
+  const EXPIRATION_SECONDS = 20;
+
   const videoRef = useRef<HTMLVideoElement | undefined>(undefined);
   const triggered = useEyesOfAIStore((state) => state.trigger);
   const humanDetected = useEyesOfAIStore((state) => state.humanDetected);
@@ -42,11 +39,12 @@ const Page: React.FC<
   const [prompt, setPrompt] = useState<string>();
   const [imageGenerationLoading, setImageGenerationLoading] = useState(false);
   const [generatedImageSrc, setGeneratedImageSrc] = useState<string>();
+  const [imageGenerationTime, setImageGenerationTime] = useState<Date>();
+  const [expirationProgress, setExpirationProgress] = useState<number>(0.0);
+
   const { generatePrompt } = usePrompt(csrf, result);
   const { generateImage } = useGeneratedImage(csrf);
-  const [imageGenerationTime, setImageGenerationTime] = useState<Date>();
-  const EXPIRATION_SECONDS = 20;
-  const [expirationProgress, setExpirationProgress] = useState<number>(0.0);
+  const { detectionText } = useDetectionText(result);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -68,28 +66,6 @@ const Page: React.FC<
       clearInterval(interval);
     };
   }, [imageGenerationTime, resetDetection]);
-
-  const detectionText = useMemo(() => {
-    if (!humanDetected || !result || !result.face[0]) {
-      return undefined;
-    }
-    const face = result.face[0];
-    const distinctGestures = result.gesture
-      .map(({ gesture }) => gesture.toString())
-      .filter((x, i, a) => a.indexOf(x) == i);
-
-    const coreLabel = `${Math.round(face.age)} years old ${face.gender} person`;
-    const emotionLabel = `${face.emotion
-      .map(({ emotion, score }) => `${Math.round(score * 100)}% ${emotion}`)
-      .join(", ")}`;
-    const gesturesLabel = `${distinctGestures.join(", ")}`;
-
-    return {
-      core: coreLabel,
-      emotion: emotionLabel,
-      gesture: gesturesLabel,
-    } as DetectionText;
-  }, [humanDetected, result]);
 
   useEffect(() => {
     if (videoRef && videoRef.current) {

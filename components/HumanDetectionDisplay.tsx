@@ -1,8 +1,8 @@
 import Human from "@vladmandic/human";
 import React, { useEffect, useRef } from "react";
-import { DetectionText } from "../pages";
 import styles from "../styles/elements.module.css";
 import ProgressBar from "./ProgressBar";
+import { DetectionText } from "../hooks/useDetectionText";
 
 interface Props {
   canvasDrawWidth: number;
