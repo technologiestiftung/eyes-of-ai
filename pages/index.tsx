@@ -130,29 +130,31 @@ const Page: React.FC<
       <div id="performance" className={styles.performance}></div>
       <InitWebCam elementId="video" />
       {/* Actual components */}
-      <HumanDetection videoRef={videoRef} />
-      {!triggered && humanDetected && (
-        <HumanDetectionDisplay
-          canvasDrawWidth={canvasWidth}
-          canvasDrawHeight={canvasHeight}
-          detectedHuman={human}
-          detectionText={detectionText}
-          snapshotTriggered={triggered}
-          standStillDetected={firstStandStillTime !== undefined}
-          standStillProgress={standStillProgress}
-        />
-      )}
-      {triggered && (
-        <GeneratedImageDisplay
-          prompt={prompt}
-          imageGenerationInProgress={imageGenerationLoading}
-          generatedImageSrc={generatedImageSrc}
-          expirationProgress={expirationProgress}
-        />
-      )}
-      {!triggered && !humanDetected && (
-        <ImageGrid showCaption={false} showMoreButton={false}></ImageGrid>
-      )}
+      <div className={styles.mainContainer}>
+        <HumanDetection videoRef={videoRef} />
+        {!triggered && humanDetected && (
+          <HumanDetectionDisplay
+            canvasDrawWidth={canvasWidth}
+            canvasDrawHeight={canvasHeight}
+            detectedHuman={human}
+            detectionText={detectionText}
+            snapshotTriggered={triggered}
+            standStillDetected={firstStandStillTime !== undefined}
+            standStillProgress={standStillProgress}
+          />
+        )}
+        {triggered && (
+          <GeneratedImageDisplay
+            prompt={prompt}
+            imageGenerationInProgress={imageGenerationLoading}
+            generatedImageSrc={generatedImageSrc}
+            expirationProgress={expirationProgress}
+          />
+        )}
+        {!triggered && !humanDetected && (
+          <ImageGrid showCaption={false} showMoreButton={false}></ImageGrid>
+        )}
+      </div>
     </div>
   );
 };
