@@ -119,9 +119,8 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
 	trigger: false,
 	checkIfShouldTrigger: () => {
 		const resultHistory = get().resultHistory;
-		const currentResult = get().result;
 
-		if (currentResult.face.length === 0) {
+		if (!hasConsistentlyOneFace(resultHistory)) {
 			set(() => ({
 				humanDetected: false,
 				trigger: false,
@@ -131,10 +130,6 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
 			return;
 		}
 		set(() => ({ humanDetected: true }));
-
-		if (!hasConsistentlyOneFace(currentResult, resultHistory)) {
-			return;
-		}
 
 		const faces = resultHistory
 			.filter((result) => result.face && result.face!.length > 0)
@@ -188,26 +183,9 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
 	},
 }));
 
-function hasConsistentlyOneFace(
-	currentResult: Partial<Result>,
-	resultHistory: Partial<Result>[]
-) {
-	if (currentResult.face.length === 0) {
-		return false;
-	}
-
-	if (!currentResult.face[0]?.age) {
-		return false;
-	}
-
-	if (resultHistory.length === 0) {
-		return false;
-	}
-
-	return (
-		resultHistory.length < HISTORY_SIZE_LIMIT_FRAMES ||
-		resultHistory.every(
-			(result) => result.face.length === currentResult.face.length
-		)
-	);
+function hasConsistentlyOneFace(resultHistory: Partial<Result>[]) {
+	const facesInHistory = resultHistory.filter(
+		(r) => r.face && r.face.length == 1
+	).length;
+	return facesInHistory === resultHistory.length;
 }
