@@ -41,6 +41,7 @@ const Page: React.FC<
 	const [generatedImageSrc, setGeneratedImageSrc] = useState<string>();
 	const [imageGenerationTime, setImageGenerationTime] = useState<Date>();
 	const [expirationProgress, setExpirationProgress] = useState<number>(0.0);
+	const [webcamReady, setWebcamReady] = useState(false);
 
 	const { generatePrompt } = usePrompt(csrf, result);
 	const { generateImage } = useGeneratedImage(csrf);
@@ -104,10 +105,15 @@ const Page: React.FC<
 			<div id="status" className={styles.status}></div>
 			<div id="log" className={styles.log}></div>
 			<div id="performance" className={styles.performance}></div>
-			<InitWebCam elementId="video" />
+			<InitWebCam
+				elementId="video"
+				webcamReadyCallback={() => {
+					setWebcamReady(true);
+				}}
+			/>
 			{/* Actual components */}
 			<div className={styles.mainContainer}>
-				<HumanDetection videoRef={videoRef} />
+				{webcamReady && <HumanDetection videoRef={videoRef} />}
 				{!triggered && humanDetected && (
 					<HumanDetectionDisplay
 						canvasDrawWidth={canvasWidth}
