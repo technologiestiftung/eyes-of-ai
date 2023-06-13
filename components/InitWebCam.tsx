@@ -2,6 +2,7 @@ import { Component } from "react";
 
 interface Props {
 	elementId: string;
+	webcamReadyCallback: () => void;
 }
 interface State {
 	ready: boolean;
@@ -45,6 +46,7 @@ class InitWebCam extends Component<Props, State> {
 				this.video!.onloadeddata = () => this.setState({ ready: true });
 				this.video!.srcObject = this.stream;
 				this.video!.play();
+				this.props.webcamReadyCallback();
 			});
 	}
 
