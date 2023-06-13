@@ -28,10 +28,9 @@ const config: Partial<Config> = {
 
 interface Props {
 	videoRef: React.MutableRefObject<HTMLVideoElement>;
-	canvasRef: React.MutableRefObject<HTMLCanvasElement>;
 }
 
-const HumanDetection: React.FC<Props> = ({ videoRef, canvasRef }) => {
+const HumanDetection: React.FC<Props> = ({ videoRef }) => {
 	const ready = useEyesOfAIStore((state) => state.ready);
 	const setReady = useEyesOfAIStore((state) => state.setReady);
 
@@ -87,7 +86,7 @@ const HumanDetection: React.FC<Props> = ({ videoRef, canvasRef }) => {
 		let fps = 0;
 
 		const detect = async () => {
-			if (!human || !videoRef.current || !canvasRef.current) return;
+			if (!human || !videoRef.current) return;
 
 			await human.detect(videoRef.current);
 
@@ -117,7 +116,14 @@ const HumanDetection: React.FC<Props> = ({ videoRef, canvasRef }) => {
 		if (ready) {
 			detect();
 		}
-	}, [ready]);
+	}, [
+		appendAndShiftResultHistory,
+		checkIfShouldTrigger,
+		human,
+		ready,
+		setResult,
+		videoRef,
+	]);
 
 	return <></>;
 };
