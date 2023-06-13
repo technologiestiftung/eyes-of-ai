@@ -41,6 +41,12 @@ export type EyesOfAIStore = {
 	humanDetected: boolean;
 	setHumanDetected: (humanDetected: boolean) => void;
 
+	humanCloseEnough: boolean;
+	setHumanCloseEnough: (humanCloseEnough: boolean) => void;
+
+	meanDistance: number;
+	setMeanDistance: (meanDistance: number) => void;
+
 	generatedImageExpired: boolean;
 	setGeneratedImageExpired: (generatedImageExpired: boolean) => void;
 
@@ -85,6 +91,12 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
 	firstStandStillTime: undefined,
 	setFirstStandStillTime: (firstStillTime) =>
 		set(() => ({ firstStandStillTime: firstStillTime })),
+
+	humanCloseEnough: false,
+	setHumanCloseEnough: (humanCloseEnough) => set(() => ({ humanCloseEnough })),
+
+	meanDistance: 0,
+	setMeanDistance: (meanDistance) => set(() => ({ meanDistance })),
 
 	humanDetected: false,
 	setHumanDetected: (humanDetected) => set(() => ({ humanDetected })),
@@ -135,13 +147,13 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
 		const rolls = faces.map((face) => face.rotation?.angle.roll);
 		const pitches = faces.map((face) => face.rotation?.angle.pitch);
 		const yaws = faces.map((face) => face.rotation?.angle.yaw);
-
-		if (
-			distances.length === 0 ||
-			rolls.length === 0 ||
-			pitches.length === 0 ||
-			yaws.length === 0
-		) {
+		const meanDistance = MathUtils.mean(distances);
+		const humanCloseEnough = meanDistance < 0.7;
+		set(() => ({
+			humanCloseEnough: humanCloseEnough,
+			meanDistance: meanDistance,
+		}));
+		if (!humanCloseEnough) {
 			return;
 		}
 

@@ -6,6 +6,11 @@ class MathUtils {
 			xs.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / n
 		);
 	};
+	static mean = (xs: Array<number>) => {
+		const n = xs.length;
+		const mean = xs.reduce((a, b) => a + b) / n;
+		return mean;
+	};
 }
 
 export default MathUtils;
