@@ -42,8 +42,6 @@
 
 .detectionText {
 	display: flex;
-	width: 100vw;
-	height: 100vh;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
@@ -65,8 +63,6 @@
 
 .generatedImageContainer {
 	display: flex;
-	width: 100vw;
-	height: 100vh;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
@@ -75,4 +71,16 @@
 	color: white;
 	font-size: xx-large;
 	gap: 48px;
+}
+
+.mainContainer {
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	background-color: black;
+	color: white;
 }

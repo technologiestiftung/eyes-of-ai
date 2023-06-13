@@ -99,7 +99,6 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
 			msInStandStill: 0,
 			firstStandStillTime: undefined,
 			humanDetected: false,
-			human: undefined,
 			generatedImageExpired: false,
 			result: undefined,
 			resultHistory: [],
