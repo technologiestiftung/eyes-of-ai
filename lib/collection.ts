@@ -2,6 +2,56 @@
  * @example // To get all keys used types for mMaterial use
  * console.log(Object.keys(materials));
  */
+type IrisGesture = "facing center" | "looking left" | "looking right" | "looking up" | "looking down" | "looking center"
+type FaceGesture = "facing center" | "facing left" | "facing right" | "blink left eye" | "blink right eye" | `mouth ${number}% open` | "head up" | "head down"
+
+type IrisGestureDE = "nach innen schauend" | "nach links schauend" | "nach rechts schauend" | "nach oben schauend" | "nach unten schauend" | "in die Kamera schauend"
+type FaceGestureDE = "in die Kamera schauend" | "nach links schauend" | "nach rechts schauend" | "linkes Auge blinzelt" | "rechtes Auge blinzelt" | `Mund zu ${number}% geöffnet` | "Kopf nach oben" | "Kopf nach unten"
+
+type Emotion = "happy" | "sad" | "angry" | "surprise" | "disgust" | "fear" | "neutral";
+type EmotionDE = "glücklich" | "traurig" | "wütend" | "überrascht" | "angewidert" | "ängstlich" | "neutral";
+
+const IrisGestureTranslation: Record<IrisGesture, IrisGestureDE> = {
+	"facing center": "in die Kamera schauend",
+	"looking left": "nach links schauend",
+	"looking right": "nach rechts schauend",
+	"looking up": "nach oben schauend",
+	"looking down": "nach unten schauend",
+	"looking center": "in die Kamera schauend",
+}
+
+const FaceGestureTranslation: Record<FaceGesture, FaceGestureDE> = {
+	"facing center": "in die Kamera schauend",
+	"facing left": "nach links schauend",
+	"facing right": "nach rechts schauend",
+	"blink left eye": "linkes Auge blinzelt",
+	"blink right eye": "rechtes Auge blinzelt",
+	"head up": "Kopf nach oben",
+	"head down": "Kopf nach unten",
+}
+
+const EmotionTranslation: Record<Emotion, EmotionDE> = {
+	"happy": "glücklich",
+	"sad": "traurig",
+	"angry": "wütend",
+	"surprise": "überrascht",
+	"disgust": "angewidert",
+	"fear": "ängstlich",
+	"neutral": "neutral",
+}
+
+export function translateIrisGesture(gesture: IrisGesture): IrisGestureDE {
+	return IrisGestureTranslation[gesture];
+}
+
+export function translateFaceGesture(gesture: FaceGesture): FaceGestureDE {
+	return FaceGestureTranslation[gesture];
+}
+
+export function translateEmotion(emotion: Emotion): EmotionDE {
+	return EmotionTranslation[emotion];
+}
+
 type Material =
 	| "A dripping liquid oil painting"
 	| "A retro-futuristic cinematic etching"
