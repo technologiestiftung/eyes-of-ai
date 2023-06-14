@@ -6,19 +6,17 @@ import { useEyesOfAIStore } from "../store";
 const config: Partial<Config> = {
 	debug: false,
 	modelBasePath: `${process.env.NEXT_PUBLIC_HUMAN_MODELS_PATH}`,
-
 	face: {
 		enabled: true,
 		attention: { enabled: true },
-		// TODO: Eval which options can be disabled to speed things up
-		// antispoof: { enabled: false },
-		// mesh: { enabled: true },
-		// iris: { enabled: true },
-		// gear: { enabled: true },
-		// emotion: { enabled: true },
-		// detector: { enabled: true },
-		// description: { enabled: true },
-		// liveness: { enabled: true },
+		antispoof: { enabled: false },
+		mesh: { enabled: true },
+		iris: { enabled: true },
+		gear: { enabled: false },
+		emotion: { enabled: true },
+		detector: { enabled: false },
+		description: { enabled: true },
+		liveness: { enabled: false },
 	},
 	warmup: "face",
 	body: { enabled: false },
@@ -28,10 +26,9 @@ const config: Partial<Config> = {
 
 interface Props {
 	videoRef: React.MutableRefObject<HTMLVideoElement>;
-	canvasRef: React.MutableRefObject<HTMLCanvasElement>;
 }
 
-const HumanDetection: React.FC<Props> = ({ videoRef, canvasRef }) => {
+const HumanDetection: React.FC<Props> = ({ videoRef }) => {
 	const ready = useEyesOfAIStore((state) => state.ready);
 	const setReady = useEyesOfAIStore((state) => state.setReady);
 
@@ -87,7 +84,7 @@ const HumanDetection: React.FC<Props> = ({ videoRef, canvasRef }) => {
 		let fps = 0;
 
 		const detect = async () => {
-			if (!human || !videoRef.current || !canvasRef.current) return;
+			if (!human || !videoRef.current) return;
 
 			await human.detect(videoRef.current);
 
@@ -117,7 +114,14 @@ const HumanDetection: React.FC<Props> = ({ videoRef, canvasRef }) => {
 		if (ready) {
 			detect();
 		}
-	}, [ready]);
+	}, [
+		appendAndShiftResultHistory,
+		checkIfShouldTrigger,
+		human,
+		ready,
+		setResult,
+		videoRef,
+	]);
 
 	return <></>;
 };

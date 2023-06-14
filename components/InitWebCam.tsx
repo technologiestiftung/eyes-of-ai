@@ -2,6 +2,7 @@ import { Component } from "react";
 
 interface Props {
 	elementId: string;
+	webcamReadyCallback: () => void;
 }
 interface State {
 	ready: boolean;
@@ -45,25 +46,12 @@ class InitWebCam extends Component<Props, State> {
 				this.video!.onloadeddata = () => this.setState({ ready: true });
 				this.video!.srcObject = this.stream;
 				this.video!.play();
+				this.props.webcamReadyCallback();
 			});
 	}
 
 	override render(this: InitWebCam) {
-		if (this && this.state && this.state.ready)
-			console.log(
-				"video:",
-				this.video!.videoWidth,
-				this.video!.videoHeight,
-				this.track!.label,
-				{
-					stream: this.stream,
-					track: this.track,
-					settings: this.settings,
-					constraints: this.constraints,
-					capabilities: this.capabilities,
-				}
-			);
-		return null;
+		if (this && this.state && this.state.ready) return null;
 	}
 }
 
