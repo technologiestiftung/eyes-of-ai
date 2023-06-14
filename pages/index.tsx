@@ -1,17 +1,17 @@
 "use client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import GeneratedImageDisplay from "../components/GeneratedImageDisplay";
 import HumanDetection from "../components/HumanDetection";
 import HumanDetectionDisplay from "../components/HumanDetectionDisplay";
-import InitWebCam from "../components/InitWebCam";
-import { useEyesOfAIStore } from "../store";
-import styles from "../styles/elements.module.css";
 import ImageGrid from "../components/ImageGrid";
+import InitWebCam from "../components/InitWebCam";
+import useDetectionText from "../hooks/useDetectionText";
 import useGeneratedImage from "../hooks/useGeneratedImage";
 import usePrompt from "../hooks/usePrompt";
-import GeneratedImageDisplay from "../components/GeneratedImageDisplay";
-import useDetectionText from "../hooks/useDetectionText";
+import { useEyesOfAIStore } from "../store";
+import styles from "../styles/elements.module.css";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
 	const token = context.res.req.headers["x-csrf-token"] as string;
@@ -32,6 +32,7 @@ const Page: React.FC<
 	const firstStandStillTime = useEyesOfAIStore(
 		(state) => state.firstStandStillTime
 	);
+	const humanCloseEnough = useEyesOfAIStore((state) => state.humanCloseEnough);
 	const msInStandStill = useEyesOfAIStore((state) => state.msInStandStill);
 	const standStillProgress = Math.min(100, msInStandStill / 2000);
 	const [canvasWidth, setCanvasWidth] = useState(0);
@@ -47,6 +48,10 @@ const Page: React.FC<
 	const { generateImage } = useGeneratedImage(csrf);
 	const { detectionText } = useDetectionText(result);
 
+	const showHumanDetection = !triggered && humanDetected && humanCloseEnough;
+	const showGeneratedImage = triggered;
+	const showGallery = !triggered && (!humanCloseEnough || !humanDetected);
+
 	useEffect(() => {
 		const interval = setInterval(() => {
 			if (imageGenerationTime) {
@@ -58,6 +63,7 @@ const Page: React.FC<
 					resetDetection();
 					setImageGenerationTime(undefined);
 					setGeneratedImageSrc(undefined);
+					setExpirationProgress(0.0);
 					videoRef.current.play();
 				}
 			}
@@ -114,7 +120,7 @@ const Page: React.FC<
 			{/* Actual components */}
 			<div className={styles.mainContainer}>
 				{webcamReady && <HumanDetection videoRef={videoRef} />}
-				{!triggered && humanDetected && (
+				{showHumanDetection && (
 					<HumanDetectionDisplay
 						canvasDrawWidth={canvasWidth}
 						canvasDrawHeight={canvasHeight}
@@ -125,7 +131,7 @@ const Page: React.FC<
 						standStillProgress={standStillProgress}
 					/>
 				)}
-				{triggered && (
+				{showGeneratedImage && (
 					<GeneratedImageDisplay
 						prompt={prompt}
 						imageGenerationInProgress={imageGenerationLoading}
@@ -133,7 +139,7 @@ const Page: React.FC<
 						expirationProgress={expirationProgress}
 					/>
 				)}
-				{!triggered && !humanDetected && (
+				{showGallery && (
 					<ImageGrid showCaption={false} showMoreButton={false}></ImageGrid>
 				)}
 			</div>
