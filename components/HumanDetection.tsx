@@ -11,7 +11,7 @@ const config: Partial<Config> = {
 		attention: { enabled: true },
 		antispoof: { enabled: false },
 		mesh: { enabled: true },
-		iris: { enabled: false },
+		iris: { enabled: true },
 		gear: { enabled: false },
 		emotion: { enabled: true },
 		detector: { enabled: false },
