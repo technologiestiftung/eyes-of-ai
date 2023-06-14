@@ -14,6 +14,9 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_API_URL = "https://api.openai.com/v1/images/generations";
 const NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+const promptDE = "Hallo Welt. Richtige Stelle"
+
 const handler = async (req: NextRequest) => {
 	let payload: unknown;
 
@@ -71,7 +74,11 @@ const handler = async (req: NextRequest) => {
 		if (!body) {
 			throw new UserError("Request body is missing");
 		}
-		const { prompt } = body;
+		const { prompt, promptDE} = body;
+		console.log("My body:", body)
+		console.log("My prompt:", prompt)
+		console.log("My promptDE:", promptDE)
+		
 		if (!prompt) {
 			throw new UserError("Prompt is missing");
 		}
@@ -117,7 +124,7 @@ const handler = async (req: NextRequest) => {
 
 		const { data: metaData, error: metaError } = await supabase
 			.from("eotai_images")
-			.insert({ id: imageId, prompt: prompt, url: publicImageUrl.publicUrl })
+			.insert({ id: imageId, prompt: prompt, prompt_de: promptDE, url: publicImageUrl.publicUrl })
 			.select("*");
 		if (metaError) {
 			throw new AppError(metaError.message);
