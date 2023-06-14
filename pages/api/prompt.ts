@@ -1,9 +1,10 @@
 import { NextRequest } from "next/server";
-import { Collection } from "../../lib/collection";
+import { EnvError } from "../../lib/errors";
+import { Collection, getCollection, translateToDE } from "../../lib/collection";
 import { UserError } from "../../lib/errors";
 import { Emotion, FaceGesture, IrisGesture } from "@vladmandic/human";
 import { Prompt } from "../../lib/validate-prompt";
-import { getCollection } from "../../lib/collection";
+import { Configuration, OpenAIApi } from 'openai';
 
 export interface Body {
 	age: number;
@@ -12,6 +13,54 @@ export interface Body {
 	// TODO: What is going wrong with these typings?
 	gestures: (IrisGesture | FaceGesture | string)[];
 }
+
+
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+
+async function callChatGPT(
+	prompt: string,
+	materialDE: string,
+	styleDE: string,
+	colorDE: string
+  ): Promise<string> {
+	try {
+	  if (!OPENAI_API_KEY) {
+		throw new EnvError("OPENAI_API_KEY");
+	  }
+	  if (!OPENAI_API_URL) {
+		throw new EnvError("OPENAI_API_URL");
+	  }
+
+	  const configuration = new Configuration({
+		apiKey: process.env.OPENAI_API_KEY,
+	  });
+  
+	  const openai = new OpenAIApi(configuration);
+  
+	  try {
+		const translationPrompt = `Take the following prompt and translate it using ${materialDE}${styleDE}${colorDE}:\n${prompt}`;
+		const completion = await openai.createCompletion({
+		  model: "text-davinci-003",
+		  prompt: translationPrompt,
+		});
+		const promptDE = completion.data.choices[0].text;
+		console.log(promptDE);
+		return promptDE;
+	  } catch (error) {
+		if (error.response) {
+		  console.log(error.response.status);
+		  console.log(error.response.data);
+		} else {
+		  console.log(error.message);
+		}
+	  }
+	} catch (error) {
+	  console.error(error);
+	  throw new Error("An error occurred while calling the ChatGPT API");
+	}
+  }  
+  
 
 const promptSchema = {
 	$schema: "http://json-schema.org/draft-07/schema#",
@@ -71,13 +120,28 @@ const handler = async (req: NextRequest) => {
 		const collection = getCollection();
 		const { material, style, color } = collection;
 
+		const collectionDE = translateToDE(collection);
+		const { materialDE, styleDE, colorDE } = collectionDE;
+
 		const prompt = `${material} of a ${Math.floor(
 			age
 		)} year old ${formatter.format(
 			emotions
 		)} looking ${gender}, ${gestureCollection.random()}, ${style}, ${color}`;
 
-		return new Response(JSON.stringify({ prompt }), {
+		const promptDE = await callChatGPT(prompt, materialDE, styleDE, colorDE)
+
+		console.log("my prompt:", prompt);
+		console.log("my promptDE:", promptDE);
+
+		const response = {
+			prompt,
+			promptDE
+		  };
+
+		console.log("response:", response)
+
+		return new Response(JSON.stringify({ response }), {
 			status: 200,
 			headers: {
 				"Content-Type": "application/json",
