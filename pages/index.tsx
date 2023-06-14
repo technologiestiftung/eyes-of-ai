@@ -12,6 +12,7 @@ import useGeneratedImage from "../hooks/useGeneratedImage";
 import usePrompt from "../hooks/usePrompt";
 import GeneratedImageDisplay from "../components/GeneratedImageDisplay";
 import useDetectionText from "../hooks/useDetectionText";
+import { LocalizedPrompt } from "./api/prompt";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
 	const token = context.res.req.headers["x-csrf-token"] as string;
@@ -36,7 +37,7 @@ const Page: React.FC<
 	const standStillProgress = Math.min(100, msInStandStill / 2000);
 	const [canvasWidth, setCanvasWidth] = useState(0);
 	const [canvasHeight, setCanvasHeight] = useState(0);
-	const [prompt, setPrompt] = useState<string>();
+	const [prompt, setPrompt] = useState<LocalizedPrompt>();
 	const [imageGenerationLoading, setImageGenerationLoading] = useState(false);
 	const [generatedImageSrc, setGeneratedImageSrc] = useState<string>();
 	const [imageGenerationTime, setImageGenerationTime] = useState<Date>();
@@ -74,10 +75,10 @@ const Page: React.FC<
 				console.log("generating prompt");
 				videoRef.current.pause();
 				setImageGenerationLoading(true);
-				generatePrompt((prompt) => {
-					setPrompt(prompt);
+				generatePrompt((localizedPrompt) => {
+					setPrompt(localizedPrompt);
 					console.log("generate image");
-					generateImage(prompt, (imageSrc) => {
+					generateImage(localizedPrompt, (imageSrc) => {
 						setGeneratedImageSrc(imageSrc);
 						setImageGenerationLoading(false);
 						setImageGenerationTime(new Date());
@@ -125,9 +126,9 @@ const Page: React.FC<
 						standStillProgress={standStillProgress}
 					/>
 				)}
-				{triggered && (
+				{triggered && prompt && (
 					<GeneratedImageDisplay
-						prompt={prompt}
+						prompt={prompt.promptDe}
 						imageGenerationInProgress={imageGenerationLoading}
 						generatedImageSrc={generatedImageSrc}
 						expirationProgress={expirationProgress}

@@ -1,10 +1,13 @@
-import { NextRequest } from "next/server";
-import { EnvError } from "../../lib/errors";
-import { Collection, getCollection, translateToDE } from "../../lib/collection";
-import { UserError } from "../../lib/errors";
 import { Emotion, FaceGesture, IrisGesture } from "@vladmandic/human";
+import { NextRequest } from "next/server";
+import { Collection, getCollection, translateToDE } from "../../lib/collection";
+import { EnvError, UserError } from "../../lib/errors";
 import { Prompt } from "../../lib/validate-prompt";
-import { Configuration, OpenAIApi } from 'openai';
+
+export interface LocalizedPrompt {
+	promptEn: string;
+	promptDe: string;
+}
 
 export interface Body {
 	age: number;
@@ -14,7 +17,6 @@ export interface Body {
 	gestures: (IrisGesture | FaceGesture | string)[];
 }
 
-
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
@@ -23,60 +25,53 @@ async function callChatGPT(
 	materialDE: string,
 	styleDE: string,
 	colorDE: string
-  ): Promise<string> {
+): Promise<LocalizedPrompt> {
 	try {
-	  if (!OPENAI_API_KEY) {
-		throw new EnvError("OPENAI_API_KEY");
-	  }
-	  if (!OPENAI_API_URL) {
-		throw new EnvError("OPENAI_API_URL");
-	  }
-
-	  const configuration = new Configuration({
-		apiKey: process.env.OPENAI_API_KEY,
-	  });
-  
-	  const openai = new OpenAIApi(configuration);
-  
-	  try {
-		const translationPrompt = `Take the following prompt and translate it using ${materialDE}${styleDE}${colorDE}:\n${prompt}`;
-		const completion = await openai.createCompletion({
-		  model: "text-davinci-003",
-		  prompt: translationPrompt,
-		});
-		const promptDE = completion.data.choices[0].text;
-		console.log(promptDE);
-		return promptDE;
-	  } catch (error) {
-		if (error.response) {
-		  console.log(error.response.status);
-		  console.log(error.response.data);
-		} else {
-		  console.log(error.message);
+		if (!OPENAI_API_KEY) {
+			throw new EnvError("OPENAI_API_KEY");
 		}
-	  }
-	} catch (error) {
-	  console.error(error);
-	  throw new Error("An error occurred while calling the ChatGPT API");
-	}
-  }  
-  
+		if (!OPENAI_API_URL) {
+			throw new EnvError("OPENAI_API_URL");
+		}
 
-const promptSchema = {
-	$schema: "http://json-schema.org/draft-07/schema#",
-	type: "object",
-	properties: {
-		age: { type: "number" },
-		gender: {
-			type: "string",
-			enum: ["male", "female", "non-binary"],
-		},
-		emotions: { type: "array", items: { type: "string" } },
-		gestures: { type: "array", items: { type: "string" } },
-	},
-	required: ["age", "gender", "emotions", "gestures"],
-	additionalProperties: false,
-};
+		const translationPrompt = `Take the following prompt and translate it using ${materialDE}${styleDE}${colorDE}:\n${prompt}`;
+
+		const headers = {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${OPENAI_API_KEY}`,
+		};
+
+		const body = JSON.stringify({
+			model: "gpt-3.5-turbo",
+			messages: [{ role: "user", content: translationPrompt }],
+		});
+
+		const response = await fetch(OPENAI_API_URL, {
+			method: "POST",
+			headers,
+			body,
+		});
+
+		if (!response.ok) {
+			throw new Error(`Request failed with status ${response.status}`);
+		}
+
+		const data = await response.json();
+
+		return {
+			promptEn: prompt,
+			promptDe: data.choices[0].message.content,
+		} as LocalizedPrompt;
+
+		// return {
+		// 	promptEn: "30 year old male looking left",
+		// 	promptDe: "30 jähriger mann schaut nach links",
+		// } as LocalizedPrompt;
+	} catch (error) {
+		console.error(error);
+		throw new Error("An error occurred while calling the ChatGPT API");
+	}
+}
 
 export const config = {
 	runtime: "edge",
@@ -129,19 +124,14 @@ const handler = async (req: NextRequest) => {
 			emotions
 		)} looking ${gender}, ${gestureCollection.random()}, ${style}, ${color}`;
 
-		const promptDE = await callChatGPT(prompt, materialDE, styleDE, colorDE)
-
-		console.log("my prompt:", prompt);
-		console.log("my promptDE:", promptDE);
-
-		const response = {
+		const localizedPrompt = await callChatGPT(
 			prompt,
-			promptDE
-		  };
+			materialDE,
+			styleDE,
+			colorDE
+		);
 
-		console.log("response:", response)
-
-		return new Response(JSON.stringify({ response }), {
+		return new Response(JSON.stringify({ localizedPrompt }), {
 			status: 200,
 			headers: {
 				"Content-Type": "application/json",
