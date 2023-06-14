@@ -10,9 +10,38 @@ import InitWebCam from "../components/InitWebCam";
 import useDetectionText from "../hooks/useDetectionText";
 import useGeneratedImage from "../hooks/useGeneratedImage";
 import usePrompt from "../hooks/usePrompt";
+import useColorThief from "../hooks/useColorThief";
 import { useEyesOfAIStore } from "../store";
 import styles from "../styles/elements.module.css";
+import { ColorthiefResponse } from "../lib/types";
 
+function generateDataUrl(
+	videoRef: React.MutableRefObject<HTMLVideoElement | undefined>,
+	maxWidth: number,
+	maxHeight: number
+) {
+	const video = videoRef.current;
+	let width = video.videoWidth;
+	let height = video.videoHeight;
+	const aspectRatio = width / height;
+	if (width > maxWidth) {
+		width = maxWidth;
+		height = width / aspectRatio;
+	}
+	if (height > maxHeight) {
+		height = maxHeight;
+		width = height * aspectRatio;
+	}
+
+	const canvas = document.createElement("canvas");
+	canvas.width = width;
+	canvas.height = height;
+	const ctx = canvas.getContext("2d");
+	ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+	const dataUrl = canvas.toDataURL();
+	canvas.remove();
+	return dataUrl;
+}
 export const getServerSideProps: GetServerSideProps = async (context) => {
 	const token = context.res.req.headers["x-csrf-token"] as string;
 	return { props: { csrf: token } };
@@ -37,6 +66,7 @@ const Page: React.FC<
 	const standStillProgress = Math.min(100, msInStandStill / 2000);
 	const [canvasWidth, setCanvasWidth] = useState(0);
 	const [canvasHeight, setCanvasHeight] = useState(0);
+
 	const [prompt, setPrompt] = useState<string>();
 	const [imageGenerationLoading, setImageGenerationLoading] = useState(false);
 	const [generatedImageSrc, setGeneratedImageSrc] = useState<string>();
@@ -47,6 +77,7 @@ const Page: React.FC<
 	const { generatePrompt } = usePrompt(csrf, result);
 	const { generateImage } = useGeneratedImage(csrf);
 	const { detectionText } = useDetectionText(result);
+	const { getColors } = useColorThief();
 
 	const showHumanDetection = !triggered && humanDetected && humanCloseEnough;
 	const showGeneratedImage = triggered;
@@ -78,20 +109,25 @@ const Page: React.FC<
 		if (videoRef && videoRef.current) {
 			if (triggered) {
 				console.log("generating prompt");
+				const dataUrl = generateDataUrl(videoRef, 480, 270);
+				console.log("dataUrl", dataUrl);
 				videoRef.current.pause();
 				setImageGenerationLoading(true);
-				generatePrompt((prompt) => {
-					setPrompt(prompt);
-					console.log("generate image");
-					generateImage(prompt, (imageSrc) => {
-						setGeneratedImageSrc(imageSrc);
-						setImageGenerationLoading(false);
-						setImageGenerationTime(new Date());
+				getColors(dataUrl, (colors) => {
+					console.log("colors", colors);
+					generatePrompt(colors, (prompt) => {
+						setPrompt(prompt);
+						console.log("generate image");
+						generateImage(prompt, (imageSrc) => {
+							setGeneratedImageSrc(imageSrc);
+							setImageGenerationLoading(false);
+							setImageGenerationTime(new Date());
+						});
 					});
 				});
 			}
 		}
-	}, [generateImage, generatePrompt, triggered]);
+	}, [generateImage, generatePrompt, getColors, triggered]);
 
 	return (
 		<div>

@@ -1,12 +1,13 @@
 import { Result } from "@vladmandic/human";
 import { useCallback, useState } from "react";
 import { Body } from "../pages/api/prompt";
+import { ColorthiefResponse } from "../lib/types";
 
 const usePrompt = (csrf: string, result: Partial<Result>) => {
 	const [isLoading, setIsLoading] = useState(true);
 
 	const generatePrompt = useCallback(
-		async (callback: (prompt: string) => void) => {
+		async (colors: ColorthiefResponse, callback: (prompt: string) => void) => {
 			setIsLoading(true);
 
 			const gestures = result.gesture.map((item) => item.gesture);
@@ -23,6 +24,7 @@ const usePrompt = (csrf: string, result: Partial<Result>) => {
 				gender,
 				emotions,
 				gestures,
+				colors,
 			};
 
 			const response = await fetch("/api/prompt", {
