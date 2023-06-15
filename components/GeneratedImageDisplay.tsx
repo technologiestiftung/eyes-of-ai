@@ -1,8 +1,10 @@
+import { LocalizedPrompt } from "../pages/api/prompt";
 import styles from "../styles/elements.module.css";
+import Loading from "./Loading";
 import ProgressBar from "./ProgressBar";
 
 interface Props {
-	prompt: string;
+	prompt: LocalizedPrompt | undefined;
 	imageGenerationInProgress: boolean;
 	generatedImageSrc: string | undefined;
 	expirationProgress: number;
@@ -16,20 +18,26 @@ const GeneratedImageDisplay: React.FC<Props> = ({
 }) => {
 	return (
 		<div className={styles.generatedImageContainer}>
-			<ProgressBar
-				progress={expirationProgress}
-				width={window.innerWidth}
-				height={20}
-			></ProgressBar>
-			<div style={{ width: "50%" }}>{prompt}</div>
-			{imageGenerationInProgress && (
-				<div style={{ width: "50%", fontSize: "large", padding: "20px" }}>
-					Interpretation der KI wird erstellt...
-				</div>
-			)}
-			{generatedImageSrc && (
-				<div>
-					<img src={generatedImageSrc} alt={prompt} />
+			{!prompt ? (
+				<Loading></Loading>
+			) : (
+				<div className={styles.generatedImageContainer}>
+					<ProgressBar
+						progress={expirationProgress}
+						width={window.innerWidth}
+						height={20}
+					></ProgressBar>
+					{generatedImageSrc && (
+						<div>
+							<img src={generatedImageSrc} alt={prompt.promptDe} />
+						</div>
+					)}
+					{prompt && <div style={{ width: "50%" }}>{prompt.promptDe}</div>}
+					{imageGenerationInProgress && (
+						<div style={{ width: "50%", fontSize: "large", padding: "20px" }}>
+							Interpretation der KI wird erstellt...
+						</div>
+					)}
 				</div>
 			)}
 		</div>

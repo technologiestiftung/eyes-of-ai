@@ -82,7 +82,7 @@ const Page: React.FC<
 	const { getColors } = useColorThief();
 
 	const showHumanDetection = !triggered && humanDetected && humanCloseEnough;
-	const showGeneratedImage = triggered && prompt;
+	const showGeneratedImage = triggered;
 	const showGallery = !triggered && (!humanCloseEnough || !humanDetected);
 
 	useEffect(() => {
@@ -96,6 +96,7 @@ const Page: React.FC<
 					resetDetection();
 					setImageGenerationTime(undefined);
 					setGeneratedImageSrc(undefined);
+					setPrompt(undefined);
 					setExpirationProgress(0.0);
 					videoRef.current.play();
 				}
@@ -120,7 +121,7 @@ const Page: React.FC<
 					generatePrompt(colors, (localizedPrompt) => {
 						setPrompt(localizedPrompt);
 						console.log("generate image");
-						generateImage(prompt, (imageSrc) => {
+						generateImage(localizedPrompt, (imageSrc) => {
 							setGeneratedImageSrc(imageSrc);
 							setImageGenerationLoading(false);
 							setImageGenerationTime(new Date());
@@ -169,9 +170,9 @@ const Page: React.FC<
 						standStillProgress={standStillProgress}
 					/>
 				)}
-				{showGeneratedImage && prompt && (
+				{showGeneratedImage && (
 					<GeneratedImageDisplay
-						prompt={prompt.promptDe}
+						prompt={prompt}
 						imageGenerationInProgress={imageGenerationLoading}
 						generatedImageSrc={generatedImageSrc}
 						expirationProgress={expirationProgress}
