@@ -7,6 +7,7 @@ import HumanDetection from "../components/HumanDetection";
 import HumanDetectionDisplay from "../components/HumanDetectionDisplay";
 import ImageGrid from "../components/ImageGrid";
 import InitWebCam from "../components/InitWebCam";
+import useColorThief from "../hooks/useColorThief";
 import useDetectionText from "../hooks/useDetectionText";
 import useGeneratedImage from "../hooks/useGeneratedImage";
 import usePrompt from "../hooks/usePrompt";
@@ -14,6 +15,33 @@ import { STANDSTILL_THRESHOLD_MS, useEyesOfAIStore } from "../store";
 import styles from "../styles/elements.module.css";
 import { LocalizedPrompt } from "./api/prompt";
 
+function generateDataUrl(
+	videoRef: React.MutableRefObject<HTMLVideoElement | undefined>,
+	maxWidth: number,
+	maxHeight: number
+) {
+	const video = videoRef.current;
+	let width = video.videoWidth;
+	let height = video.videoHeight;
+	const aspectRatio = width / height;
+	if (width > maxWidth) {
+		width = maxWidth;
+		height = width / aspectRatio;
+	}
+	if (height > maxHeight) {
+		height = maxHeight;
+		width = height * aspectRatio;
+	}
+
+	const canvas = document.createElement("canvas");
+	canvas.width = width;
+	canvas.height = height;
+	const ctx = canvas.getContext("2d");
+	ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+	const dataUrl = canvas.toDataURL();
+	canvas.remove();
+	return dataUrl;
+}
 export const getServerSideProps: GetServerSideProps = async (context) => {
 	const token = context.res.req.headers["x-csrf-token"] as string;
 	return { props: { csrf: token } };
@@ -51,6 +79,7 @@ const Page: React.FC<
 	const { generatePrompt } = usePrompt(csrf, result);
 	const { generateImage } = useGeneratedImage(csrf);
 	const { detectionText } = useDetectionText(result);
+	const { getColors } = useColorThief();
 
 	const showHumanDetection = !triggered && humanDetected && humanCloseEnough;
 	const showGeneratedImage = triggered;
@@ -83,20 +112,25 @@ const Page: React.FC<
 		if (videoRef && videoRef.current) {
 			if (triggered) {
 				console.log("generating prompt");
+				const dataUrl = generateDataUrl(videoRef, 480, 270);
+				console.log("dataUrl", dataUrl);
 				videoRef.current.pause();
 				setImageGenerationLoading(true);
-				generatePrompt((localizedPrompt) => {
-					setPrompt(localizedPrompt);
-					console.log("generate image");
-					generateImage(localizedPrompt, (imageSrc) => {
-						setGeneratedImageSrc(imageSrc);
-						setImageGenerationLoading(false);
-						setImageGenerationTime(new Date());
+				getColors(dataUrl, (colors) => {
+					console.log("colors", colors);
+					generatePrompt(colors, (localizedPrompt) => {
+						setPrompt(localizedPrompt);
+						console.log("generate image");
+						generateImage(prompt, (imageSrc) => {
+							setGeneratedImageSrc(imageSrc);
+							setImageGenerationLoading(false);
+							setImageGenerationTime(new Date());
+						});
 					});
 				});
 			}
 		}
-	}, [generateImage, generatePrompt, triggered]);
+	}, [generateImage, generatePrompt, getColors, triggered]);
 
 	return (
 		<div>
