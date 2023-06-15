@@ -2,9 +2,8 @@ import { Emotion, FaceGesture, IrisGesture } from "@vladmandic/human";
 import { NextRequest } from "next/server";
 import { Collection, getCollection, translateToDE } from "../../lib/collection";
 import { EnvError, UserError } from "../../lib/errors";
-import { Prompt } from "../../lib/validate-prompt";
-import { getCollection } from "../../lib/collection";
 import { ColorthiefResponse } from "../../lib/types";
+import { Prompt } from "../../lib/validate-prompt";
 
 export interface LocalizedPrompt {
 	promptEn: string;
