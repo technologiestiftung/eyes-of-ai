@@ -24,7 +24,7 @@ const GeneratedImageDisplay: React.FC<Props> = ({
 			<div style={{ width: "50%" }}>{prompt}</div>
 			{imageGenerationInProgress && (
 				<div style={{ width: "50%", fontSize: "large", padding: "20px" }}>
-					Generating AI interpretation...
+					Interpretation der KI wird erstellt...
 				</div>
 			)}
 			{generatedImageSrc && (

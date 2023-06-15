@@ -1,22 +1,23 @@
 import { useCallback, useState } from "react";
+import { LocalizedPrompt } from "../pages/api/prompt";
 
 const useGeneratedImage = (csrf: string) => {
 	const [isLoading, setIsLoading] = useState(true);
 
 	const generateImage = useCallback(
-		async (prompt: string, callback: (prompt: string) => void) => {
+		async (
+			localizedPrompt: LocalizedPrompt,
+			callback: (prompt: string) => void
+		) => {
 			setIsLoading(true);
 			try {
 				const response = await fetch("/api/images", {
 					method: "POST",
-
 					headers: {
 						"Content-Type": "application/json",
 						"X-CSRF-Token": csrf,
 					},
-					body: JSON.stringify({
-						prompt: prompt,
-					}),
+					body: JSON.stringify(localizedPrompt),
 				});
 				if (!response.ok) {
 					const txt = await response.json();

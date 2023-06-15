@@ -1,9 +1,13 @@
-import { NextRequest } from "next/server";
-import { Collection } from "../../lib/collection";
-import { UserError } from "../../lib/errors";
 import { Emotion, FaceGesture, IrisGesture } from "@vladmandic/human";
+import { NextRequest } from "next/server";
+import { Collection, getCollection, translateToDE } from "../../lib/collection";
+import { EnvError, UserError } from "../../lib/errors";
 import { Prompt } from "../../lib/validate-prompt";
-import { getCollection } from "../../lib/collection";
+
+export interface LocalizedPrompt {
+	promptEn: string;
+	promptDe: string;
+}
 
 export interface Body {
 	age: number;
@@ -13,21 +17,61 @@ export interface Body {
 	gestures: (IrisGesture | FaceGesture | string)[];
 }
 
-const promptSchema = {
-	$schema: "http://json-schema.org/draft-07/schema#",
-	type: "object",
-	properties: {
-		age: { type: "number" },
-		gender: {
-			type: "string",
-			enum: ["male", "female", "non-binary"],
-		},
-		emotions: { type: "array", items: { type: "string" } },
-		gestures: { type: "array", items: { type: "string" } },
-	},
-	required: ["age", "gender", "emotions", "gestures"],
-	additionalProperties: false,
-};
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+
+async function callChatGPT(
+	prompt: string,
+	materialDE: string,
+	styleDE: string,
+	colorDE: string
+): Promise<LocalizedPrompt> {
+	try {
+		if (!OPENAI_API_KEY) {
+			throw new EnvError("OPENAI_API_KEY");
+		}
+		if (!OPENAI_API_URL) {
+			throw new EnvError("OPENAI_API_URL");
+		}
+
+		const translationPrompt = `Take the following prompt and translate it using ${materialDE}${styleDE}${colorDE}:\n${prompt}`;
+
+		const headers = {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${OPENAI_API_KEY}`,
+		};
+
+		const body = JSON.stringify({
+			model: "gpt-3.5-turbo",
+			messages: [{ role: "user", content: translationPrompt }],
+		});
+
+		const response = await fetch(OPENAI_API_URL, {
+			method: "POST",
+			headers,
+			body,
+		});
+
+		if (!response.ok) {
+			throw new Error(`Request failed with status ${response.status}`);
+		}
+
+		const data = await response.json();
+
+		return {
+			promptEn: prompt,
+			promptDe: data.choices[0].message.content,
+		} as LocalizedPrompt;
+
+		// return {
+		// 	promptEn: "30 year old male looking left",
+		// 	promptDe: "30 jähriger mann schaut nach links",
+		// } as LocalizedPrompt;
+	} catch (error) {
+		console.error(error);
+		throw new Error("An error occurred while calling the ChatGPT API");
+	}
+}
 
 export const config = {
 	runtime: "edge",
@@ -71,13 +115,23 @@ const handler = async (req: NextRequest) => {
 		const collection = getCollection();
 		const { material, style, color } = collection;
 
+		const collectionDE = translateToDE(collection);
+		const { materialDE, styleDE, colorDE } = collectionDE;
+
 		const prompt = `${material} of a ${Math.floor(
 			age
 		)} year old ${formatter.format(
 			emotions
 		)} looking ${gender}, ${gestureCollection.random()}, ${style}, ${color}`;
 
-		return new Response(JSON.stringify({ prompt }), {
+		const localizedPrompt = await callChatGPT(
+			prompt,
+			materialDE,
+			styleDE,
+			colorDE
+		);
+
+		return new Response(JSON.stringify({ localizedPrompt }), {
 			status: 200,
 			headers: {
 				"Content-Type": "application/json",
