@@ -7,10 +7,11 @@ const useGeneratedImage = (csrf: string) => {
 	const generateImage = useCallback(
 		async (
 			localizedPrompt: LocalizedPrompt,
-			callback: (prompt: string) => void
+			callback: (prompt: string) => void,
+			errorCallback: (error: Error) => void
 		) => {
-			setIsLoading(true);
 			try {
+				setIsLoading(true);
 				const response = await fetch("/api/images", {
 					method: "POST",
 					headers: {
@@ -30,7 +31,7 @@ const useGeneratedImage = (csrf: string) => {
 					throw new Error("Generated image source not found");
 				}
 			} catch (error) {
-				console.log(error, "Error in fetch");
+				errorCallback(error);
 			}
 		},
 		[csrf]
