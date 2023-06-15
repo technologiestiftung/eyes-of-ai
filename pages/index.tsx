@@ -53,7 +53,7 @@ const Page: React.FC<
 	const { detectionText } = useDetectionText(result);
 
 	const showHumanDetection = !triggered && humanDetected && humanCloseEnough;
-	const showGeneratedImage = triggered && prompt;
+	const showGeneratedImage = triggered;
 	const showGallery = !triggered && (!humanCloseEnough || !humanDetected);
 
 	useEffect(() => {
@@ -67,6 +67,7 @@ const Page: React.FC<
 					resetDetection();
 					setImageGenerationTime(undefined);
 					setGeneratedImageSrc(undefined);
+					setPrompt(undefined);
 					setExpirationProgress(0.0);
 					videoRef.current.play();
 				}
@@ -135,9 +136,9 @@ const Page: React.FC<
 						standStillProgress={standStillProgress}
 					/>
 				)}
-				{showGeneratedImage && prompt && (
+				{showGeneratedImage && (
 					<GeneratedImageDisplay
-						prompt={prompt.promptDe}
+						prompt={prompt}
 						imageGenerationInProgress={imageGenerationLoading}
 						generatedImageSrc={generatedImageSrc}
 						expirationProgress={expirationProgress}
