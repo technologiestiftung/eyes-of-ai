@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.3.1...v1.3.2) (2023-06-15)
+
+
+### Bug Fixes
+
+* **migrations:** Remove policy creation from mig ([13ac9fc](https://github.com/technologiestiftung/eyes-of-ai/commit/13ac9fcb563c73957081791e61e957074943f326))
+
 ## [1.3.1](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.3.0...v1.3.1) (2023-06-15)
 
 
