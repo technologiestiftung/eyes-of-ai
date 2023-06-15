@@ -10,7 +10,7 @@ import InitWebCam from "../components/InitWebCam";
 import useDetectionText from "../hooks/useDetectionText";
 import useGeneratedImage from "../hooks/useGeneratedImage";
 import usePrompt from "../hooks/usePrompt";
-import { useEyesOfAIStore } from "../store";
+import { STANDSTILL_THRESHOLD_MS, useEyesOfAIStore } from "../store";
 import styles from "../styles/elements.module.css";
 import { LocalizedPrompt } from "./api/prompt";
 
@@ -35,7 +35,10 @@ const Page: React.FC<
 	);
 	const humanCloseEnough = useEyesOfAIStore((state) => state.humanCloseEnough);
 	const msInStandStill = useEyesOfAIStore((state) => state.msInStandStill);
-	const standStillProgress = Math.min(100, msInStandStill / 2000);
+	const standStillProgress = Math.min(
+		100,
+		msInStandStill / STANDSTILL_THRESHOLD_MS
+	);
 	const [canvasWidth, setCanvasWidth] = useState(0);
 	const [canvasHeight, setCanvasHeight] = useState(0);
 	const [prompt, setPrompt] = useState<LocalizedPrompt>();

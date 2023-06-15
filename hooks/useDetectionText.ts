@@ -1,5 +1,10 @@
 import { Result } from "@vladmandic/human";
 import { useMemo } from "react";
+import {
+	translateEmotion,
+	translateGender,
+	translateGesture,
+} from "../lib/collection";
 
 export interface DetectionText {
 	core: string;
@@ -13,15 +18,28 @@ const useDetectionText = (result: Partial<Result>) => {
 			return undefined;
 		}
 		const face = result.face[0];
-		const distinctGestures = result.gesture
-			.map(({ gesture }) => gesture.toString())
+
+		const gender =
+			result.face[0].gender === "unknown" || result.face[0].genderScore < 0.4
+				? "non-binary"
+				: result.face[0].gender;
+
+		const translatedGestures = result.gesture
+			.map(({ gesture }) => translateGesture(gesture.toString()))
 			.filter((x, i, a) => a.indexOf(x) == i);
 
-		const coreLabel = `${Math.round(face.age)} years old ${face.gender} person`;
+		const coreLabel = `${Math.round(face.age)} Jahre alte ${translateGender(
+			gender
+		)} Person`;
+
 		const emotionLabel = `${face.emotion
-			.map(({ emotion, score }) => `${Math.round(score * 100)}% ${emotion}`)
+			.map(
+				({ emotion, score }) =>
+					`${Math.round(score * 100)}% ${translateEmotion(emotion)}`
+			)
 			.join(", ")}`;
-		const gesturesLabel = `${distinctGestures.join(", ")}`;
+
+		const gesturesLabel = `${translatedGestures.join(", ")}`;
 
 		return {
 			core: coreLabel,
