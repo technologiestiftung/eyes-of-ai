@@ -27,15 +27,15 @@ const GeneratedImageDisplay: React.FC<Props> = ({
 						width={window.innerWidth}
 						height={20}
 					></ProgressBar>
+					{generatedImageSrc && (
+						<div>
+							<img src={generatedImageSrc} alt={prompt.promptDe} />
+						</div>
+					)}
 					{prompt && <div style={{ width: "50%" }}>{prompt.promptDe}</div>}
 					{imageGenerationInProgress && (
 						<div style={{ width: "50%", fontSize: "large", padding: "20px" }}>
 							Interpretation der KI wird erstellt...
-						</div>
-					)}
-					{generatedImageSrc && (
-						<div>
-							<img src={generatedImageSrc} alt={prompt} />
 						</div>
 					)}
 				</div>
