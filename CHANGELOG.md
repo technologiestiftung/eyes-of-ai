@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.2.5...v1.3.0) (2023-06-15)
+
+
+### Features
+
+* **colorthief:** Extract colors, pass to prompt ([1902df6](https://github.com/technologiestiftung/eyes-of-ai/commit/1902df687683d506f4d3d4c5b0b3d8aca5c65f35))
+
 ## [1.2.5](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.2.4...v1.2.5) (2023-06-12)
 
 
