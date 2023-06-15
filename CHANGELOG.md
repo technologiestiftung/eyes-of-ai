@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.3.0...v1.3.1) (2023-06-15)
+
+
+### Bug Fixes
+
+* **color-thief:** Add needed env vars to docker build ([6dc438a](https://github.com/technologiestiftung/eyes-of-ai/commit/6dc438a96aef2e18521cff50c053502c52ca624c))
+
 # [1.3.0](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.2.5...v1.3.0) (2023-06-15)
 
 
