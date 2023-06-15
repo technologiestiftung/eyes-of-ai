@@ -121,7 +121,7 @@ const Page: React.FC<
 					generatePrompt(colors, (localizedPrompt) => {
 						setPrompt(localizedPrompt);
 						console.log("generate image");
-						generateImage(prompt, (imageSrc) => {
+						generateImage(localizedPrompt, (imageSrc) => {
 							setGeneratedImageSrc(imageSrc);
 							setImageGenerationLoading(false);
 							setImageGenerationTime(new Date());
