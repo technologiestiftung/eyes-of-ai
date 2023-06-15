@@ -17,3 +17,6 @@ supabase
 vitest.config.ts
 .env
 .DS_Store
+stories
+.storybook
+.vscode
