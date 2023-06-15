@@ -14,18 +14,21 @@ export interface Database {
 					created_at: string;
 					id: string;
 					prompt: string;
+					prompt_de: string | null;
 					url: string | null;
 				};
 				Insert: {
 					created_at?: string;
 					id: string;
 					prompt: string;
+					prompt_de?: string | null;
 					url?: string | null;
 				};
 				Update: {
 					created_at?: string;
 					id?: string;
 					prompt?: string;
+					prompt_de?: string;
 					url?: string | null;
 				};
 			};
