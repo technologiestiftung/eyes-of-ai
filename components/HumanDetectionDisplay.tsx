@@ -67,10 +67,10 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 							width={window.innerWidth}
 							height={20}
 						></ProgressBar>
-						<div>Stay like this!</div>
+						<div>Bleib so stehen!</div>
 					</div>
 				) : (
-					<div style={{ paddingTop: "20px" }}>Stay still!</div>
+					<div style={{ paddingTop: "20px" }}>Still stehen!</div>
 				)}
 			</div>
 			<canvas id="canvas" ref={canvasRef} className={styles.output} />

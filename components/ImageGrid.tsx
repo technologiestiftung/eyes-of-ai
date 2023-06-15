@@ -33,10 +33,12 @@ const ImageGrid: React.FC<Props> = ({ showCaption, showMoreButton }) => {
 						<figure>
 							<img
 								src={image.url}
-								alt={image.prompt}
+								alt={image.prompt_de ?? image.prompt}
 								className="w-full h-auto rounded-md"
 							/>
-							{showCaption && <figcaption>{image.prompt}</figcaption>}
+							{showCaption && (
+								<figcaption>{image.prompt_de ?? image.prompt}</figcaption>
+							)}
 						</figure>
 					</div>
 				))}

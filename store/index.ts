@@ -5,7 +5,7 @@ import MathUtils from "../lib/math-utils";
 const HISTORY_SIZE_LIMIT_FRAMES = 20;
 const ROTATION_THRESHOLD_DEGRESS = 0.05;
 const DISTANCE_THRESHOLD_METERS = 0.15;
-const STANDSTILL_THRESHOLD_MS = 2000;
+export const STANDSTILL_THRESHOLD_MS = 2000;
 
 export type EyesOfAIStore = {
 	ready: boolean;

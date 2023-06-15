@@ -1,7 +1,86 @@
+import { Emotion, FaceGesture, IrisGesture } from "@vladmandic/human";
+
 /**
  * @example // To get all keys used types for mMaterial use
  * console.log(Object.keys(materials));
  */
+type IrisGestureDE =
+	| "nach innen schauend"
+	| "nach links schauend"
+	| "nach rechts schauend"
+	| "nach oben schauend"
+	| "nach unten schauend"
+	| "in die Kamera schauend";
+
+type FaceGestureDE =
+	| "in die Kamera schauend"
+	| "nach links schauend"
+	| "nach rechts schauend"
+	| "linkes Auge blinzelt"
+	| "rechtes Auge blinzelt"
+	| `Mund zu ${number}% geöffnet`
+	| "Kopf nach oben"
+	| "Kopf nach unten";
+
+type EmotionDE =
+	| "glücklich"
+	| "traurig"
+	| "wütend"
+	| "überrascht"
+	| "angewidert"
+	| "ängstlich"
+	| "neutral";
+
+type Gender = "male" | "female" | "non-binary";
+type GenderDE = "männliche" | "weibliche" | "nicht-binäre";
+
+const IrisGestureTranslation: Record<IrisGesture, IrisGestureDE> = {
+	"facing center": "in die Kamera schauend",
+	"looking left": "nach links schauend",
+	"looking right": "nach rechts schauend",
+	"looking up": "nach oben schauend",
+	"looking down": "nach unten schauend",
+	"looking center": "in die Kamera schauend",
+};
+
+const FaceGestureTranslation: Record<FaceGesture, FaceGestureDE> = {
+	"facing center": "in die Kamera schauend",
+	"facing left": "nach links schauend",
+	"facing right": "nach rechts schauend",
+	"blink left eye": "linkes Auge blinzelt",
+	"blink right eye": "rechtes Auge blinzelt",
+	"head up": "Kopf nach oben",
+	"head down": "Kopf nach unten",
+};
+
+const EmotionTranslation: Record<Emotion, EmotionDE> = {
+	happy: "glücklich",
+	sad: "traurig",
+	angry: "wütend",
+	surprise: "überrascht",
+	disgust: "angewidert",
+	fear: "ängstlich",
+	neutral: "neutral",
+};
+
+const GenderTranslation: Record<Gender, GenderDE> = {
+	male: "männliche",
+	female: "weibliche",
+	"non-binary": "nicht-binäre",
+};
+
+export function translateGesture(gesture: string): IrisGestureDE {
+	return IrisGestureTranslation[gesture] ?? FaceGestureTranslation[gesture];
+}
+
+export function translateEmotion(emotion: Emotion): EmotionDE {
+	return EmotionTranslation[emotion];
+}
+
+export function translateGender(gender: Gender): GenderDE {
+	return GenderTranslation[gender];
+}
+
 type Material =
 	| "A dripping liquid oil painting"
 	| "A retro-futuristic cinematic etching"
@@ -13,7 +92,6 @@ type Material =
 	| "An ink drawing"
 	| "A purist acrylic painting"
 	| "A spiritual acrylic painting";
-
 /**
  * @example // To get all keys used types for Style use
  * const set = new Set();
@@ -84,6 +162,152 @@ type Color =
 	| "symbolic colours"
 	| "saturated pigments"
 	| "eye-catching colour palette";
+
+type MaterialDE =
+	| "Ein tropfendes, flüssiges Ölgemälde"
+	| "Eine retro-futuristische, filmische Radierung"
+	| "Ein frisch getöntes Aquarellgemälde"
+	| "Eine ausdrucksstarke Gouache-Illustration"
+	| "Eine Lithographie"
+	| "Eine scharfkantige Lithographie"
+	| "Eine detaillierte Pastellzeichnung"
+	| "Eine Tuschzeichnung"
+	| "Ein puristisches Acrylgemälde"
+	| "Ein spirituelles Acrylgemälde";
+
+type StyleDE =
+	| "realistisch"
+	| "modern"
+	| "Pop-Art"
+	| "Synthwave"
+	| "abstrakt"
+	| "Jugendstil"
+	| "Präraffaelitische Malerei"
+	| "surreale Kunst"
+	| "Pixelkunst"
+	| "verzerrte Pixelkunst"
+	| "flacher Holzschnitt-Druck"
+	| "ornamentale, geschwungene Linien"
+	| "konzeptuelle Kunst"
+	| "digitale Kunst"
+	| "dunkeler Vintage-Style"
+	| "Art Déco"
+	| "Kubismus"
+	| "Volkskunst";
+
+type ColorDE =
+	| "lebhafte Farben"
+	| "globales Licht"
+	| "atmosphärische, lebendige Beleuchtung"
+	| "beruhigende Farbpalette"
+	| "Primärfarben mit Schwarz und Weiß"
+	| "Rastertonmuster"
+	| "Neonfarben"
+	| "chromatisches Material"
+	| "geometrische, leuchtende Linien"
+	| "farbenfrohe, leuchtende Linien"
+	| "farbenfroh und lebendig"
+	| "lebhafte Magenta-, Elektroblau- und Feuerorange-Töne"
+	| "lebhafte Farbspritzer"
+	| "Vaporwave-Neon"
+	| "retro Farbpalette"
+	| "Vaporwave-Neon und klare Formen"
+	| "verblüffende, unkonventionelle Formen und Farben"
+	| "monochrom"
+	| "schwarz und weiß"
+	| "dynamische und lebendige Beleuchtung und satte Farbtöne"
+	| "LGBTIQ-Farben"
+	| "helle Pastellfarben"
+	| "kontrastreiche und monochrome Farben"
+	| "symbolträchtige Farben"
+	| "gesättigte Pigmente"
+	| "auffällige Farbpalette";
+
+const materialTranslations: Record<Material, MaterialDE> = {
+	"A dripping liquid oil painting": "Ein tropfendes, flüssiges Ölgemälde",
+	"A retro-futuristic cinematic etching":
+		"Eine retro-futuristische, filmische Radierung",
+	"An inky watercolour painting": "Ein frisch getöntes Aquarellgemälde",
+	"An expressive gouache illustration":
+		"Eine ausdrucksstarke Gouache-Illustration",
+	"A lithography": "Eine Lithographie",
+	"A sharp focused lithography": "Eine scharfkantige Lithographie",
+	"A detailed pastel drawing": "Eine detaillierte Pastellzeichnung",
+	"An ink drawing": "Eine Tuschzeichnung",
+	"A purist acrylic painting": "Ein puristisches Acrylgemälde",
+	"A spiritual acrylic painting": "Ein spirituelles Acrylgemälde",
+};
+
+const styleTranslations: Record<Style, StyleDE> = {
+	realistic: "realistisch",
+	modern: "modern",
+	"pop art": "Pop-Art",
+	synthwave: "Synthwave",
+	abstract: "abstrakt",
+	"art nouveau": "Jugendstil",
+	"pre-raphaelite": "Präraffaelitische Malerei",
+	"surreal art": "surreale Kunst",
+	"pixel art": "Pixelkunst",
+	"distorted pixel art": "verzerrte Pixelkunst",
+	"flat woodblock prints": "flacher Holzschnitt-Druck",
+	"ornamental curvilinear lines": "ornamentale, geschwungene Linien",
+	"conceptual art": "konzeptuelle Kunst",
+	"digital art": "digitale Kunst",
+	"dark-vintage": "dunkeler Vintage-Style",
+	"art deco": "Art Déco",
+	cubism: "Kubismus",
+	"folk art": "Volkskunst",
+};
+
+const colorTranslations: Record<Color, ColorDE> = {
+	"vibrant colours": "lebhafte Farben",
+	"global lightning": "globales Licht",
+	"atmospheric vivid lightning": "atmosphärische, lebendige Beleuchtung",
+	"serene color palette": "beruhigende Farbpalette",
+	"primary colors with black and white": "Primärfarben mit Schwarz und Weiß",
+	"halftone patterns": "Rastertonmuster",
+	"neon colours": "Neonfarben",
+	"chromatic material": "chromatisches Material",
+	"geometrical, luminous lines": "geometrische, leuchtende Linien",
+	"colourful luminous lines": "farbenfrohe, leuchtende Linien",
+	colourful: "farbenfroh und lebendig",
+	"vibrant magenta, electric blue, fiery orange":
+		"lebhafte Magenta-, Elektroblau- und Feuerorange-Töne",
+	"vibrant splashes": "lebhafte Farbspritzer",
+	"vaporwave neon": "Vaporwave-Neon",
+	"retro color palettes": "retro Farbpalette",
+	"vaporwave neon and clear shapes": "Vaporwave-Neon und klare Formen",
+	"mind-bending shapes and colours":
+		"verblüffende, unkonventionelle Formen und Farben",
+	monochrome: "monochrom",
+	"black and white": "schwarz und weiß",
+	"dynamic and vivid lightning and rich hues":
+		"dynamische und lebendige Beleuchtung und satte Farbtöne",
+	"lgbtiq colours": "LGBTIQ-Farben",
+	"raw light pastel colours": "helle Pastellfarben",
+	"contrast-rich and monochromatic": "kontrastreiche und monochrome Farben",
+	"symbolic colours": "symbolträchtige Farben",
+	"saturated pigments": "gesättigte Pigmente",
+	"eye-catching colour palette": "auffällige Farbpalette",
+	"vibrant colors": "lebhafte Farben",
+};
+
+export function translateToDE(collection: {
+	material: Material;
+	style: Style;
+	color: Color;
+}): {
+	materialDE: MaterialDE;
+	styleDE: StyleDE;
+	colorDE: ColorDE;
+} {
+	return {
+		materialDE: materialTranslations[collection.material],
+		styleDE: styleTranslations[collection.style],
+		colorDE: colorTranslations[collection.color],
+	};
+}
+
 export class Collection {
 	list: string[];
 

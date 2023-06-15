@@ -1,13 +1,13 @@
 import { Result } from "@vladmandic/human";
 import { useCallback, useState } from "react";
-import { Body } from "../pages/api/prompt";
 import { ColorthiefResponse } from "../lib/types";
+import { Body, LocalizedPrompt } from "../pages/api/prompt";
 
 const usePrompt = (csrf: string, result: Partial<Result>) => {
 	const [isLoading, setIsLoading] = useState(true);
 
 	const generatePrompt = useCallback(
-		async (colors: ColorthiefResponse, callback: (prompt: string) => void) => {
+		async (colors: ColorthiefResponse, callback: (localizedPrompt: LocalizedPrompt) => void) => {
 			setIsLoading(true);
 
 			const gestures = result.gesture.map((item) => item.gesture);
@@ -43,9 +43,9 @@ const usePrompt = (csrf: string, result: Partial<Result>) => {
 				throw new Error(txt);
 			}
 
-			const res = await response.json();
-			const prompt = res.prompt as string;
-			callback(prompt);
+			const { localizedPrompt } = await response.json();
+
+			callback(localizedPrompt);
 		},
 		[csrf, result]
 	);

@@ -14,6 +14,9 @@ import useColorThief from "../hooks/useColorThief";
 import { useEyesOfAIStore } from "../store";
 import styles from "../styles/elements.module.css";
 import { ColorthiefResponse } from "../lib/types";
+import { STANDSTILL_THRESHOLD_MS, useEyesOfAIStore } from "../store";
+import styles from "../styles/elements.module.css";
+import { LocalizedPrompt } from "./api/prompt";
 
 function generateDataUrl(
 	videoRef: React.MutableRefObject<HTMLVideoElement | undefined>,
@@ -63,11 +66,13 @@ const Page: React.FC<
 	);
 	const humanCloseEnough = useEyesOfAIStore((state) => state.humanCloseEnough);
 	const msInStandStill = useEyesOfAIStore((state) => state.msInStandStill);
-	const standStillProgress = Math.min(100, msInStandStill / 2000);
+	const standStillProgress = Math.min(
+		100,
+		msInStandStill / STANDSTILL_THRESHOLD_MS
+	);
 	const [canvasWidth, setCanvasWidth] = useState(0);
 	const [canvasHeight, setCanvasHeight] = useState(0);
-
-	const [prompt, setPrompt] = useState<string>();
+	const [prompt, setPrompt] = useState<LocalizedPrompt>();
 	const [imageGenerationLoading, setImageGenerationLoading] = useState(false);
 	const [generatedImageSrc, setGeneratedImageSrc] = useState<string>();
 	const [imageGenerationTime, setImageGenerationTime] = useState<Date>();
@@ -80,7 +85,7 @@ const Page: React.FC<
 	const { getColors } = useColorThief();
 
 	const showHumanDetection = !triggered && humanDetected && humanCloseEnough;
-	const showGeneratedImage = triggered;
+	const showGeneratedImage = triggered && prompt;
 	const showGallery = !triggered && (!humanCloseEnough || !humanDetected);
 
 	useEffect(() => {
@@ -115,8 +120,8 @@ const Page: React.FC<
 				setImageGenerationLoading(true);
 				getColors(dataUrl, (colors) => {
 					console.log("colors", colors);
-					generatePrompt(colors, (prompt) => {
-						setPrompt(prompt);
+					generatePrompt(colors, (localizedPrompt) => {
+						setPrompt(localizedPrompt);
 						console.log("generate image");
 						generateImage(prompt, (imageSrc) => {
 							setGeneratedImageSrc(imageSrc);
@@ -167,9 +172,9 @@ const Page: React.FC<
 						standStillProgress={standStillProgress}
 					/>
 				)}
-				{showGeneratedImage && (
+				{showGeneratedImage && prompt && (
 					<GeneratedImageDisplay
-						prompt={prompt}
+						prompt={prompt.promptDe}
 						imageGenerationInProgress={imageGenerationLoading}
 						generatedImageSrc={generatedImageSrc}
 						expirationProgress={expirationProgress}
