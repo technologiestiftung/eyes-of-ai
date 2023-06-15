@@ -88,48 +88,29 @@ const Page: React.FC<
 	}, [imageGenerationTime, resetDetection, resetUxFlow]);
 
 	useEffect(() => {
-		if (videoRef && videoRef.current) {
-			if (triggered) {
-				const dataUrl = getVideoDataUrl();
-				console.log("dataUrl", dataUrl);
-				videoRef.current.pause();
-				setImageGenerationLoading(true);
-				getColors(
-					dataUrl,
-					(colors) => {
-						console.log("colors", colors);
-						console.log("generating prompt");
-						generatePrompt(
-							colors,
-							(localizedPrompt) => {
-								setPrompt(localizedPrompt);
-								console.log("generate image");
-								generateImage(
-									localizedPrompt,
-									(imageSrc) => {
-										setGeneratedImageSrc(imageSrc);
-										setImageGenerationLoading(false);
-										setImageGenerationTime(new Date());
-									},
-									(imageError) => {
-										console.log(imageError);
-										resetUxFlow();
-									}
-								);
-							},
-							(promptError) => {
-								console.log(promptError);
-								resetUxFlow();
-							}
-						);
-					},
-					(colorThiefError) => {
-						console.log(colorThiefError);
-						resetUxFlow();
+		(async () => {
+			try {
+				if (videoRef && videoRef.current) {
+					if (triggered) {
+						videoRef.current.pause();
+
+						const dataUrl = getVideoDataUrl();
+						const colors = await getColors(dataUrl);
+						const localizedPrompt = await generatePrompt(colors);
+						setPrompt((_) => localizedPrompt);
+						setImageGenerationLoading((_) => true);
+
+						const generatedImageSrc = await generateImage(localizedPrompt);
+						setGeneratedImageSrc((_) => generatedImageSrc);
+						setImageGenerationLoading((_) => false);
+						setImageGenerationTime((_) => new Date());
 					}
-				);
+				}
+			} catch (err) {
+				console.log("Error occured in UX flow: " + err);
+				resetUxFlow();
 			}
-		}
+		})();
 	}, [
 		generateImage,
 		generatePrompt,
