@@ -5,9 +5,20 @@ import { useEyesOfAIStore } from "../store";
 
 const config: Partial<Config> = {
 	debug: false,
-	modelBasePath: process.env.NEXT_PUBLIC_HUMAN_MODELS_PATH,
-	wasmPath: process.env.NEXT_PUBLIC_TENSOR_WASM_PATH,
-	face: { enabled: true, attention: { enabled: true } },
+	modelBasePath: `${process.env.NEXT_PUBLIC_HUMAN_MODELS_PATH}`,
+	face: {
+		enabled: true,
+		attention: { enabled: true },
+		antispoof: { enabled: false },
+		mesh: { enabled: true },
+		iris: { enabled: true },
+		gear: { enabled: false },
+		emotion: { enabled: true },
+		detector: { enabled: false },
+		description: { enabled: true },
+		liveness: { enabled: false },
+	},
+	warmup: "face",
 	body: { enabled: false },
 	hand: { enabled: false },
 	object: { enabled: false },
@@ -15,10 +26,9 @@ const config: Partial<Config> = {
 
 interface Props {
 	videoRef: React.MutableRefObject<HTMLVideoElement>;
-	canvasRef: React.MutableRefObject<HTMLCanvasElement>;
 }
 
-const HumanDetection: React.FC<Props> = ({ videoRef, canvasRef }) => {
+const HumanDetection: React.FC<Props> = ({ videoRef }) => {
 	const ready = useEyesOfAIStore((state) => state.ready);
 	const setReady = useEyesOfAIStore((state) => state.setReady);
 
@@ -37,27 +47,44 @@ const HumanDetection: React.FC<Props> = ({ videoRef, canvasRef }) => {
 	useEffect(() => {
 		if (typeof document === "undefined") return;
 
-		import("@vladmandic/human").then((H) => {
-			const newHuman = new H.default(config) as Human;
-			setHuman(newHuman);
-			console.log("config:", newHuman.config);
-			status("loading models...");
-			newHuman.load().then(() => {
-				status("initializing...");
-				newHuman.warmup().then(() => {
-					setReady(true);
-					status("ready...");
-				});
+		import("@vladmandic/human")
+			.then((H) => {
+				const newHuman = new H.default(config) as Human;
+				setHuman(newHuman);
+				console.log("config:", newHuman.config);
+				status("loading models...");
+				newHuman
+					.load()
+					.then(() => {
+						status("initializing...");
+						newHuman
+							.warmup()
+							.then(() => {
+								setReady(true);
+								status("ready...");
+							})
+							.catch((err) => {
+								console.error("warumup error", err);
+								status("error...");
+							});
+					})
+					.catch((err) => {
+						console.error("load error", err);
+						status("error...");
+					});
+			})
+			.catch((err) => {
+				console.error("import error", err);
+				status("error...");
 			});
-		});
-	}, []);
+	}, [setHuman, setReady]);
 
 	useEffect(() => {
 		let timestamp = 0;
 		let fps = 0;
 
 		const detect = async () => {
-			if (!human || !videoRef.current || !canvasRef.current) return;
+			if (!human || !videoRef.current) return;
 
 			await human.detect(videoRef.current);
 
@@ -87,7 +114,14 @@ const HumanDetection: React.FC<Props> = ({ videoRef, canvasRef }) => {
 		if (ready) {
 			detect();
 		}
-	}, [ready]);
+	}, [
+		appendAndShiftResultHistory,
+		checkIfShouldTrigger,
+		human,
+		ready,
+		setResult,
+		videoRef,
+	]);
 
 	return <></>;
 };

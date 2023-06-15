@@ -1,3 +1,24 @@
+# [1.3.0](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.2.5...v1.3.0) (2023-06-15)
+
+
+### Features
+
+* **colorthief:** Extract colors, pass to prompt ([1902df6](https://github.com/technologiestiftung/eyes-of-ai/commit/1902df687683d506f4d3d4c5b0b3d8aca5c65f35))
+
+## [1.2.5](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.2.4...v1.2.5) (2023-06-12)
+
+
+### Bug Fixes
+
+* Detection ([e5baebb](https://github.com/technologiestiftung/eyes-of-ai/commit/e5baebb011d0557cab74d5ee6eb6845db45a7059))
+
+## [1.2.4](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.2.3...v1.2.4) (2023-06-12)
+
+
+### Bug Fixes
+
+* **loading:** Use face warump instead default full ([4746487](https://github.com/technologiestiftung/eyes-of-ai/commit/4746487b434f3ac8cdaf462c88e6d0d4cf6ca721))
+
 ## [1.2.3](https://github.com/technologiestiftung/eyes-of-ai/compare/v1.2.2...v1.2.3) (2023-06-09)
 
 

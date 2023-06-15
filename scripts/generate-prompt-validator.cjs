@@ -15,9 +15,32 @@ const prompt = {
 		},
 		emotions: { type: "array", items: { type: "string" } },
 		gestures: { type: "array", items: { type: "string" } },
+		colors: {
+			type: "object",
+			properties: {
+				color: {
+					type: "array",
+					items: {
+						type: "number",
+					},
+					minItems: 3,
+					maxItems: 3,
+				},
+				palette: {
+					type: "array",
+					items: {
+						type: "array",
+						items: { type: "number" },
+						minItems: 1,
+						maxItems: 10,
+					},
+				},
+				names: { type: "array", items: { type: "string" } },
+			},
+		},
 	},
-	required: ["age", "gender", "emotions", "gestures"],
-	additionalProperties: false,
+	required: ["age", "gender", "emotions", "gestures", "colors"],
+	additionalProperties: true,
 };
 
 // For ESM, the export name needs to be a valid export name, it can not be `export const #/definitions/Foo = ...;` so we

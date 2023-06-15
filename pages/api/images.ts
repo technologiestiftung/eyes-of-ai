@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { decode } from "base64-arraybuffer";
 import { v4 as uuidv4 } from "uuid";
 import { Database } from "../../lib/database";
+import { LocalizedPrompt } from "./prompt";
 // OpenAIApi does currently not work in Vercel Edge Functions as it uses Axios under the hood. So we use the api by making fetach calls directly
 
 export const config = {
@@ -14,6 +15,7 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const OPENAI_API_URL = "https://api.openai.com/v1/images/generations";
 const NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
 const handler = async (req: NextRequest) => {
 	let payload: unknown;
 
@@ -71,8 +73,9 @@ const handler = async (req: NextRequest) => {
 		if (!body) {
 			throw new UserError("Request body is missing");
 		}
-		const { prompt } = body;
-		if (!prompt) {
+		const localizedPrompt = body as LocalizedPrompt;
+
+		if (!localizedPrompt) {
 			throw new UserError("Prompt is missing");
 		}
 		const response = await fetch(OPENAI_API_URL, {
@@ -82,7 +85,7 @@ const handler = async (req: NextRequest) => {
 				Authorization: `Bearer ${OPENAI_API_KEY}`,
 			},
 			body: JSON.stringify({
-				prompt,
+				prompt: localizedPrompt.promptEn,
 				n: 1,
 				size: "512x512",
 				response_format: "b64_json",
@@ -117,7 +120,12 @@ const handler = async (req: NextRequest) => {
 
 		const { data: metaData, error: metaError } = await supabase
 			.from("eotai_images")
-			.insert({ id: imageId, prompt: prompt, url: publicImageUrl.publicUrl })
+			.insert({
+				id: imageId,
+				prompt: localizedPrompt.promptEn,
+				prompt_de: localizedPrompt.promptDe,
+				url: publicImageUrl.publicUrl,
+			})
 			.select("*");
 		if (metaError) {
 			throw new AppError(metaError.message);
