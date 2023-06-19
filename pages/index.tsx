@@ -143,7 +143,7 @@ const Page: React.FC<
 				}}
 			/>
 			{/* Actual components */}
-			<div className={styles.mainContainer}>
+			<div>
 				{webcamReady && <HumanDetection videoRef={videoRef} />}
 				{showHumanDetection && (
 					<HumanDetectionDisplay

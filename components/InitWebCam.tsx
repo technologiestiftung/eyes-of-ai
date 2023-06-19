@@ -6,6 +6,7 @@ interface Props {
 }
 interface State {
 	ready: boolean;
+	videoDeviceIds: Array<MediaDeviceInfo>;
 }
 
 class InitWebCam extends Component<Props, State> {
@@ -25,10 +26,20 @@ class InitWebCam extends Component<Props, State> {
 				| undefined) || document.createElement("video");
 		this.video.style.display = "none";
 		this.video.id = this.props.elementId;
+
+		navigator.mediaDevices.enumerateDevices().then((devices) => {
+			const webcams = devices.filter((d) => d.kind === "videoinput");
+			console.log(webcams);
+			this.setState({ videoDeviceIds: webcams });
+		});
+	}
+
+	selectVideoSource(deviceId: string) {
 		this.constraints = {
 			audio: false,
 			video: {
 				facingMode: "user",
+				deviceId: deviceId,
 				width: { ideal: document.body.clientWidth },
 			},
 		};
@@ -51,7 +62,24 @@ class InitWebCam extends Component<Props, State> {
 	}
 
 	override render(this: InitWebCam) {
-		if (this && this.state && this.state.ready) return null;
+		if (this && this.state) {
+			return (
+				<ul>
+					{(this.state.videoDeviceIds ?? []).map((webcam) => {
+						return (
+							<li
+								key={webcam.deviceId}
+								onClick={() => {
+									this.selectVideoSource(webcam.deviceId);
+								}}
+							>
+								{webcam.label}
+							</li>
+						);
+					})}
+				</ul>
+			);
+		}
 	}
 }
 
