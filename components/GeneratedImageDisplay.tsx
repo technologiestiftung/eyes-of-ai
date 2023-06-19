@@ -1,5 +1,6 @@
+/* eslint-disable @next/next/no-img-element */
 import { LocalizedPrompt } from "../pages/api/prompt";
-import styles from "../styles/elements.module.css";
+import Figure from "./Figure";
 import Loading from "./Loading";
 import ProgressBar from "./ProgressBar";
 
@@ -17,27 +18,31 @@ const GeneratedImageDisplay: React.FC<Props> = ({
 	expirationProgress,
 }) => {
 	return (
-		<div className={styles.generatedImageContainer}>
-			{!prompt ? (
-				<Loading></Loading>
+		<div className="flex flex-col items-center justify-center h-screen text-2xl text-center">
+			{imageGenerationInProgress ? (
+				<>
+					<Loading></Loading>
+					<div className="w-1/2 py-5 text-lg">
+						Ein Interpretation der KI von dir wird erstellt...
+					</div>
+				</>
 			) : (
-				<div className={styles.generatedImageContainer}>
-					<ProgressBar
-						progress={expirationProgress}
-						width={window.innerWidth}
-						height={20}
-					></ProgressBar>
-					{generatedImageSrc && (
-						<div>
-							<img src={generatedImageSrc} alt={prompt.promptDe} />
-						</div>
-					)}
-					{prompt && <div style={{ width: "50%" }}>{prompt.promptDe}</div>}
-					{imageGenerationInProgress && (
-						<div style={{ width: "50%", fontSize: "large", padding: "20px" }}>
-							Interpretation der KI wird erstellt...
-						</div>
-					)}
+				<div className="flex flex-col items-center justify-center text-2xl text-center">
+					<div className="w-1/2 py-5">
+						<ProgressBar
+							progress={expirationProgress}
+							width={512}
+							height={10}
+						></ProgressBar>
+						{generatedImageSrc && (
+							<Figure
+								src={generatedImageSrc}
+								alt={prompt.promptDe ?? prompt.promptEn}
+								caption={prompt.promptDe ?? prompt.promptEn}
+								showCaption={true}
+							/>
+						)}
+					</div>
 				</div>
 			)}
 		</div>
