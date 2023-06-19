@@ -27,11 +27,18 @@ class InitWebCam extends Component<Props, State> {
 		this.video.style.display = "none";
 		this.video.id = this.props.elementId;
 
-		navigator.mediaDevices.enumerateDevices().then((devices) => {
-			const webcams = devices.filter((d) => d.kind === "videoinput");
-			console.log(webcams);
-			this.setState({ videoDeviceIds: webcams });
-		});
+		navigator.mediaDevices
+			.getUserMedia({
+				video: true,
+				audio: false,
+			})
+			.then(() => {
+				navigator.mediaDevices.enumerateDevices().then((devices) => {
+					const webcams = devices.filter((d) => d.kind === "videoinput");
+					console.log(webcams);
+					this.setState({ videoDeviceIds: webcams });
+				});
+			});
 	}
 
 	selectVideoSource(deviceId: string) {
