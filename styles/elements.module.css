@@ -12,8 +12,9 @@
 	display: none;
 }
 .output {
-	margin: 0 auto;
-	width: 100%;
+	/* margin: 0 auto; */
+	/* width: 100%; */
+	/* border: 1px solid red; */
 }
 .status {
 	position: absolute;
@@ -33,8 +34,6 @@
 	font-family: monospace;
 }
 .standStillHint {
-	background-color: black;
-	color: white;
 	font-size: xx-large;
 	text-align: center;
 	width: 100vw;
@@ -46,14 +45,10 @@
 	align-items: center;
 	justify-content: center;
 	text-align: center;
-	background-color: black;
-	color: white;
 	font-size: xx-large;
 }
 
 .imageGridContainer {
-	background-color: black;
-	color: white;
 	width: 100vw;
 	height: 100vh;
 	display: flex;
@@ -67,20 +62,17 @@
 	align-items: center;
 	justify-content: center;
 	text-align: center;
-	background-color: black;
-	color: white;
 	font-size: xx-large;
 	gap: 48px;
 }
 
 .mainContainer {
-	width: 100vw;
+	/* width: 100vw;
 	height: 100vh;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
 	text-align: center;
-	background-color: black;
-	color: white;
+	color: black; */
 }

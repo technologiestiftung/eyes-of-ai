@@ -55,3 +55,9 @@
 		suffix: "";
 	}
 }
+
+body {
+	color: black;
+	background-color: white;
+	font-family: "National", sans-serif;
+}
