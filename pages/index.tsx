@@ -88,24 +88,22 @@ const Page: React.FC<
 	}, [imageGenerationTime, resetDetection, resetUxFlow]);
 
 	useEffect(() => {
+		if (!videoRef || !videoRef.current) return;
+		if (!triggered) return;
 		(async () => {
 			try {
-				if (videoRef && videoRef.current) {
-					if (triggered) {
-						videoRef.current.pause();
+				videoRef.current.pause();
 
-						const dataUrl = getVideoDataUrl();
-						const colors = await getColors(dataUrl);
-						const localizedPrompt = await generatePrompt(colors);
-						setPrompt((_) => localizedPrompt);
-						setImageGenerationLoading((_) => true);
+				const dataUrl = getVideoDataUrl();
+				const colors = await getColors(dataUrl);
+				const localizedPrompt = await generatePrompt(colors);
+				setPrompt((_) => localizedPrompt);
+				setImageGenerationLoading((_) => true);
 
-						const generatedImageSrc = await generateImage(localizedPrompt);
-						setGeneratedImageSrc((_) => generatedImageSrc);
-						setImageGenerationLoading((_) => false);
-						setImageGenerationTime((_) => new Date());
-					}
-				}
+				const generatedImageSrc = await generateImage(localizedPrompt);
+				setGeneratedImageSrc((_) => generatedImageSrc);
+				setImageGenerationLoading((_) => false);
+				setImageGenerationTime((_) => new Date());
 			} catch (err) {
 				console.log("Error occured in UX flow: " + err);
 				resetUxFlow();
