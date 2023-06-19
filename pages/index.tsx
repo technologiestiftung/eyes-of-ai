@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import GeneratedImageDisplay from "../components/GeneratedImageDisplay";
@@ -14,34 +14,8 @@ import usePrompt from "../hooks/usePrompt";
 import { STANDSTILL_THRESHOLD_MS, useEyesOfAIStore } from "../store";
 import styles from "../styles/elements.module.css";
 import { LocalizedPrompt } from "./api/prompt";
+import useVideoData from "../hooks/useVideoData";
 
-function generateDataUrl(
-	videoRef: React.MutableRefObject<HTMLVideoElement | undefined>,
-	maxWidth: number,
-	maxHeight: number
-) {
-	const video = videoRef.current;
-	let width = video.videoWidth;
-	let height = video.videoHeight;
-	const aspectRatio = width / height;
-	if (width > maxWidth) {
-		width = maxWidth;
-		height = width / aspectRatio;
-	}
-	if (height > maxHeight) {
-		height = maxHeight;
-		width = height * aspectRatio;
-	}
-
-	const canvas = document.createElement("canvas");
-	canvas.width = width;
-	canvas.height = height;
-	const ctx = canvas.getContext("2d");
-	ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-	const dataUrl = canvas.toDataURL();
-	canvas.remove();
-	return dataUrl;
-}
 export const getServerSideProps: GetServerSideProps = async (context) => {
 	const token = context.res.req.headers["x-csrf-token"] as string;
 	return { props: { csrf: token } };
@@ -80,10 +54,20 @@ const Page: React.FC<
 	const { generateImage } = useGeneratedImage(csrf);
 	const { detectionText } = useDetectionText(result);
 	const { getColors } = useColorThief();
+	const { getVideoDataUrl } = useVideoData(videoRef);
 
 	const showHumanDetection = !triggered && humanDetected && humanCloseEnough;
 	const showGeneratedImage = triggered;
 	const showGallery = !triggered && (!humanCloseEnough || !humanDetected);
+
+	const resetUxFlow = useCallback(() => {
+		resetDetection();
+		setImageGenerationTime(undefined);
+		setGeneratedImageSrc(undefined);
+		setPrompt(undefined);
+		setExpirationProgress(0.0);
+		videoRef.current.play();
+	}, [resetDetection]);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -93,12 +77,7 @@ const Page: React.FC<
 				const progress = Math.min(1, elapsed / EXPIRATION_SECONDS);
 				setExpirationProgress(progress);
 				if (progress >= 1) {
-					resetDetection();
-					setImageGenerationTime(undefined);
-					setGeneratedImageSrc(undefined);
-					setPrompt(undefined);
-					setExpirationProgress(0.0);
-					videoRef.current.play();
+					resetUxFlow();
 				}
 			}
 		}, 200);
@@ -106,31 +85,38 @@ const Page: React.FC<
 		return () => {
 			clearInterval(interval);
 		};
-	}, [imageGenerationTime, resetDetection]);
+	}, [imageGenerationTime, resetDetection, resetUxFlow]);
 
 	useEffect(() => {
-		if (videoRef && videoRef.current) {
-			if (triggered) {
-				console.log("generating prompt");
-				const dataUrl = generateDataUrl(videoRef, 480, 270);
-				console.log("dataUrl", dataUrl);
+		if (!videoRef || !videoRef.current) return;
+		if (!triggered) return;
+		(async () => {
+			try {
 				videoRef.current.pause();
-				setImageGenerationLoading(true);
-				getColors(dataUrl, (colors) => {
-					console.log("colors", colors);
-					generatePrompt(colors, (localizedPrompt) => {
-						setPrompt(localizedPrompt);
-						console.log("generate image");
-						generateImage(localizedPrompt, (imageSrc) => {
-							setGeneratedImageSrc(imageSrc);
-							setImageGenerationLoading(false);
-							setImageGenerationTime(new Date());
-						});
-					});
-				});
+
+				const dataUrl = getVideoDataUrl();
+				const colors = await getColors(dataUrl);
+				const localizedPrompt = await generatePrompt(colors);
+				setPrompt((_) => localizedPrompt);
+				setImageGenerationLoading((_) => true);
+
+				const generatedImageSrc = await generateImage(localizedPrompt);
+				setGeneratedImageSrc((_) => generatedImageSrc);
+				setImageGenerationLoading((_) => false);
+				setImageGenerationTime((_) => new Date());
+			} catch (err) {
+				console.log("Error occured in UX flow: " + err);
+				resetUxFlow();
 			}
-		}
-	}, [generateImage, generatePrompt, getColors, triggered]);
+		})();
+	}, [
+		generateImage,
+		generatePrompt,
+		getColors,
+		getVideoDataUrl,
+		resetUxFlow,
+		triggered,
+	]);
 
 	return (
 		<div>

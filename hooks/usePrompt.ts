@@ -7,7 +7,7 @@ const usePrompt = (csrf: string, result: Partial<Result>) => {
 	const [isLoading, setIsLoading] = useState(true);
 
 	const generatePrompt = useCallback(
-		async (colors: ColorthiefResponse, callback: (localizedPrompt: LocalizedPrompt) => void) => {
+		async (colors: ColorthiefResponse) => {
 			setIsLoading(true);
 
 			const gestures = result.gesture.map((item) => item.gesture);
@@ -44,8 +44,7 @@ const usePrompt = (csrf: string, result: Partial<Result>) => {
 			}
 
 			const { localizedPrompt } = await response.json();
-
-			callback(localizedPrompt);
+			return localizedPrompt;
 		},
 		[csrf, result]
 	);
