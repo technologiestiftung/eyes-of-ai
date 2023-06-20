@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from "react";
 import styles from "../styles/elements.module.css";
 import ProgressBar from "./ProgressBar";
 import { DetectionText } from "../hooks/useDetectionText";
+import { STANDSTILL_THRESHOLD_MS } from "../store";
 
 interface Props {
 	canvasDrawWidth: number;
@@ -72,7 +73,14 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 
 			ctx.restore();
 		}
-	}, [detectedHuman, canvasRef, detectionText, standStillDetected]);
+	}, [
+		detectedHuman,
+		canvasRef,
+		detectionText,
+		standStillDetected,
+		canvasDrawWidth,
+		canvasDrawHeight,
+	]);
 
 	return (
 		<>
@@ -87,7 +95,12 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 					className="grid h-screen place-items-center text-3xl font-bold"
 					style={{ height: "20%", width: "100%" }}
 				>
-					nicht bewegen
+					{standStillDetected
+						? `stillhalten (${Math.round(
+								STANDSTILL_THRESHOLD_MS / 1000.0 -
+									(standStillProgress / 1000.0) * STANDSTILL_THRESHOLD_MS
+						  )} s)`
+						: "nicht bewegen"}
 				</div>
 				<div
 					ref={divRef}
