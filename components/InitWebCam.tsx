@@ -29,7 +29,12 @@ class InitWebCam extends Component<Props, State> {
 			audio: false,
 			video: {
 				facingMode: "user",
-				width: { ideal: document.body.clientWidth },
+				width: {
+					ideal: 574 * 2, // (document.documentElement.clientWidth / 5.0) * 3.0 - 40,
+				},
+				height: {
+					ideal: 472 * 2, //(document.documentElement.clientHeight / 6.0) * 4.0 * 0.6 - 40,
+				},
 			},
 		};
 		navigator.mediaDevices

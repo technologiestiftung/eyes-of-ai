@@ -24,6 +24,7 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 	standStillProgress,
 }) => {
 	const canvasRef = useRef<HTMLCanvasElement | undefined>(undefined);
+	const divRef = useRef<HTMLDivElement | undefined>(undefined);
 
 	useEffect(() => {
 		if (canvasRef.current) {
@@ -36,8 +37,22 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 		if (canvasRef.current && detectedHuman) {
 			var ctx = canvasRef.current.getContext("2d");
 			ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-			ctx.fillStyle = "#000000";
+			ctx.fillStyle = "#ffffff";
 			ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+
+			ctx.save();
+
+			const faceBox = detectedHuman.result.face[0].box;
+			const scaleFactor = 2.0;
+			const translateX = faceBox[0] + faceBox[2] / 2.0;
+			const translateY = faceBox[1] + faceBox[3] / 2.0;
+			ctx.scale(scaleFactor, scaleFactor);
+			ctx.translate(-translateX, -translateY);
+			ctx.translate(
+				canvasDrawWidth / scaleFactor / 2.0,
+				canvasDrawHeight / scaleFactor / 2.0
+			);
+
 			detectedHuman.draw.all(
 				canvasRef.current,
 				detectedHuman.next(detectedHuman.result),
@@ -47,42 +62,78 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 					lineWidth: 2,
 					drawPolygons: true,
 					drawLabels: false,
-					drawBoxes: standStillDetected,
+					drawBoxes: false,
 					drawGaze: false,
 					drawPoints: false,
 					drawAttention: false,
 					drawGestures: false,
 				}
 			);
+
+			ctx.restore();
 		}
 	}, [detectedHuman, canvasRef, detectionText, standStillDetected]);
 
 	return (
 		<>
-			<div className={styles.standStillHint}>
-				{!snapshotTriggered && standStillDetected ? (
-					<div>
-						<ProgressBar
-							progress={standStillProgress}
-							width={window.innerWidth}
-							height={20}
-						></ProgressBar>
-						<div>Bleib so stehen!</div>
+			<div
+				style={{
+					height: "100%",
+					width: "100%",
+					boxSizing: "border-box",
+				}}
+			>
+				<div
+					className="grid h-screen place-items-center text-3xl font-bold"
+					style={{ height: "20%", width: "100%" }}
+				>
+					nicht bewegen
+				</div>
+				<div
+					ref={divRef}
+					style={{
+						height: "60%",
+						width: "100%",
+					}}
+				>
+					<canvas
+						id="canvas"
+						ref={canvasRef}
+						style={{ width: "574px", height: "472px" }}
+					/>
+				</div>
+				<div
+					style={{
+						height: "20%",
+						width: "100%",
+						boxSizing: "border-box",
+						padding: "20px",
+					}}
+					className="grid grid-cols-5 text-2xl"
+				>
+					<div className="font-bold">alter</div>
+					<div
+						className="col-start-2 col-span-4 text-right font-extrabold"
+						style={{ color: "#2F2FA2" }}
+					>
+						{detectionText.age}
 					</div>
-				) : (
-					<div style={{ paddingTop: "20px" }}>Still stehen!</div>
-				)}
-			</div>
-			<canvas id="canvas" ref={canvasRef} className={styles.output} />
-			{detectionText && (
-				<div className={styles.detectionText}>
-					<div>
-						<p>{detectionText.core}</p>
-						<p>{detectionText.emotion}</p>
-						<p>{detectionText.gesture}</p>
+					<div className="font-bold">emotion</div>
+					<div
+						className="col-start-2 col-span-4 text-right font-extrabold"
+						style={{ color: "#2F2FA2" }}
+					>
+						{detectionText.emotion}
+					</div>
+					<div className="col-start-1 col-span-2 font-bold">erkannt als</div>
+					<div
+						className="col-start-3 col-end-6 text-right font-extrabold"
+						style={{ color: "#2F2FA2" }}
+					>
+						{detectionText.gender}
 					</div>
 				</div>
-			)}
+			</div>
 		</>
 	);
 };

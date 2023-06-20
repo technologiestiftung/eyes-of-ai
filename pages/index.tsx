@@ -15,6 +15,10 @@ import { STANDSTILL_THRESHOLD_MS, useEyesOfAIStore } from "../store";
 import styles from "../styles/elements.module.css";
 import { LocalizedPrompt } from "./api/prompt";
 import useVideoData from "../hooks/useVideoData";
+import usePaginatedImages from "../hooks/usePaginatedImages";
+import { Database } from "../lib/database";
+
+type Image = Database["public"]["Tables"]["eotai_images"]["Row"];
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
 	const token = context.res.req.headers["x-csrf-token"] as string;
@@ -59,6 +63,17 @@ const Page: React.FC<
 	const showHumanDetection = !triggered && humanDetected && humanCloseEnough;
 	const showGeneratedImage = triggered;
 	const showGallery = !triggered && (!humanCloseEnough || !humanDetected);
+
+	const PAGE_SIZE = 30;
+	const [page, setPage] = useState(0);
+	const [allImageData, setAllImageData] = useState<Image[]>([]);
+	const { fetchPaginatedImages } = usePaginatedImages();
+
+	useEffect(() => {
+		fetchPaginatedImages(page, PAGE_SIZE, (data) => {
+			setAllImageData((prevImageData) => prevImageData.concat(data));
+		});
+	}, [fetchPaginatedImages, page]);
 
 	const resetUxFlow = useCallback(() => {
 		resetDetection();
@@ -134,6 +149,10 @@ const Page: React.FC<
 				autoPlay
 				muted
 				onResize={() => {
+					console.log(
+						videoRef.current.videoWidth,
+						videoRef.current.videoHeight
+					);
 					setCanvasWidth(videoRef.current.videoWidth);
 					setCanvasHeight(videoRef.current.videoHeight);
 				}}
@@ -148,18 +167,64 @@ const Page: React.FC<
 				}}
 			/>
 			{/* Actual components */}
-			<div className={styles.mainContainer}>
+			<div>
 				{webcamReady && <HumanDetection videoRef={videoRef} />}
 				{showHumanDetection && (
-					<HumanDetectionDisplay
-						canvasDrawWidth={canvasWidth}
-						canvasDrawHeight={canvasHeight}
-						detectedHuman={human}
-						detectionText={detectionText}
-						snapshotTriggered={triggered}
-						standStillDetected={firstStandStillTime !== undefined}
-						standStillProgress={standStillProgress}
-					/>
+					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 bg-white flex h-screen gap-1">
+						{allImageData.slice(0, 6).map((image) => (
+							<div
+								key={image.id}
+								className=" m-auto text-white"
+								style={{ opacity: 0.2 }}
+							>
+								<figure>
+									<img
+										src={image.url}
+										alt={image.prompt_de ?? image.prompt}
+										className="w-full h-auto"
+									/>
+								</figure>
+							</div>
+						))}
+
+						<div
+							key={allImageData[0].id}
+							className="col-start-2 col-span-3 row-span-4 bg-white"
+							style={{
+								position: "relative",
+								boxShadow: "0px 0px 6px 5px #d3d3d3",
+								margin: "20px",
+							}}
+						>
+							{showHumanDetection && (
+								<HumanDetectionDisplay
+									canvasDrawWidth={canvasWidth}
+									canvasDrawHeight={canvasHeight}
+									detectedHuman={human}
+									detectionText={detectionText}
+									snapshotTriggered={triggered}
+									standStillDetected={firstStandStillTime !== undefined}
+									standStillProgress={standStillProgress}
+								/>
+							)}
+						</div>
+
+						{allImageData.slice(6, 18).map((image) => (
+							<div
+								key={image.id}
+								className=" m-auto text-white"
+								style={{ opacity: 0.2 }}
+							>
+								<figure>
+									<img
+										src={image.url}
+										alt={image.prompt_de ?? image.prompt}
+										className="w-full h-auto"
+									/>
+								</figure>
+							</div>
+						))}
+					</div>
 				)}
 				{showGeneratedImage && (
 					<GeneratedImageDisplay
