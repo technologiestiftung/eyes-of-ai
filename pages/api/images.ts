@@ -5,6 +5,8 @@ import { decode } from "base64-arraybuffer";
 import { v4 as uuidv4 } from "uuid";
 import { Database } from "../../lib/database";
 import { LocalizedPrompt } from "./prompt";
+import { ColorthiefResponse } from "../../lib/types";
+import { Result } from "@vladmandic/human";
 // OpenAIApi does currently not work in Vercel Edge Functions as it uses Axios under the hood. So we use the api by making fetach calls directly
 
 export const config = {
@@ -16,6 +18,10 @@ const OPENAI_API_URL = "https://api.openai.com/v1/images/generations";
 const NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+interface Body extends LocalizedPrompt {
+	colors: ColorthiefResponse;
+	result: Partial<Result>;
+}
 const handler = async (req: NextRequest) => {
 	let payload: unknown;
 
@@ -69,13 +75,13 @@ const handler = async (req: NextRequest) => {
 			SUPABASE_SERVICE_ROLE_KEY
 		);
 
-		const body = await req.json();
-		if (!body) {
+		const json = await req.json();
+		if (!json) {
 			throw new UserError("Request body is missing");
 		}
-		const localizedPrompt = body as LocalizedPrompt;
+		const body = json as Body;
 
-		if (!localizedPrompt) {
+		if (!body.promptEn) {
 			throw new UserError("Prompt is missing");
 		}
 		const response = await fetch(OPENAI_API_URL, {
@@ -85,7 +91,7 @@ const handler = async (req: NextRequest) => {
 				Authorization: `Bearer ${OPENAI_API_KEY}`,
 			},
 			body: JSON.stringify({
-				prompt: localizedPrompt.promptEn,
+				prompt: body.promptEn,
 				n: 1,
 				size: "512x512",
 				response_format: "b64_json",
@@ -94,7 +100,7 @@ const handler = async (req: NextRequest) => {
 		if (!response.ok) {
 			throw new OpenAIError(response.statusText);
 		}
-		const json = (await response.json()) as {
+		const jsonOpenAI = (await response.json()) as {
 			created: number;
 			data: { b64_json: string }[];
 		};
@@ -102,7 +108,7 @@ const handler = async (req: NextRequest) => {
 		const imageId = uuidv4();
 		const { data: uploadData, error: uploadError } = await supabase.storage
 			.from("eotai_images")
-			.upload(`test/${imageId}.png`, decode(json.data[0].b64_json), {
+			.upload(`test/${imageId}.png`, decode(jsonOpenAI.data[0].b64_json), {
 				contentType: "image/png",
 			});
 
@@ -122,9 +128,20 @@ const handler = async (req: NextRequest) => {
 			.from("eotai_images")
 			.insert({
 				id: imageId,
-				prompt: localizedPrompt.promptEn,
-				prompt_de: localizedPrompt.promptDe,
+				prompt: body.promptEn,
+				prompt_de: body.promptDe,
 				url: publicImageUrl.publicUrl,
+				color_names: body.colors.names,
+				color_dominant: body.colors.color,
+				//@ts-ignore Needs to be ignores since postgres does support arrays of arrays but they are stored as array
+				// https://www.postgresql.org/docs/current/arrays.html
+				//> The current implementation does not enforce the declared number of dimensions either. Arrays of a particular element type are all considered to be of the same type, regardless of size or number of dimensions. So, declaring the array size or number of dimensions in CREATE TABLE is simply documentation; it does not affect run-time behavior.
+				color_palette: body.colors.palette as number[][],
+				emotion: body.result.face[0].emotion,
+				age: body.result.face[0].age,
+				gender: body.result.face[0].gender,
+				gender_score: body.result.face[0].genderScore,
+				gesture: body.result.gesture,
 			})
 			.select("*");
 		if (metaError) {

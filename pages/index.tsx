@@ -100,7 +100,11 @@ const Page: React.FC<
 				setPrompt((_) => localizedPrompt);
 				setImageGenerationLoading((_) => true);
 
-				const generatedImageSrc = await generateImage(localizedPrompt);
+				const generatedImageSrc = await generateImage({
+					localizedPrompt,
+					colors,
+					result,
+				});
 				setGeneratedImageSrc((_) => generatedImageSrc);
 				setImageGenerationLoading((_) => false);
 				setImageGenerationTime((_) => new Date());
@@ -115,6 +119,7 @@ const Page: React.FC<
 		getColors,
 		getVideoDataUrl,
 		resetUxFlow,
+		result,
 		triggered,
 	]);
 
