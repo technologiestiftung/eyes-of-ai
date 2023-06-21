@@ -158,7 +158,6 @@ const Page: React.FC<
 					setCanvasHeight(videoRef.current.videoHeight);
 				}}
 			/>
-			<div id="status" className={styles.status}></div>
 			<div id="log" className={styles.log}></div>
 			<div id="performance" className={styles.performance}></div>
 			<InitWebCam

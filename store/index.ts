@@ -4,7 +4,7 @@ import MathUtils from "../lib/math-utils";
 
 const HISTORY_SIZE_LIMIT_FRAMES = 20;
 const ROTATION_THRESHOLD_DEGRESS = 0.05;
-const DISTANCE_THRESHOLD_METERS = 0.15;
+const DISTANCE_THRESHOLD_METERS = 1.5;
 export const STANDSTILL_THRESHOLD_MS = 5000;
 
 export type EyesOfAIStore = {
@@ -143,7 +143,7 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
 		const pitches = faces.map((face) => face.rotation?.angle.pitch);
 		const yaws = faces.map((face) => face.rotation?.angle.yaw);
 		const meanDistance = MathUtils.mean(distances);
-		const humanCloseEnough = meanDistance < 0.7;
+		const humanCloseEnough = meanDistance < DISTANCE_THRESHOLD_METERS;
 		set(() => ({
 			humanCloseEnough: humanCloseEnough,
 			meanDistance: meanDistance,
