@@ -25,9 +25,13 @@ const config: Partial<Config> = {
 
 interface Props {
 	videoRef: React.MutableRefObject<HTMLVideoElement>;
+	humanLibraryReadyCallback: () => void;
 }
 
-const HumanDetection: React.FC<Props> = ({ videoRef }) => {
+const HumanDetection: React.FC<Props> = ({
+	videoRef,
+	humanLibraryReadyCallback,
+}) => {
 	const ready = useEyesOfAIStore((state) => state.ready);
 	const setReady = useEyesOfAIStore((state) => state.setReady);
 
@@ -60,6 +64,7 @@ const HumanDetection: React.FC<Props> = ({ videoRef }) => {
 							.warmup()
 							.then(() => {
 								setReady(true);
+								humanLibraryReadyCallback();
 								console.log("ready...");
 							})
 							.catch((err) => {
@@ -76,7 +81,7 @@ const HumanDetection: React.FC<Props> = ({ videoRef }) => {
 				console.error("import error", err);
 				console.log("error...");
 			});
-	}, [setHuman, setReady]);
+	}, [humanLibraryReadyCallback, setHuman, setReady]);
 
 	useEffect(() => {
 		let timestamp = 0;

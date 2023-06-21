@@ -18,6 +18,7 @@ import { Database } from "../lib/database";
 import { STANDSTILL_THRESHOLD_MS, useEyesOfAIStore } from "../store";
 import styles from "../styles/elements.module.css";
 import { LocalizedPrompt } from "./api/prompt";
+import Loading from "../components/Loading";
 
 type Image = Database["public"]["Tables"]["eotai_images"]["Row"];
 
@@ -55,6 +56,7 @@ const Page: React.FC<
 	const [imageGenerationTime, setImageGenerationTime] = useState<Date>();
 	const [expirationProgress, setExpirationProgress] = useState<number>(0.0);
 	const [webcamReady, setWebcamReady] = useState(false);
+	const [humanLibraryReady, setHumanLibraryReady] = useState(false);
 
 	const { generatePrompt } = usePrompt(csrf, result);
 	const { generateImage } = useGeneratedImage(csrf);
@@ -71,6 +73,8 @@ const Page: React.FC<
 	const [page, setPage] = useState(0);
 	const [allImageData, setAllImageData] = useState<Image[]>([]);
 	const { fetchPaginatedImages } = usePaginatedImages();
+
+	const initializing = !webcamReady || !humanLibraryReady;
 
 	useEffect(() => {
 		fetchPaginatedImages(page, PAGE_SIZE, (data) => {
@@ -104,6 +108,10 @@ const Page: React.FC<
 			clearInterval(interval);
 		};
 	}, [imageGenerationTime, resetDetection, resetUxFlow]);
+
+	const humanLibraryReadyCallback = useCallback(() => {
+		setHumanLibraryReady(true);
+	}, []);
 
 	useEffect(() => {
 		if (!videoRef || !videoRef.current) return;
@@ -168,77 +176,89 @@ const Page: React.FC<
 					setWebcamReady(true);
 				}}
 			/>
+			{webcamReady && (
+				<HumanDetection
+					videoRef={videoRef}
+					humanLibraryReadyCallback={humanLibraryReadyCallback}
+				/>
+			)}
+			{initializing && (
+				<div className="flex items-center justify-center h-screen">
+					<Loading></Loading>
+				</div>
+			)}
 			{/* Actual components */}
-			<div>
-				{webcamReady && <HumanDetection videoRef={videoRef} />}
-				{allImageData && allImageData.length > 0 && (
-					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 bg-white flex h-screen gap-1">
-						{allImageData.slice(0, 6).map((image) => (
+			{!initializing && (
+				<div>
+					{allImageData && allImageData.length > 0 && (
+						<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 bg-white flex h-screen gap-1">
+							{allImageData.slice(0, 6).map((image) => (
+								<div
+									key={image.id}
+									className={`${styles.fadeOut} 	${
+										playbackResult ? styles.fadeIn : styles.fadeOut
+									}`}
+								>
+									<figure>
+										<img
+											src={image.url}
+											alt={image.prompt_de ?? image.prompt}
+											className="w-full h-auto"
+										/>
+									</figure>
+								</div>
+							))}
+
 							<div
-								key={image.id}
-								className={`m-auto text-white ${
-									playbackResult ? "opacity-100" : "opacity-20"
-								}`}
+								key={allImageData[0].id}
+								className="col-start-2 col-span-3 row-span-4 bg-white m-[20px]"
+								style={{
+									boxShadow: "0px 0px 6px 5px #d3d3d3",
+								}}
 							>
-								<figure>
-									<img
-										src={image.url}
-										alt={image.prompt_de ?? image.prompt}
-										className="w-full h-auto"
+								<FaceDetectionPlayback csrf={csrf} />
+
+								{(showHumanDetection || showPlayback) && (
+									<HumanDetectionDisplay
+										canvasDrawWidth={canvasWidth}
+										canvasDrawHeight={canvasHeight}
+										detectedHuman={human}
+										detectionText={detectionText}
+										standStillDetected={firstStandStillTime !== undefined}
+										standStillProgress={standStillProgress}
 									/>
-								</figure>
+								)}
+
+								{showGeneratedImage && (
+									<GeneratedImageDisplay
+										prompt={prompt}
+										imageGenerationInProgress={imageGenerationLoading}
+										generatedImageSrc={generatedImageSrc}
+										expiresInSeconds={Math.round(expirationProgress)}
+									/>
+								)}
 							</div>
-						))}
 
-						<div
-							key={allImageData[0].id}
-							className="col-start-2 col-span-3 row-span-4 bg-white m-[20px]"
-							style={{
-								boxShadow: "0px 0px 6px 5px #d3d3d3",
-							}}
-						>
-							<FaceDetectionPlayback csrf={csrf} videoRef={videoRef} />
-
-							{(showHumanDetection || showPlayback) && (
-								<HumanDetectionDisplay
-									canvasDrawWidth={canvasWidth}
-									canvasDrawHeight={canvasHeight}
-									detectedHuman={human}
-									detectionText={detectionText}
-									standStillDetected={firstStandStillTime !== undefined}
-									standStillProgress={standStillProgress}
-								/>
-							)}
-
-							{showGeneratedImage && (
-								<GeneratedImageDisplay
-									prompt={prompt}
-									imageGenerationInProgress={imageGenerationLoading}
-									generatedImageSrc={generatedImageSrc}
-									expiresInSeconds={Math.round(expirationProgress)}
-								/>
-							)}
+							{allImageData.slice(6, 18).map((image) => (
+								<div
+									key={image.id}
+									className={`${styles.fadeOut} 	${
+										playbackResult ? styles.fadeIn : styles.fadeOut
+									}`}
+								>
+									<figure>
+										<img
+											src={image.url}
+											alt={image.prompt_de ?? image.prompt}
+											className="w-full h-auto"
+										/>
+									</figure>
+								</div>
+							))}
 						</div>
-
-						{allImageData.slice(6, 18).map((image) => (
-							<div
-								key={image.id}
-								className={`m-auto text-white ${
-									playbackResult ? "opacity-100" : "opacity-20"
-								}`}
-							>
-								<figure>
-									<img
-										src={image.url}
-										alt={image.prompt_de ?? image.prompt}
-										className="w-full h-auto"
-									/>
-								</figure>
-							</div>
-						))}
-					</div>
-				)}
-			</div>
+					)}
+				</div>
+			)}
 		</div>
 	);
 };

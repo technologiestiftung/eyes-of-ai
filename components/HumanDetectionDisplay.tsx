@@ -123,21 +123,23 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 				)}
 				<div className="w-full h-[60%]" ref={divRef}>
 					{showRecordingDevFeature && (
-						<button
-							onClick={() => {
-								if (recording) {
-									setRecording(false);
-									console.log(recordedResults);
-								} else {
-									setRecordedResults([]);
-									setRecording(true);
-								}
-							}}
-						>
-							record
-						</button>
+						<>
+							<button
+								onClick={() => {
+									if (recording) {
+										setRecording(false);
+										console.log(recordedResults);
+									} else {
+										setRecordedResults([]);
+										setRecording(true);
+									}
+								}}
+							>
+								record
+							</button>
+							<div>recording: {recording ? "yes" : "no"}</div>
+						</>
 					)}
-					<div>recording: {recording ? "yes" : "no"}</div>
 					<canvas
 						id="canvas"
 						ref={canvasRef}

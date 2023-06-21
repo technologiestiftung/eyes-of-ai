@@ -75,3 +75,29 @@
 	background-color: black;
 	color: white;
 }
+
+.fadeOut {
+	animation: fadeOut 0.5s forwards;
+}
+
+@keyframes fadeOut {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0.2;
+	}
+}
+
+.fadeIn {
+	animation: fadeIn 0.5s forwards;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0.2;
+	}
+	to {
+		opacity: 1;
+	}
+}
