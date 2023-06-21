@@ -6,7 +6,7 @@ import {
 	translateGesture,
 } from "../lib/collection";
 
-export interface DetectionText {
+export interface DetectionFacts {
 	age: number;
 	gender: string;
 	core: string;
@@ -52,7 +52,7 @@ const useDetectionText = (result: Partial<Result>) => {
 			core: coreLabel,
 			emotion: emotionLabel,
 			gesture: gesturesLabel,
-		} as DetectionText;
+		} as DetectionFacts;
 	}, [result]);
 
 	return { detectionText };

@@ -2,14 +2,16 @@ import Human from "@vladmandic/human";
 import React, { useEffect, useRef } from "react";
 import styles from "../styles/elements.module.css";
 import ProgressBar from "./ProgressBar";
-import { DetectionText } from "../hooks/useDetectionText";
+import { DetectionFacts } from "../hooks/useDetectionText";
 import { STANDSTILL_THRESHOLD_MS } from "../store";
+import DetectionBox from "./DetectionBox";
+import UserHintBox from "./UserHintBox";
 
 interface Props {
 	canvasDrawWidth: number;
 	canvasDrawHeight: number;
 	detectedHuman: Human | undefined;
-	detectionText: DetectionText;
+	detectionText: DetectionFacts;
 	snapshotTriggered: boolean;
 	standStillDetected: boolean;
 	standStillProgress: number | undefined;
@@ -82,70 +84,23 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 		canvasDrawHeight,
 	]);
 
+	const secondsLeftUntilTrigger = Math.round(
+		STANDSTILL_THRESHOLD_MS / 1000.0 -
+			(standStillProgress / 1000.0) * STANDSTILL_THRESHOLD_MS
+	);
+
+	const userHint = standStillDetected
+		? `stillhalten (${secondsLeftUntilTrigger} s)`
+		: "nicht bewegen";
+
 	return (
 		<>
-			<div
-				style={{
-					height: "100%",
-					width: "100%",
-					boxSizing: "border-box",
-				}}
-			>
-				<div
-					className="grid h-screen place-items-center text-3xl font-bold"
-					style={{ height: "20%", width: "100%" }}
-				>
-					{standStillDetected
-						? `stillhalten (${Math.round(
-								STANDSTILL_THRESHOLD_MS / 1000.0 -
-									(standStillProgress / 1000.0) * STANDSTILL_THRESHOLD_MS
-						  )} s)`
-						: "nicht bewegen"}
+			<div className="w-full h-full">
+				<UserHintBox label={userHint}></UserHintBox>
+				<div className="w-full h-[60%]" ref={divRef}>
+					<canvas id="canvas" ref={canvasRef} className="w-[572px] h-[472px]" />
 				</div>
-				<div
-					ref={divRef}
-					style={{
-						height: "60%",
-						width: "100%",
-					}}
-				>
-					<canvas
-						id="canvas"
-						ref={canvasRef}
-						style={{ width: "574px", height: "472px" }}
-					/>
-				</div>
-				<div
-					style={{
-						height: "20%",
-						width: "100%",
-						boxSizing: "border-box",
-						padding: "20px",
-					}}
-					className="grid grid-cols-5 text-2xl"
-				>
-					<div className="font-bold">alter</div>
-					<div
-						className="col-start-2 col-span-4 text-right font-extrabold"
-						style={{ color: "#2F2FA2" }}
-					>
-						{detectionText.age}
-					</div>
-					<div className="font-bold">emotion</div>
-					<div
-						className="col-start-2 col-span-4 text-right font-extrabold"
-						style={{ color: "#2F2FA2" }}
-					>
-						{detectionText.emotion}
-					</div>
-					<div className="col-start-1 col-span-2 font-bold">erkannt als</div>
-					<div
-						className="col-start-3 col-end-6 text-right font-extrabold"
-						style={{ color: "#2F2FA2" }}
-					>
-						{detectionText.gender}
-					</div>
-				</div>
+				<DetectionBox detectionFacts={detectionText}></DetectionBox>
 			</div>
 		</>
 	);

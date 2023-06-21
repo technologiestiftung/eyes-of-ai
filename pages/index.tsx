@@ -172,11 +172,7 @@ const Page: React.FC<
 				{showHumanDetection && (
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 bg-white flex h-screen gap-1">
 						{allImageData.slice(0, 6).map((image) => (
-							<div
-								key={image.id}
-								className=" m-auto text-white"
-								style={{ opacity: 0.2 }}
-							>
+							<div key={image.id} className=" m-auto text-white opacity-20">
 								<figure>
 									<img
 										src={image.url}
@@ -189,11 +185,10 @@ const Page: React.FC<
 
 						<div
 							key={allImageData[0].id}
-							className="col-start-2 col-span-3 row-span-4 bg-white"
+							className="col-start-2 col-span-3 row-span-4 bg-white m-[20px]"
 							style={{
 								position: "relative",
 								boxShadow: "0px 0px 6px 5px #d3d3d3",
-								margin: "20px",
 							}}
 						>
 							{showHumanDetection && (
@@ -210,11 +205,7 @@ const Page: React.FC<
 						</div>
 
 						{allImageData.slice(6, 18).map((image) => (
-							<div
-								key={image.id}
-								className=" m-auto text-white"
-								style={{ opacity: 0.2 }}
-							>
+							<div key={image.id} className=" m-auto text-white opacity-20">
 								<figure>
 									<img
 										src={image.url}
