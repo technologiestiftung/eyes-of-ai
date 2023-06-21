@@ -2,10 +2,10 @@ import { create } from "zustand";
 import { Human, Result } from "@vladmandic/human";
 import MathUtils from "../lib/math-utils";
 
-const HISTORY_SIZE_LIMIT_FRAMES = 20;
+const HISTORY_SIZE_LIMIT_FRAMES = 5;
 const ROTATION_THRESHOLD_DEGRESS = 0.05;
 const DISTANCE_THRESHOLD_METERS = 1.5;
-export const STANDSTILL_THRESHOLD_MS = 5000;
+export const STANDSTILL_THRESHOLD_MS = 5000000;
 
 export type EyesOfAIStore = {
 	ready: boolean;
@@ -25,6 +25,9 @@ export type EyesOfAIStore = {
 
 	result: Partial<Result> | undefined;
 	setResult: (result: Partial<Result>) => void;
+
+	playbackResult: Partial<Result> | undefined;
+	setPlaybackResult: (playbackResult: Partial<Result>) => void;
 
 	resultHistory: Partial<Result>[];
 	appendAndShiftResultHistory: (result: Partial<Result>) => void;
@@ -71,6 +74,9 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
 
 	result: undefined,
 	setResult: (result) => set(() => ({ result })),
+
+	playbackResult: undefined,
+	setPlaybackResult: (playbackResult) => set(() => ({ playbackResult })),
 
 	resultHistory: [],
 	appendAndShiftResultHistory: (result) => {

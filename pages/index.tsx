@@ -3,22 +3,21 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import FaceDetectionPlayback from "../components/FaceDetectionPlayback";
 import GeneratedImageDisplay from "../components/GeneratedImageDisplay";
 import HumanDetection from "../components/HumanDetection";
 import HumanDetectionDisplay from "../components/HumanDetectionDisplay";
-import ImageGrid from "../components/ImageGrid";
 import InitWebCam from "../components/InitWebCam";
 import useColorThief from "../hooks/useColorThief";
 import useDetectionText from "../hooks/useDetectionText";
 import useGeneratedImage from "../hooks/useGeneratedImage";
+import usePaginatedImages from "../hooks/usePaginatedImages";
 import usePrompt from "../hooks/usePrompt";
+import useVideoData from "../hooks/useVideoData";
+import { Database } from "../lib/database";
 import { STANDSTILL_THRESHOLD_MS, useEyesOfAIStore } from "../store";
 import styles from "../styles/elements.module.css";
 import { LocalizedPrompt } from "./api/prompt";
-import useVideoData from "../hooks/useVideoData";
-import usePaginatedImages from "../hooks/usePaginatedImages";
-import { Database } from "../lib/database";
-import MeshVideoDisplay from "../components/MeshVideoDisplay";
 
 type Image = Database["public"]["Tables"]["eotai_images"]["Row"];
 
@@ -38,6 +37,7 @@ const Page: React.FC<
 	const resetDetection = useEyesOfAIStore((state) => state.resetDetection);
 	const human = useEyesOfAIStore((state) => state.human);
 	const result = useEyesOfAIStore((state) => state.result);
+	const playbackResult = useEyesOfAIStore((state) => state.playbackResult);
 	const firstStandStillTime = useEyesOfAIStore(
 		(state) => state.firstStandStillTime
 	);
@@ -58,13 +58,14 @@ const Page: React.FC<
 
 	const { generatePrompt } = usePrompt(csrf, result);
 	const { generateImage } = useGeneratedImage(csrf);
-	const { detectionText } = useDetectionText(result);
+	const { detectionText } = useDetectionText(result, playbackResult);
 	const { getColors } = useColorThief();
 	const { getVideoDataUrl } = useVideoData(videoRef);
 
 	const showHumanDetection = !triggered && humanDetected && humanCloseEnough;
 	const showGeneratedImage = triggered;
-	const showGallery = !triggered && (!humanCloseEnough || !humanDetected);
+	const showPlayback =
+		!triggered && (!humanCloseEnough || !humanDetected) && playbackResult;
 
 	const PAGE_SIZE = 30;
 	const [page, setPage] = useState(0);
@@ -173,7 +174,12 @@ const Page: React.FC<
 				{allImageData && allImageData.length > 0 && (
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 bg-white flex h-screen gap-1">
 						{allImageData.slice(0, 6).map((image) => (
-							<div key={image.id} className=" m-auto text-white opacity-20">
+							<div
+								key={image.id}
+								className={`m-auto text-white ${
+									playbackResult ? "opacity-100" : "opacity-20"
+								}`}
+							>
 								<figure>
 									<img
 										src={image.url}
@@ -191,20 +197,19 @@ const Page: React.FC<
 								boxShadow: "0px 0px 6px 5px #d3d3d3",
 							}}
 						>
-							{!showHumanDetection &&
-								!imageGenerationLoading &&
-								!showGeneratedImage && <MeshVideoDisplay></MeshVideoDisplay>}
-							{showHumanDetection && (
+							<FaceDetectionPlayback csrf={csrf} videoRef={videoRef} />
+
+							{(showHumanDetection || showPlayback) && (
 								<HumanDetectionDisplay
 									canvasDrawWidth={canvasWidth}
 									canvasDrawHeight={canvasHeight}
 									detectedHuman={human}
 									detectionText={detectionText}
-									snapshotTriggered={triggered}
 									standStillDetected={firstStandStillTime !== undefined}
 									standStillProgress={standStillProgress}
 								/>
 							)}
+
 							{showGeneratedImage && (
 								<GeneratedImageDisplay
 									prompt={prompt}
@@ -216,7 +221,12 @@ const Page: React.FC<
 						</div>
 
 						{allImageData.slice(6, 18).map((image) => (
-							<div key={image.id} className=" m-auto text-white opacity-20">
+							<div
+								key={image.id}
+								className={`m-auto text-white ${
+									playbackResult ? "opacity-100" : "opacity-20"
+								}`}
+							>
 								<figure>
 									<img
 										src={image.url}
@@ -227,10 +237,6 @@ const Page: React.FC<
 							</div>
 						))}
 					</div>
-				)}
-
-				{showGallery && (
-					<ImageGrid showCaption={false} showMoreButton={false}></ImageGrid>
 				)}
 			</div>
 		</div>

@@ -32,12 +32,10 @@ class InitWebCam extends Component<Props, State> {
 				// Magic width, height calculation assuming we have a grid of 5x6
 				// TODO: doublecheck how to do this responsively without magic
 				width: {
-					ideal: ((document.documentElement.clientWidth / 5.0) * 3.0 - 40) * 2,
+					ideal: ((1024 / 5.0) * 3.0 - 40) * 2,
 				},
 				height: {
-					ideal:
-						((document.documentElement.clientHeight / 6.0) * 4.0 * 0.6 - 40) *
-						2,
+					ideal: ((1280 / 6.0) * 4.0 * 0.6 - 40) * 2,
 				},
 			},
 		};

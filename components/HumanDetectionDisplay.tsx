@@ -1,9 +1,7 @@
-import Human from "@vladmandic/human";
-import React, { useEffect, useRef } from "react";
-import styles from "../styles/elements.module.css";
-import ProgressBar from "./ProgressBar";
+import Human, { FaceResult, Result } from "@vladmandic/human";
+import React, { useEffect, useRef, useState } from "react";
 import { DetectionFacts } from "../hooks/useDetectionText";
-import { STANDSTILL_THRESHOLD_MS } from "../store";
+import { STANDSTILL_THRESHOLD_MS, useEyesOfAIStore } from "../store";
 import DetectionBox from "./DetectionBox";
 import UserHintBox from "./UserHintBox";
 
@@ -12,7 +10,6 @@ interface Props {
 	canvasDrawHeight: number;
 	detectedHuman: Human | undefined;
 	detectionText: DetectionFacts;
-	snapshotTriggered: boolean;
 	standStillDetected: boolean;
 	standStillProgress: number | undefined;
 }
@@ -22,12 +19,18 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 	canvasDrawHeight,
 	detectedHuman,
 	detectionText,
-	snapshotTriggered,
 	standStillDetected,
 	standStillProgress,
 }) => {
+	const showRecordingDevFeature = false;
 	const canvasRef = useRef<HTMLCanvasElement | undefined>(undefined);
 	const divRef = useRef<HTMLDivElement | undefined>(undefined);
+	const [recordedResults, setRecordedResults] = useState<
+		Array<Partial<Result>>
+	>([]);
+	const result = useEyesOfAIStore((state) => state.result);
+	const playbackResult = useEyesOfAIStore((state) => state.playbackResult);
+	const [recording, setRecording] = useState(false);
 
 	useEffect(() => {
 		if (canvasRef.current) {
@@ -37,7 +40,14 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 	}, [canvasDrawWidth, canvasDrawHeight]);
 
 	useEffect(() => {
-		if (canvasRef.current && detectedHuman) {
+		if (
+			canvasRef.current &&
+			detectedHuman &&
+			((result && result.face && result.face[0]) ||
+				(playbackResult && playbackResult.face && playbackResult.face[0]))
+		) {
+			const resultToRender = playbackResult ?? result;
+
 			var ctx = canvasRef.current.getContext("2d");
 			ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 			ctx.fillStyle = "#ffffff";
@@ -45,7 +55,7 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 
 			ctx.save();
 
-			const faceBox = detectedHuman.result.face[0].box;
+			const faceBox = resultToRender.face[0].box;
 			const scaleFactor = 2.0;
 			const translateX = faceBox[0] + faceBox[2] / 2.0;
 			const translateY = faceBox[1] + faceBox[3] / 2.0;
@@ -56,9 +66,9 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 				canvasDrawHeight / scaleFactor / 2.0
 			);
 
-			detectedHuman.draw.all(
+			detectedHuman.draw.face(
 				canvasRef.current,
-				detectedHuman.next(detectedHuman.result),
+				resultToRender.face as FaceResult[],
 				{
 					color: "#F64C72",
 					roundRect: 0,
@@ -76,6 +86,8 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 			ctx.restore();
 		}
 	}, [
+		playbackResult,
+		result,
 		detectedHuman,
 		canvasRef,
 		detectionText,
@@ -83,6 +95,14 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 		canvasDrawWidth,
 		canvasDrawHeight,
 	]);
+
+	useEffect(() => {
+		if (recording) {
+			setRecordedResults((xs) =>
+				JSON.parse(JSON.stringify(xs.concat([result])))
+			);
+		}
+	}, [recording, result]);
 
 	const secondsLeftUntilTrigger = Math.round(
 		STANDSTILL_THRESHOLD_MS / 1000.0 -
@@ -96,15 +116,37 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 	return (
 		<>
 			<div className="w-full h-full">
-				<UserHintBox label={userHint}></UserHintBox>
+				{playbackResult ? (
+					<div className="grid place-items-center text-3xl font-bold w-full h-[20%]"></div>
+				) : (
+					<UserHintBox label={userHint}></UserHintBox>
+				)}
 				<div className="w-full h-[60%]" ref={divRef}>
+					{showRecordingDevFeature && (
+						<button
+							onClick={() => {
+								if (recording) {
+									setRecording(false);
+									console.log(recordedResults);
+								} else {
+									setRecordedResults([]);
+									setRecording(true);
+								}
+							}}
+						>
+							record
+						</button>
+					)}
+					<div>recording: {recording ? "yes" : "no"}</div>
 					<canvas
 						id="canvas"
 						ref={canvasRef}
 						className="w-[572px] h-[472px] bg-white"
 					/>
 				</div>
-				<DetectionBox detectionFacts={detectionText}></DetectionBox>
+				{!playbackResult && (
+					<DetectionBox detectionFacts={detectionText}></DetectionBox>
+				)}
 			</div>
 		</>
 	);
