@@ -7,7 +7,7 @@ interface Props {
 const UserHintBox: React.FC<Props> = ({ label }) => {
 	return (
 		<>
-			<div className="grid h-screen place-items-center text-3xl font-bold w-full h-[20%]">
+			<div className="grid place-items-center text-3xl font-bold w-full h-[20%]">
 				{label}
 			</div>
 		</>

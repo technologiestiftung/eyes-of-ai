@@ -188,7 +188,6 @@ const Page: React.FC<
 							key={allImageData[0].id}
 							className="col-start-2 col-span-3 row-span-4 bg-white m-[20px]"
 							style={{
-								position: "relative",
 								boxShadow: "0px 0px 6px 5px #d3d3d3",
 							}}
 						>
@@ -210,17 +209,6 @@ const Page: React.FC<
 									generatedImageSrc={generatedImageSrc}
 									expiresInSeconds={Math.round(expirationProgress)}
 								/>
-								// <GeneratedImageDisplay
-								// 	prompt={{
-								// 		promptDe:
-								// 			"Eine Lithographie eines 33-jährigen, neutral aussehenden Mannes, der dem Zentrum zugewandt ist, verzerrte Pixelkunst, silber, dunkelschiefergrau und schwachgrau.",
-								// 		promptEn:
-								// 			"Eine Lithographie eines 33-jährigen, neutral aussehenden Mannes, der dem Zentrum zugewandt ist, verzerrte Pixelkunst, silber, dunkelschiefergrau und schwachgrau.",
-								// 	}}
-								// 	imageGenerationInProgress={true}
-								// 	generatedImageSrc={""}
-								// 	expiresInSeconds={0}
-								// />
 							)}
 						</div>
 
