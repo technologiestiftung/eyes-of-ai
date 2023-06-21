@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
@@ -90,7 +91,7 @@ const Page: React.FC<
 				const elapsed =
 					(new Date().getTime() - imageGenerationTime.getTime()) / 1000.0;
 				const progress = Math.min(1, elapsed / EXPIRATION_SECONDS);
-				setExpirationProgress(progress);
+				setExpirationProgress(EXPIRATION_SECONDS - elapsed);
 				if (progress >= 1) {
 					resetUxFlow();
 				}
@@ -169,7 +170,7 @@ const Page: React.FC<
 			{/* Actual components */}
 			<div>
 				{webcamReady && <HumanDetection videoRef={videoRef} />}
-				{showHumanDetection && (
+				{(showHumanDetection || showGeneratedImage) && (
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 bg-white flex h-screen gap-1">
 						{allImageData.slice(0, 6).map((image) => (
 							<div key={image.id} className=" m-auto text-white opacity-20">
@@ -202,6 +203,25 @@ const Page: React.FC<
 									standStillProgress={standStillProgress}
 								/>
 							)}
+							{showGeneratedImage && (
+								<GeneratedImageDisplay
+									prompt={prompt}
+									imageGenerationInProgress={imageGenerationLoading}
+									generatedImageSrc={generatedImageSrc}
+									expiresInSeconds={Math.round(expirationProgress)}
+								/>
+								// <GeneratedImageDisplay
+								// 	prompt={{
+								// 		promptDe:
+								// 			"Eine Lithographie eines 33-jährigen, neutral aussehenden Mannes, der dem Zentrum zugewandt ist, verzerrte Pixelkunst, silber, dunkelschiefergrau und schwachgrau.",
+								// 		promptEn:
+								// 			"Eine Lithographie eines 33-jährigen, neutral aussehenden Mannes, der dem Zentrum zugewandt ist, verzerrte Pixelkunst, silber, dunkelschiefergrau und schwachgrau.",
+								// 	}}
+								// 	imageGenerationInProgress={true}
+								// 	generatedImageSrc={""}
+								// 	expiresInSeconds={0}
+								// />
+							)}
 						</div>
 
 						{allImageData.slice(6, 18).map((image) => (
@@ -217,14 +237,7 @@ const Page: React.FC<
 						))}
 					</div>
 				)}
-				{showGeneratedImage && (
-					<GeneratedImageDisplay
-						prompt={prompt}
-						imageGenerationInProgress={imageGenerationLoading}
-						generatedImageSrc={generatedImageSrc}
-						expirationProgress={expirationProgress}
-					/>
-				)}
+
 				{showGallery && (
 					<ImageGrid showCaption={false} showMoreButton={false}></ImageGrid>
 				)}

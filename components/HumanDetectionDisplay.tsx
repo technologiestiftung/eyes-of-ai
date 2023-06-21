@@ -98,7 +98,11 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 			<div className="w-full h-full">
 				<UserHintBox label={userHint}></UserHintBox>
 				<div className="w-full h-[60%]" ref={divRef}>
-					<canvas id="canvas" ref={canvasRef} className="w-[572px] h-[472px]" />
+					<canvas
+						id="canvas"
+						ref={canvasRef}
+						className="w-[572px] h-[472px] bg-white"
+					/>
 				</div>
 				<DetectionBox detectionFacts={detectionText}></DetectionBox>
 			</div>

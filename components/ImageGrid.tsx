@@ -50,7 +50,7 @@ const ImageGrid: React.FC<Props> = ({ showCaption, showMoreButton }) => {
 
 				<div
 					key={allImageData[0].id}
-					className="w-full h-full col-start-2 col-span-3 row-span-4 bg-black"
+					className="w-full h-full col-start-2 col-span-3 row-span-4 bg-white"
 				>
 					<div className="grid"></div>
 				</div>
