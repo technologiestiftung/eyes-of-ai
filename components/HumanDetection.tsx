@@ -1,6 +1,5 @@
 import type { Config, Human } from "@vladmandic/human";
 import React, { useEffect } from "react";
-import { status } from "../lib/logging";
 import { useEyesOfAIStore } from "../store";
 
 const config: Partial<Config> = {

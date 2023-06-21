@@ -18,6 +18,7 @@ import { LocalizedPrompt } from "./api/prompt";
 import useVideoData from "../hooks/useVideoData";
 import usePaginatedImages from "../hooks/usePaginatedImages";
 import { Database } from "../lib/database";
+import MeshVideoDisplay from "../components/MeshVideoDisplay";
 
 type Image = Database["public"]["Tables"]["eotai_images"]["Row"];
 
@@ -169,7 +170,7 @@ const Page: React.FC<
 			{/* Actual components */}
 			<div>
 				{webcamReady && <HumanDetection videoRef={videoRef} />}
-				{(showHumanDetection || showGeneratedImage) && (
+				{allImageData && allImageData.length > 0 && (
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 bg-white flex h-screen gap-1">
 						{allImageData.slice(0, 6).map((image) => (
 							<div key={image.id} className=" m-auto text-white opacity-20">
@@ -190,6 +191,9 @@ const Page: React.FC<
 								boxShadow: "0px 0px 6px 5px #d3d3d3",
 							}}
 						>
+							{!showHumanDetection &&
+								!imageGenerationLoading &&
+								!showGeneratedImage && <MeshVideoDisplay></MeshVideoDisplay>}
 							{showHumanDetection && (
 								<HumanDetectionDisplay
 									canvasDrawWidth={canvasWidth}

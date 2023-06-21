@@ -34,11 +34,15 @@ const GeneratedImageDisplay: React.FC<Props> = ({
 		>
 			<div className="grow">
 				<div
-					className={`flex items-center justify-center h-full text-center text-2xl ${
-						expiresInSeconds <= 5 ? "opacity-100" : "opacity-0"
-					}`}
+					className={`flex items-center justify-center h-full text-center text-2xl`}
 				>
-					<UserHintBox label={`reset in ${expiresInSeconds}s`}></UserHintBox>
+					<UserHintBox
+						label={
+							expiresInSeconds <= 5
+								? `reset in ${expiresInSeconds}s`
+								: "so sieht dich die ki"
+						}
+					></UserHintBox>
 				</div>
 			</div>
 			{generatedImageSrc && (
