@@ -105,11 +105,15 @@ const handler = async (req: NextRequest) => {
 
 		const validBody = body as Body;
 		const { age, gender, emotions, gestures, colors } = validBody;
-		const gestureCollection = new Collection(
-			gestures.map((g) => {
-				return g.match(/^mouth \d{1,3}% open$/) ? "with open mouth" : g;
+
+		const mouthRegex = /^mouth \d{1,3}% open$/;
+		const mouthOpen = gestures.filter((g) => g.match(mouthRegex)).length > 0;
+		const gesturesWithoutMouthCollection = new Collection(
+			gestures.filter((g) => {
+				return !g.match(mouthRegex);
 			})
 		);
+
 		/**
 		 * Today I Learned: Oxford Comma
 		 * The comma that you see before "and" in the list is known as the Oxford or serial comma. It's a stylistic choice in English writing to make the separation between items in a list clearer.
@@ -132,9 +136,9 @@ const handler = async (req: NextRequest) => {
 			age
 		)} year old ${formatter.format(
 			emotions
-		)} looking ${gender}, ${gestureCollection.random()}, ${style}, ${
-			Math.random() > 0.5 ? color : formatter.format(colors.names)
-		}`;
+		)} looking ${gender}, ${gesturesWithoutMouthCollection.random()}${
+			mouthOpen ? ", with open mouth, " : ", "
+		}${style}, ${Math.random() > 0.5 ? color : formatter.format(colors.names)}`;
 		console.log(prompt);
 
 		const localizedPrompt = await callChatGPT(

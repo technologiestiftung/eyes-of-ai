@@ -6,33 +6,44 @@ import {
 	translateGesture,
 } from "../lib/collection";
 
-export interface DetectionText {
+export interface DetectionFacts {
+	age: number;
+	gender: string;
 	core: string;
 	emotion: string;
 	gesture: string;
 }
 
-const useDetectionText = (result: Partial<Result>) => {
+const useDetectionText = (
+	result: Partial<Result>,
+	playbackResult: Partial<Result>
+) => {
 	const detectionText = useMemo(() => {
-		if (!result || !result.face[0]) {
+		const resultToUse = playbackResult ?? result;
+
+		if (!resultToUse || !resultToUse.face[0]) {
 			return undefined;
 		}
-		const face = result.face[0];
+		const face = resultToUse.face[0];
 
 		const gender =
-			result.face[0].gender === "unknown" || result.face[0].genderScore < 0.4
+			resultToUse.face[0].gender === "unknown" ||
+			resultToUse.face[0].genderScore < 0.4
 				? "non-binary"
-				: result.face[0].gender;
+				: resultToUse.face[0].gender;
 
-		const translatedGestures = result.gesture
+		const translatedGestures = resultToUse.gesture
 			.map(({ gesture }) => translateGesture(gesture.toString()))
-			.filter((x, i, a) => a.indexOf(x) == i);
+			.filter((x, i, a) => a.indexOf(x) == i)
+			.slice(0, 1);
 
 		const coreLabel = `${Math.round(face.age)} Jahre alte ${translateGender(
 			gender
 		)} Person`;
 
 		const emotionLabel = `${face.emotion
+			.sort((l, r) => (l.score < r.score ? 1 : -1))
+			.slice(0, 2)
 			.map(
 				({ emotion, score }) =>
 					`${Math.round(score * 100)}% ${translateEmotion(emotion)}`
@@ -42,11 +53,13 @@ const useDetectionText = (result: Partial<Result>) => {
 		const gesturesLabel = `${translatedGestures.join(", ")}`;
 
 		return {
+			age: face.age,
+			gender: `${translateGender(gender)} Person`,
 			core: coreLabel,
 			emotion: emotionLabel,
 			gesture: gesturesLabel,
-		} as DetectionText;
-	}, [result]);
+		} as DetectionFacts;
+	}, [playbackResult, result]);
 
 	return { detectionText };
 };

@@ -1,6 +1,5 @@
 import type { Config, Human } from "@vladmandic/human";
 import React, { useEffect } from "react";
-import { status } from "../lib/logging";
 import { useEyesOfAIStore } from "../store";
 
 const config: Partial<Config> = {
@@ -26,9 +25,13 @@ const config: Partial<Config> = {
 
 interface Props {
 	videoRef: React.MutableRefObject<HTMLVideoElement>;
+	humanLibraryReadyCallback: () => void;
 }
 
-const HumanDetection: React.FC<Props> = ({ videoRef }) => {
+const HumanDetection: React.FC<Props> = ({
+	videoRef,
+	humanLibraryReadyCallback,
+}) => {
 	const ready = useEyesOfAIStore((state) => state.ready);
 	const setReady = useEyesOfAIStore((state) => state.setReady);
 
@@ -52,32 +55,33 @@ const HumanDetection: React.FC<Props> = ({ videoRef }) => {
 				const newHuman = new H.default(config) as Human;
 				setHuman(newHuman);
 				console.log("config:", newHuman.config);
-				status("loading models...");
+				console.log("loading models...");
 				newHuman
 					.load()
 					.then(() => {
-						status("initializing...");
+						console.log("initializing...");
 						newHuman
 							.warmup()
 							.then(() => {
 								setReady(true);
-								status("ready...");
+								humanLibraryReadyCallback();
+								console.log("ready...");
 							})
 							.catch((err) => {
 								console.error("warumup error", err);
-								status("error...");
+								console.log("error...");
 							});
 					})
 					.catch((err) => {
 						console.error("load error", err);
-						status("error...");
+						console.log("error...");
 					});
 			})
 			.catch((err) => {
 				console.error("import error", err);
-				status("error...");
+				console.log("error...");
 			});
-	}, [setHuman, setReady]);
+	}, [humanLibraryReadyCallback, setHuman, setReady]);
 
 	useEffect(() => {
 		let timestamp = 0;
@@ -91,12 +95,6 @@ const HumanDetection: React.FC<Props> = ({ videoRef }) => {
 			const now = human.now();
 			fps = 1000 / (now - timestamp);
 			timestamp = now;
-
-			status(
-				videoRef.current.paused
-					? "paused"
-					: `fps: ${fps.toFixed(1).padStart(5, " ")}`
-			);
 
 			if (!videoRef.current.paused) {
 				const interpolated = human.next(human.result);

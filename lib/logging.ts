@@ -11,12 +11,3 @@ export const log = (...msg: any) => {
 	}
 	console.log(...msg);
 };
-
-export const status = (msg: string) => {
-	if (typeof document !== "undefined") {
-		if (!dom.status)
-			(dom.status = document.getElementById("status") as HTMLDivElement),
-				console.log("status", msg, dom.status?.innerText);
-		dom.status.innerText = msg;
-	}
-};

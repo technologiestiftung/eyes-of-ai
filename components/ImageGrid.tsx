@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useState } from "react";
 
 import usePaginatedImages from "../hooks/usePaginatedImages";
@@ -27,9 +28,9 @@ const ImageGrid: React.FC<Props> = ({ showCaption, showMoreButton }) => {
 	};
 	return (
 		<>
-			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 bg-black">
+			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 bg-white text-black">
 				{allImageData.map((image) => (
-					<div key={image.id} className="p-4 text-white">
+					<div key={image.id} className="p-1">
 						<figure>
 							<img
 								src={image.url}
