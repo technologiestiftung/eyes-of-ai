@@ -23,7 +23,10 @@ const GeneratedImageDisplay: React.FC<Props> = ({
 	if (imageGenerationInProgress || !generatedImageSrc || !prompt) {
 		return (
 			<div className="w-full h-full">
-				<UserHintBox label={"ki malt dich"}></UserHintBox>
+				<UserHintBox
+					label={"ki malt dich"}
+					labelRight={undefined}
+				></UserHintBox>
 				<div className="h-[60%] flex items-center justify-center ">
 					<Loading></Loading>
 				</div>
@@ -32,20 +35,16 @@ const GeneratedImageDisplay: React.FC<Props> = ({
 		);
 	}
 	return (
-		<div
-			className="w-full h-full flex flex-col gap-10"
-			style={{ padding: "40px" }}
-		>
+		<div className="w-full h-full flex flex-col" style={{ padding: "40px" }}>
 			<div className="grow">
-				<div
-					className={`flex items-center justify-center h-full text-center text-2xl`}
-				>
+				<div>
 					<UserHintBox
 						label={
 							expiresInSeconds <= 5
 								? `reset in ${expiresInSeconds}s`
 								: "so sieht dich die ki"
 						}
+						labelRight={undefined}
 					></UserHintBox>
 				</div>
 			</div>
@@ -59,11 +58,13 @@ const GeneratedImageDisplay: React.FC<Props> = ({
 				</div>
 			)}
 			{detectionFacts && (
-				<DetectionBox
-					detectionFacts={detectionFacts}
-					showGesture
-					showMouth
-				></DetectionBox>
+				<div style={{ paddingTop: "20px" }}>
+					<DetectionBox
+						detectionFacts={detectionFacts}
+						showGesture={true}
+						showMouth={true}
+					></DetectionBox>
+				</div>
 			)}
 		</div>
 	);

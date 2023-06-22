@@ -109,3 +109,7 @@
 .highlightColor {
 	color: #908bd7;
 }
+
+.centerBox {
+	box-shadow: inset 0px 0px 6px 5px rgba(144, 139, 215, 0.3);
+}

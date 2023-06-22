@@ -8,6 +8,7 @@ import GeneratedImageDisplay from "../components/GeneratedImageDisplay";
 import HumanDetection from "../components/HumanDetection";
 import HumanDetectionDisplay from "../components/HumanDetectionDisplay";
 import InitWebCam from "../components/InitWebCam";
+import Loading from "../components/Loading";
 import useColorThief from "../hooks/useColorThief";
 import useDetectionText from "../hooks/useDetectionText";
 import useGeneratedImage from "../hooks/useGeneratedImage";
@@ -18,7 +19,6 @@ import { Database } from "../lib/database";
 import { STANDSTILL_THRESHOLD_MS, useEyesOfAIStore } from "../store";
 import styles from "../styles/elements.module.css";
 import { LocalizedPrompt } from "./api/prompt";
-import Loading from "../components/Loading";
 
 type Image = Database["public"]["Tables"]["eotai_images"]["Row"];
 
@@ -195,30 +195,30 @@ const Page: React.FC<
 			{!initializing && (
 				<div>
 					{allImageData && allImageData.length > 0 && (
-						<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 bg-white flex h-screen gap-1">
+						<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 bg-white flex h-screen gap-3">
 							{allImageData.slice(0, 6).map((image) => (
 								<div
 									key={image.id}
 									className={`${styles.fadeOut} 	${
 										playbackResult ? styles.fadeIn : styles.fadeOut
-									}`}
+									} `}
 								>
-									<figure>
-										<img
-											src={image.url}
-											alt={image.prompt_de ?? image.prompt}
-											className="w-full h-auto"
-										/>
-									</figure>
+									<img
+										src={image.url}
+										alt={image.prompt_de ?? image.prompt}
+										className="w-full h-auto"
+										style={{
+											flexShrink: 0,
+											minWidth: "100%",
+											minHeight: "100%",
+										}}
+									/>
 								</div>
 							))}
 
 							<div
 								key={allImageData[0].id}
-								className="col-start-2 col-span-3 row-span-4 bg-white m-[20px]"
-								style={{
-									boxShadow: "0px 0px 6px 5px #d3d3d3",
-								}}
+								className={`col-start-2 col-span-3 row-span-4 bg-white ${styles.centerBox}`}
 							>
 								<FaceDetectionPlayback csrf={csrf} />
 
@@ -251,13 +251,16 @@ const Page: React.FC<
 										playbackResult ? styles.fadeIn : styles.fadeOut
 									}`}
 								>
-									<figure>
-										<img
-											src={image.url}
-											alt={image.prompt_de ?? image.prompt}
-											className="w-full h-auto"
-										/>
-									</figure>
+									<img
+										src={image.url}
+										alt={image.prompt_de ?? image.prompt}
+										className="w-full h-auto"
+										style={{
+											flexShrink: 0,
+											minWidth: "100%",
+											minHeight: "100%",
+										}}
+									/>
 								</div>
 							))}
 						</div>

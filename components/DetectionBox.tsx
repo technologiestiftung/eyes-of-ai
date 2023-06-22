@@ -37,7 +37,11 @@ const DetectionBox: React.FC<Props> = ({
 }) => {
 	return (
 		<>
-			<div className="h-[20%] p-[20px] w-full  grid grid-cols-5 text-xl grid">
+			<div
+				className={`h-[20%] w-full grid grid-cols-5 text-xl grid ${
+					showMouth || showGesture ? "" : "gap-3"
+				}`}
+			>
 				<DetectionLabel
 					label={"alter"}
 					value={detectionFacts.age.toString()}

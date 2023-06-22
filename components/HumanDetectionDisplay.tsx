@@ -108,17 +108,16 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 			(standStillProgress / 1000.0) * STANDSTILL_THRESHOLD_MS
 	);
 
-	const userHint = standStillDetected
-		? `stillhalten (${secondsLeftUntilTrigger} s)`
-		: "nicht bewegen";
-
 	return (
 		<>
 			<div className="w-full h-full">
 				{playbackResult ? (
 					<div className="grid place-items-center text-3xl font-bold w-full h-[20%]"></div>
 				) : (
-					<UserHintBox label={userHint}></UserHintBox>
+					<UserHintBox
+						label={"nicht bewegen"}
+						labelRight={standStillDetected ? `${secondsLeftUntilTrigger}s` : ""}
+					></UserHintBox>
 				)}
 				<div className="w-full h-[60%]" ref={divRef}>
 					{showRecordingDevFeature && (
@@ -143,14 +142,17 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 						id="canvas"
 						ref={canvasRef}
 						className="w-[572px] h-[472px] bg-white"
+						style={{ margin: "auto" }}
 					/>
 				</div>
 				{!playbackResult && (
-					<DetectionBox
-						detectionFacts={detectionText}
-						showMouth={false}
-						showGesture={false}
-					></DetectionBox>
+					<div style={{ padding: "20px 40px 20px 40px" }}>
+						<DetectionBox
+							detectionFacts={detectionText}
+							showMouth={false}
+							showGesture={false}
+						></DetectionBox>
+					</div>
 				)}
 			</div>
 		</>
