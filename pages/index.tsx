@@ -69,7 +69,7 @@ const Page: React.FC<
 	const showPlayback =
 		!triggered && (!humanCloseEnough || !humanDetected) && playbackResult;
 
-	const PAGE_SIZE = 30;
+	const PAGE_SIZE = 19;
 	const [page, setPage] = useState(0);
 	const [allImageData, setAllImageData] = useState<Image[]>([]);
 	const { fetchPaginatedImages } = usePaginatedImages();
@@ -83,13 +83,17 @@ const Page: React.FC<
 	}, [fetchPaginatedImages, page]);
 
 	const resetUxFlow = useCallback(() => {
-		resetDetection();
-		setImageGenerationTime(undefined);
-		setGeneratedImageSrc(undefined);
-		setPrompt(undefined);
-		setExpirationProgress(0.0);
-		videoRef.current.play();
-	}, [resetDetection]);
+		fetchPaginatedImages(0, PAGE_SIZE, (data) => {
+			setAllImageData(data);
+			resetDetection();
+			setImageGenerationTime(undefined);
+			setGeneratedImageSrc(undefined);
+			setPrompt(undefined);
+			setExpirationProgress(0.0);
+			videoRef.current.play();
+			setPage(0);
+		});
+	}, [fetchPaginatedImages, resetDetection]);
 
 	useEffect(() => {
 		const interval = setInterval(() => {

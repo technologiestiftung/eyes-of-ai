@@ -101,3 +101,11 @@
 		opacity: 1;
 	}
 }
+
+.defaultColor {
+	color: #0b0c13;
+}
+
+.highlightColor {
+	color: #908bd7;
+}

@@ -2,6 +2,7 @@
 import { LocalizedPrompt } from "../pages/api/prompt";
 import Loading from "./Loading";
 import UserHintBox from "./UserHintBox";
+import styles from "../styles/elements.module.css";
 
 interface Props {
 	prompt: LocalizedPrompt | undefined;
@@ -56,7 +57,9 @@ const GeneratedImageDisplay: React.FC<Props> = ({
 			)}
 			{prompt && (
 				<div className="grow">
-					<div className="flex items-center justify-center h-full text-center text-2xl">
+					<div
+						className={`flex items-center justify-center h-full text-center text-2xl ${styles.defaultColor}`}
+					>
 						{prompt.promptDe}
 					</div>
 				</div>

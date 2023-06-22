@@ -70,7 +70,6 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 				canvasRef.current,
 				resultToRender.face as FaceResult[],
 				{
-					color: "#F64C72",
 					roundRect: 0,
 					lineWidth: 2,
 					drawPolygons: true,
