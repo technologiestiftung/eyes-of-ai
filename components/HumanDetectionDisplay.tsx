@@ -146,7 +146,11 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 					/>
 				</div>
 				{!playbackResult && (
-					<DetectionBox detectionFacts={detectionText}></DetectionBox>
+					<DetectionBox
+						detectionFacts={detectionText}
+						showMouth={false}
+						showGesture={false}
+					></DetectionBox>
 				)}
 			</div>
 		</>

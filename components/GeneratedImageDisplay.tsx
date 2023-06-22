@@ -1,11 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
+import { DetectionFacts } from "../hooks/useDetectionText";
 import { LocalizedPrompt } from "../pages/api/prompt";
+import DetectionBox from "./DetectionBox";
 import Loading from "./Loading";
 import UserHintBox from "./UserHintBox";
-import styles from "../styles/elements.module.css";
 
 interface Props {
 	prompt: LocalizedPrompt | undefined;
+	detectionFacts: DetectionFacts | undefined;
 	imageGenerationInProgress: boolean;
 	generatedImageSrc: string | undefined;
 	expiresInSeconds: number;
@@ -13,6 +15,7 @@ interface Props {
 
 const GeneratedImageDisplay: React.FC<Props> = ({
 	prompt,
+	detectionFacts,
 	imageGenerationInProgress,
 	generatedImageSrc,
 	expiresInSeconds,
@@ -55,14 +58,12 @@ const GeneratedImageDisplay: React.FC<Props> = ({
 					/>
 				</div>
 			)}
-			{prompt && (
-				<div className="grow">
-					<div
-						className={`flex items-center justify-center h-full text-center text-2xl ${styles.defaultColor}`}
-					>
-						{prompt.promptDe}
-					</div>
-				</div>
+			{detectionFacts && (
+				<DetectionBox
+					detectionFacts={detectionFacts}
+					showGesture
+					showMouth
+				></DetectionBox>
 			)}
 		</div>
 	);

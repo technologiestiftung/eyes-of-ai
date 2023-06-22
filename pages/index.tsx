@@ -235,6 +235,7 @@ const Page: React.FC<
 
 								{showGeneratedImage && (
 									<GeneratedImageDisplay
+										detectionFacts={detectionText}
 										prompt={prompt}
 										imageGenerationInProgress={imageGenerationLoading}
 										generatedImageSrc={generatedImageSrc}
