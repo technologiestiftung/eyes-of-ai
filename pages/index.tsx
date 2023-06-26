@@ -9,6 +9,7 @@ import HumanDetection from "../components/HumanDetection";
 import HumanDetectionDisplay from "../components/HumanDetectionDisplay";
 import InitWebCam from "../components/InitWebCam";
 import Loading from "../components/Loading";
+import ParameterSetting from "../components/ParameterSetting";
 import useColorThief from "../hooks/useColorThief";
 import useDetectionText from "../hooks/useDetectionText";
 import useGeneratedImage from "../hooks/useGeneratedImage";
@@ -19,8 +20,13 @@ import { Database } from "../lib/database";
 import { useEyesOfAIStore } from "../store";
 import styles from "../styles/elements.module.css";
 import { LocalizedPrompt } from "./api/prompt";
-import { useRouter } from "next/router";
 type Image = Database["public"]["Tables"]["eotai_images"]["Row"];
+
+interface ControlKeyMapping {
+	setParameter: (paramter: number) => void;
+	parameter: number;
+	step: number;
+}
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
 	const token = context.res.req.headers["x-csrf-token"] as string;
@@ -33,12 +39,16 @@ const Page: React.FC<
 	const [standstillThresholdMs, setStandstillThresholdMs] = useEyesOfAIStore(
 		(state) => [state.standstillThresholdMs, state.setStandstillThresholdMs]
 	);
-	const setRotationThresholdDegrees = useEyesOfAIStore(
-		(state) => state.setRotationThresholdDegrees
-	);
-	const setDistanceThresholdMeters = useEyesOfAIStore(
-		(state) => state.setDistanceThresholdMeters
-	);
+	const [rotationThresholdDegrees, setRotationThresholdDegrees] =
+		useEyesOfAIStore((state) => [
+			state.rotationThresholdDegrees,
+			state.setRotationThresholdDegrees,
+		]);
+	const [distanceThresholdMeters, setDistanceThresholdMeters] =
+		useEyesOfAIStore((state) => [
+			state.distanceThresholdMeters,
+			state.setDistanceThresholdMeters,
+		]);
 	const [meshZoom, setMeshZoom] = useEyesOfAIStore((state) => [
 		state.meshZoom,
 		state.setMeshZoom,
@@ -90,40 +100,30 @@ const Page: React.FC<
 
 	const initializing = !webcamReady || !humanLibraryReady;
 
-	const router = useRouter();
+	const keyMapping = {
+		d: {
+			parameter: distanceThresholdMeters,
+			setParameter: setDistanceThresholdMeters,
+			step: 0.1,
+		} as ControlKeyMapping,
+		r: {
+			parameter: rotationThresholdDegrees,
+			setParameter: setRotationThresholdDegrees,
+			step: 0.01,
+		} as ControlKeyMapping,
+		m: {
+			parameter: meshZoom,
+			setParameter: setMeshZoom,
+			step: 0.1,
+		} as ControlKeyMapping,
+		s: {
+			parameter: standstillThresholdMs,
+			setParameter: setStandstillThresholdMs,
+			step: 1000.0,
+		} as ControlKeyMapping,
+	};
 
-	useEffect(() => {
-		if (router.query.standstillThresholdMs) {
-			setStandstillThresholdMs(
-				parseFloat(router.query.standstillThresholdMs as string)
-			);
-		}
-		if (router.query.distanceThresholdMeters) {
-			setDistanceThresholdMeters(
-				parseFloat(router.query.distanceThresholdMeters as string)
-			);
-		}
-		if (router.query.rotationThresholdDegrees) {
-			setRotationThresholdDegrees(
-				parseFloat(router.query.rotationThresholdDegrees as string)
-			);
-		}
-		if (router.query.meshZoom) {
-			setMeshZoom(parseFloat(router.query.meshZoom as string));
-		}
-		if (router.query.expirationSeconds) {
-			setExpirationSeconds(
-				parseFloat(router.query.expirationSeconds as string)
-			);
-		}
-	}, [
-		router,
-		setDistanceThresholdMeters,
-		setExpirationSeconds,
-		setMeshZoom,
-		setRotationThresholdDegrees,
-		setStandstillThresholdMs,
-	]);
+	const [lockedKey, setLockedKey] = useState<string>();
 
 	useEffect(() => {
 		fetchPaginatedImages(page, PAGE_SIZE, (data) => {
@@ -206,13 +206,28 @@ const Page: React.FC<
 		<div
 			tabIndex={0}
 			onKeyDown={(e) => {
-				if (e.key === "+") {
-					setMeshZoom(meshZoom + 0.1);
-				} else if (e.key === "-") {
-					setMeshZoom(meshZoom - 0.1);
+				if (e.key === "Enter") {
+					setLockedKey(undefined);
+					return;
+				}
+				if (Object.keys(keyMapping).indexOf(e.key) !== -1) {
+					setLockedKey(e.key);
+				} else if (lockedKey && (e.key === "+" || e.key === "-")) {
+					const map = keyMapping[lockedKey];
+					if (e.key === "+") {
+						map.setParameter(map.parameter + map.step);
+					} else if (e.key === "-") {
+						map.setParameter(map.parameter - map.step);
+					}
 				}
 			}}
 		>
+			{lockedKey && (
+				<ParameterSetting
+					label={lockedKey}
+					value={keyMapping[lockedKey].parameter}
+				/>
+			)}
 			{/* Placeholders for capturing webcam video */}
 			<video
 				hidden

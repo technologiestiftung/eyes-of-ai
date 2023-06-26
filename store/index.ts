@@ -85,7 +85,7 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
 	setRotationThresholdDegrees: (rotationThresholdDegrees) =>
 		set(() => ({ rotationThresholdDegrees })),
 
-	distanceThresholdMeters: 0.3,
+	distanceThresholdMeters: 1.5,
 	setDistanceThresholdMeters: (distanceThresholdMeters) =>
 		set(() => ({ distanceThresholdMeters })),
 
