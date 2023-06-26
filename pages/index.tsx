@@ -121,6 +121,11 @@ const Page: React.FC<
 			setParameter: setStandstillThresholdMs,
 			step: 1000.0,
 		} as ControlKeyMapping,
+		e: {
+			parameter: expirationSeconds,
+			setParameter: setExpirationSeconds,
+			step: 1.0,
+		} as ControlKeyMapping,
 	};
 
 	const [lockedKey, setLockedKey] = useState<string>();
