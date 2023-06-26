@@ -1,7 +1,7 @@
 import { Emotion, FaceGesture, IrisGesture } from "@vladmandic/human";
 import { NextRequest } from "next/server";
-import { Collection, getCollection, translateToDE } from "../../lib/collection";
-import { EnvError, UserError } from "../../lib/errors";
+import { Collection, getCollection } from "../../lib/collection";
+import { UserError } from "../../lib/errors";
 import { ColorthiefResponse } from "../../lib/types";
 import { Prompt } from "../../lib/validate-prompt";
 
@@ -17,62 +17,6 @@ export interface Body {
 	// TODO: What is going wrong with these typings?
 	gestures: (IrisGesture | FaceGesture | string)[];
 	colors: ColorthiefResponse;
-}
-
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
-
-async function callChatGPT(
-	prompt: string,
-	materialDE: string,
-	styleDE: string,
-	colorDE: string
-): Promise<LocalizedPrompt> {
-	try {
-		if (!OPENAI_API_KEY) {
-			throw new EnvError("OPENAI_API_KEY");
-		}
-		if (!OPENAI_API_URL) {
-			throw new EnvError("OPENAI_API_URL");
-		}
-
-		const translationPrompt = `Take the following prompt and translate it using ${materialDE}${styleDE}${colorDE}:\n${prompt}`;
-
-		const headers = {
-			"Content-Type": "application/json",
-			Authorization: `Bearer ${OPENAI_API_KEY}`,
-		};
-
-		const body = JSON.stringify({
-			model: "gpt-3.5-turbo",
-			messages: [{ role: "user", content: translationPrompt }],
-		});
-
-		const response = await fetch(OPENAI_API_URL, {
-			method: "POST",
-			headers,
-			body,
-		});
-
-		if (!response.ok) {
-			throw new Error(`Request failed with status ${response.status}`);
-		}
-
-		const data = await response.json();
-
-		return {
-			promptEn: prompt,
-			promptDe: data.choices[0].message.content,
-		} as LocalizedPrompt;
-
-		// return {
-		// 	promptEn: "30 year old male looking left",
-		// 	promptDe: "30 jähriger mann schaut nach links",
-		// } as LocalizedPrompt;
-	} catch (error) {
-		console.error(error);
-		throw new Error("An error occurred while calling the ChatGPT API");
-	}
 }
 
 export const config = {
@@ -129,9 +73,6 @@ const handler = async (req: NextRequest) => {
 		const collection = getCollection();
 		const { material, style, color } = collection;
 
-		const collectionDE = translateToDE(collection);
-		const { materialDE, styleDE, colorDE } = collectionDE;
-
 		const prompt = `${material} of a ${Math.floor(
 			age
 		)} year old ${formatter.format(
@@ -141,12 +82,10 @@ const handler = async (req: NextRequest) => {
 		}${style}, ${Math.random() > 0.5 ? color : formatter.format(colors.names)}`;
 		console.log(prompt);
 
-		const localizedPrompt = await callChatGPT(
-			prompt,
-			materialDE,
-			styleDE,
-			colorDE
-		);
+		const localizedPrompt = {
+			promptDe: prompt,
+			promptEn: prompt,
+		} as LocalizedPrompt;
 
 		return new Response(JSON.stringify({ localizedPrompt }), {
 			status: 200,

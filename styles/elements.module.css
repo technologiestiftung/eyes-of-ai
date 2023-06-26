@@ -101,3 +101,15 @@
 		opacity: 1;
 	}
 }
+
+.defaultColor {
+	color: #0b0c13;
+}
+
+.highlightColor {
+	color: #908bd7;
+}
+
+.centerBox {
+	box-shadow: inset 0px 0px 6px 5px rgba(144, 139, 215, 0.3);
+}

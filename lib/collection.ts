@@ -5,17 +5,17 @@ import { Emotion, FaceGesture, IrisGesture } from "@vladmandic/human";
  * console.log(Object.keys(materials));
  */
 type IrisGestureDE =
-	| "nach innen schauend"
-	| "nach links schauend"
-	| "nach rechts schauend"
-	| "nach oben schauend"
-	| "nach unten schauend"
-	| "in die Kamera schauend";
+	| "nach innen"
+	| "nach links"
+	| "nach rechts"
+	| "nach oben"
+	| "nach unten"
+	| "in die Kamera";
 
 type FaceGestureDE =
-	| "in die Kamera schauend"
-	| "nach links schauend"
-	| "nach rechts schauend"
+	| "in die Kamera"
+	| "nach links"
+	| "nach rechts"
 	| "linkes Auge blinzelt"
 	| "rechtes Auge blinzelt"
 	| `Mund zu ${number}% geöffnet`
@@ -35,18 +35,18 @@ type Gender = "male" | "female" | "non-binary";
 type GenderDE = "männliche" | "weibliche" | "nicht-binäre";
 
 const IrisGestureTranslation: Record<IrisGesture, IrisGestureDE> = {
-	"facing center": "in die Kamera schauend",
-	"looking left": "nach links schauend",
-	"looking right": "nach rechts schauend",
-	"looking up": "nach oben schauend",
-	"looking down": "nach unten schauend",
-	"looking center": "in die Kamera schauend",
+	"facing center": "in die Kamera",
+	"looking left": "nach links",
+	"looking right": "nach rechts",
+	"looking up": "nach oben",
+	"looking down": "nach unten",
+	"looking center": "in die Kamera",
 };
 
 const FaceGestureTranslation: Record<FaceGesture, FaceGestureDE> = {
-	"facing center": "in die Kamera schauend",
-	"facing left": "nach links schauend",
-	"facing right": "nach rechts schauend",
+	"facing center": "in die Kamera",
+	"facing left": "nach links",
+	"facing right": "nach rechts",
 	"blink left eye": "linkes Auge blinzelt",
 	"blink right eye": "rechtes Auge blinzelt",
 	"head up": "Kopf nach oben",

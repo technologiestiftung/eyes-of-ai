@@ -9,9 +9,9 @@ import {
 export interface DetectionFacts {
 	age: number;
 	gender: string;
-	core: string;
-	emotion: string;
-	gesture: string;
+	coreGestures: Array<string>;
+	coreEmotions: Array<string>;
+	mouthOpen: boolean;
 }
 
 const useDetectionText = (
@@ -37,28 +37,27 @@ const useDetectionText = (
 			.filter((x, i, a) => a.indexOf(x) == i)
 			.slice(0, 1);
 
-		const coreLabel = `${Math.round(face.age)} Jahre alte ${translateGender(
-			gender
-		)} Person`;
+		const mouthRegex = /^mouth \d{1,3}% open$/;
+		const mouthOpen =
+			resultToUse.gesture.filter((g) => g.gesture.match(mouthRegex)).length > 0;
 
-		const emotionLabel = `${face.emotion
+		const emotions = face.emotion
 			.sort((l, r) => (l.score < r.score ? 1 : -1))
 			.slice(0, 2)
 			.map(
 				({ emotion, score }) =>
 					`${Math.round(score * 100)}% ${translateEmotion(emotion)}`
 			)
-			.join(", ")}`;
+			.map((x) => x.toString());
 
-		const gesturesLabel = `${translatedGestures.join(", ")}`;
-
-		return {
+		const test = {
 			age: face.age,
 			gender: `${translateGender(gender)} Person`,
-			core: coreLabel,
-			emotion: emotionLabel,
-			gesture: gesturesLabel,
+			coreEmotions: emotions,
+			coreGestures: translatedGestures,
+			mouthOpen: mouthOpen,
 		} as DetectionFacts;
+		return test;
 	}, [playbackResult, result]);
 
 	return { detectionText };
