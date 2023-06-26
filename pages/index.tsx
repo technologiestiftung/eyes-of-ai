@@ -16,10 +16,10 @@ import usePaginatedImages from "../hooks/usePaginatedImages";
 import usePrompt from "../hooks/usePrompt";
 import useVideoData from "../hooks/useVideoData";
 import { Database } from "../lib/database";
-import { STANDSTILL_THRESHOLD_MS, useEyesOfAIStore } from "../store";
+import { useEyesOfAIStore } from "../store";
 import styles from "../styles/elements.module.css";
 import { LocalizedPrompt } from "./api/prompt";
-
+import { useRouter } from "next/router";
 type Image = Database["public"]["Tables"]["eotai_images"]["Row"];
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -30,8 +30,22 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 const Page: React.FC<
 	InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ csrf }) => {
-	const EXPIRATION_SECONDS = 20;
-
+	const [standstillThresholdMs, setStandstillThresholdMs] = useEyesOfAIStore(
+		(state) => [state.standstillThresholdMs, state.setStandstillThresholdMs]
+	);
+	const setRotationThresholdDegrees = useEyesOfAIStore(
+		(state) => state.setRotationThresholdDegrees
+	);
+	const setDistanceThresholdMeters = useEyesOfAIStore(
+		(state) => state.setDistanceThresholdMeters
+	);
+	const [meshZoom, setMeshZoom] = useEyesOfAIStore((state) => [
+		state.meshZoom,
+		state.setMeshZoom,
+	]);
+	const [expirationSeconds, setExpirationSeconds] = useEyesOfAIStore(
+		(state) => [state.expirationSeconds, state.setExpirationSeconds]
+	);
 	const videoRef = useRef<HTMLVideoElement | undefined>(undefined);
 	const triggered = useEyesOfAIStore((state) => state.trigger);
 	const humanDetected = useEyesOfAIStore((state) => state.humanDetected);
@@ -46,7 +60,7 @@ const Page: React.FC<
 	const msInStandStill = useEyesOfAIStore((state) => state.msInStandStill);
 	const standStillProgress = Math.min(
 		100,
-		msInStandStill / STANDSTILL_THRESHOLD_MS
+		msInStandStill / standstillThresholdMs
 	);
 	const [canvasWidth, setCanvasWidth] = useState(0);
 	const [canvasHeight, setCanvasHeight] = useState(0);
@@ -76,6 +90,41 @@ const Page: React.FC<
 
 	const initializing = !webcamReady || !humanLibraryReady;
 
+	const router = useRouter();
+
+	useEffect(() => {
+		if (router.query.standstillThresholdMs) {
+			setStandstillThresholdMs(
+				parseFloat(router.query.standstillThresholdMs as string)
+			);
+		}
+		if (router.query.distanceThresholdMeters) {
+			setDistanceThresholdMeters(
+				parseFloat(router.query.distanceThresholdMeters as string)
+			);
+		}
+		if (router.query.rotationThresholdDegrees) {
+			setRotationThresholdDegrees(
+				parseFloat(router.query.rotationThresholdDegrees as string)
+			);
+		}
+		if (router.query.meshZoom) {
+			setMeshZoom(parseFloat(router.query.meshZoom as string));
+		}
+		if (router.query.expirationSeconds) {
+			setExpirationSeconds(
+				parseFloat(router.query.expirationSeconds as string)
+			);
+		}
+	}, [
+		router,
+		setDistanceThresholdMeters,
+		setExpirationSeconds,
+		setMeshZoom,
+		setRotationThresholdDegrees,
+		setStandstillThresholdMs,
+	]);
+
 	useEffect(() => {
 		fetchPaginatedImages(page, PAGE_SIZE, (data) => {
 			setAllImageData((prevImageData) => prevImageData.concat(data));
@@ -100,8 +149,8 @@ const Page: React.FC<
 			if (imageGenerationTime) {
 				const elapsed =
 					(new Date().getTime() - imageGenerationTime.getTime()) / 1000.0;
-				const progress = Math.min(1, elapsed / EXPIRATION_SECONDS);
-				setExpirationProgress(EXPIRATION_SECONDS - elapsed);
+				const progress = Math.min(1, elapsed / expirationSeconds);
+				setExpirationProgress(expirationSeconds - elapsed);
 				if (progress >= 1) {
 					resetUxFlow();
 				}
@@ -111,7 +160,7 @@ const Page: React.FC<
 		return () => {
 			clearInterval(interval);
 		};
-	}, [imageGenerationTime, resetDetection, resetUxFlow]);
+	}, [expirationSeconds, imageGenerationTime, resetDetection, resetUxFlow]);
 
 	const humanLibraryReadyCallback = useCallback(() => {
 		setHumanLibraryReady(true);
@@ -154,7 +203,16 @@ const Page: React.FC<
 	]);
 
 	return (
-		<div>
+		<div
+			tabIndex={0}
+			onKeyDown={(e) => {
+				if (e.key === "+") {
+					setMeshZoom(meshZoom + 0.1);
+				} else if (e.key === "-") {
+					setMeshZoom(meshZoom - 0.1);
+				}
+			}}
+		>
 			{/* Placeholders for capturing webcam video */}
 			<video
 				hidden

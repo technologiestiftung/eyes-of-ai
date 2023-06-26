@@ -1,7 +1,7 @@
 import Human, { FaceResult, Result } from "@vladmandic/human";
 import React, { useEffect, useRef, useState } from "react";
 import { DetectionFacts } from "../hooks/useDetectionText";
-import { STANDSTILL_THRESHOLD_MS, useEyesOfAIStore } from "../store";
+import { useEyesOfAIStore } from "../store";
 import DetectionBox from "./DetectionBox";
 import UserHintBox from "./UserHintBox";
 
@@ -22,6 +22,10 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 	standStillDetected,
 	standStillProgress,
 }) => {
+	const standstillThresholdMs = useEyesOfAIStore(
+		(state) => state.standstillThresholdMs
+	);
+
 	const showRecordingDevFeature = false;
 	const canvasRef = useRef<HTMLCanvasElement | undefined>(undefined);
 	const divRef = useRef<HTMLDivElement | undefined>(undefined);
@@ -31,6 +35,7 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 	const result = useEyesOfAIStore((state) => state.result);
 	const playbackResult = useEyesOfAIStore((state) => state.playbackResult);
 	const [recording, setRecording] = useState(false);
+	const meshZoom = useEyesOfAIStore((state) => state.meshZoom);
 
 	useEffect(() => {
 		if (canvasRef.current) {
@@ -54,14 +59,14 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 			ctx.save();
 
 			const faceBox = resultToRender.face[0].box;
-			const scaleFactor = playbackResult ? 1.3 : 1.5;
+			const scaleFactor = playbackResult ? 1.3 : meshZoom;
 			const translateX = faceBox[0] + faceBox[2] / 2.0;
 			const translateY = faceBox[1] + faceBox[3] / 2.0;
-			ctx.scale(scaleFactor, scaleFactor);
+			ctx.scale(meshZoom, meshZoom);
 			ctx.translate(-translateX, -translateY);
 			ctx.translate(
-				canvasDrawWidth / scaleFactor / 2.0,
-				canvasDrawHeight / scaleFactor / 2.0
+				canvasDrawWidth / meshZoom / 2.0,
+				canvasDrawHeight / meshZoom / 2.0
 			);
 
 			detectedHuman.draw.face(
@@ -102,8 +107,8 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 	}, [recording, result]);
 
 	const secondsLeftUntilTrigger = Math.round(
-		STANDSTILL_THRESHOLD_MS / 1000.0 -
-			(standStillProgress / 1000.0) * STANDSTILL_THRESHOLD_MS
+		standstillThresholdMs / 1000.0 -
+			(standStillProgress / 1000.0) * standstillThresholdMs
 	);
 
 	return (

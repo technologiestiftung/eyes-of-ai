@@ -3,9 +3,6 @@ import { Human, Result } from "@vladmandic/human";
 import MathUtils from "../lib/math-utils";
 
 const HISTORY_SIZE_LIMIT_FRAMES = 5;
-const ROTATION_THRESHOLD_DEGRESS = 0.05;
-const DISTANCE_THRESHOLD_METERS = 1.5;
-export const STANDSTILL_THRESHOLD_MS = 10000;
 
 export type EyesOfAIStore = {
 	ready: boolean;
@@ -19,6 +16,21 @@ export type EyesOfAIStore = {
 
 	fps: number;
 	setFps: (fps: number) => void;
+
+	rotationThresholdDegrees: number;
+	setRotationThresholdDegrees: (rotationThresholdDegrees: number) => void;
+
+	distanceThresholdMeters: number;
+	setDistanceThresholdMeters: (distanceThresholdMeters: number) => void;
+
+	standstillThresholdMs: number;
+	setStandstillThresholdMs: (standstillThresholdMs: number) => void;
+
+	meshZoom: number;
+	setMeshZoom: (meshZoom: number) => void;
+
+	expirationSeconds: number;
+	setExpirationSeconds: (expirationSeconds: number) => void;
 
 	human: Human | undefined;
 	setHuman: (human: Human | undefined) => void;
@@ -68,6 +80,25 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
 
 	fps: 0,
 	setFps: (fps) => set(() => ({ fps })),
+
+	rotationThresholdDegrees: 0.05,
+	setRotationThresholdDegrees: (rotationThresholdDegrees) =>
+		set(() => ({ rotationThresholdDegrees })),
+
+	distanceThresholdMeters: 0.3,
+	setDistanceThresholdMeters: (distanceThresholdMeters) =>
+		set(() => ({ distanceThresholdMeters })),
+
+	standstillThresholdMs: 10000,
+	setStandstillThresholdMs: (standstillThresholdMs) =>
+		set(() => ({ standstillThresholdMs })),
+
+	meshZoom: 1.5,
+	setMeshZoom: (meshZoom) => set(() => ({ meshZoom })),
+
+	expirationSeconds: 20,
+	setExpirationSeconds: (resetSeconds) =>
+		set(() => ({ expirationSeconds: resetSeconds })),
 
 	human: undefined,
 	setHuman: (human) => set(() => ({ human })),
@@ -149,7 +180,7 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
 		const pitches = faces.map((face) => face.rotation?.angle.pitch);
 		const yaws = faces.map((face) => face.rotation?.angle.yaw);
 		const meanDistance = MathUtils.mean(distances);
-		const humanCloseEnough = meanDistance < DISTANCE_THRESHOLD_METERS;
+		const humanCloseEnough = meanDistance < get().distanceThresholdMeters;
 		set(() => ({
 			humanCloseEnough: humanCloseEnough,
 			meanDistance: meanDistance,
@@ -164,10 +195,10 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
 		const sdYaws = MathUtils.standardDeviation(yaws);
 
 		if (
-			sdDistances < DISTANCE_THRESHOLD_METERS &&
-			sdRolls < ROTATION_THRESHOLD_DEGRESS &&
-			sdPitches < ROTATION_THRESHOLD_DEGRESS &&
-			sdYaws < ROTATION_THRESHOLD_DEGRESS
+			sdDistances < get().distanceThresholdMeters &&
+			sdRolls < get().rotationThresholdDegrees &&
+			sdPitches < get().rotationThresholdDegrees &&
+			sdYaws < get().rotationThresholdDegrees
 		) {
 			if (!get().firstStandStillTime) {
 				set(() => ({ firstStandStillTime: new Date() }));
@@ -175,7 +206,7 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
 				const standStillTimeMs =
 					new Date().getTime() - get().firstStandStillTime.getTime();
 				set(() => ({ msInStandStill: standStillTimeMs }));
-				if (standStillTimeMs > STANDSTILL_THRESHOLD_MS) {
+				if (standStillTimeMs > get().standstillThresholdMs) {
 					set(() => ({ trigger: true }));
 				}
 			}
