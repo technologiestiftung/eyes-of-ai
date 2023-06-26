@@ -50,13 +50,11 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 
 			var ctx = canvasRef.current.getContext("2d");
 			ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-			ctx.fillStyle = "#ffffff";
-			ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
 			ctx.save();
 
 			const faceBox = resultToRender.face[0].box;
-			const scaleFactor = 2.0;
+			const scaleFactor = playbackResult ? 1.3 : 1.5;
 			const translateX = faceBox[0] + faceBox[2] / 2.0;
 			const translateY = faceBox[1] + faceBox[3] / 2.0;
 			ctx.scale(scaleFactor, scaleFactor);
@@ -110,7 +108,7 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 
 	return (
 		<>
-			<div className="w-full h-full">
+			<div className="w-full h-full" style={{ position: "relative" }}>
 				{playbackResult ? (
 					<div className="grid place-items-center text-3xl font-bold w-full h-[20%]"></div>
 				) : (
@@ -141,8 +139,14 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 					<canvas
 						id="canvas"
 						ref={canvasRef}
-						className="w-[572px] h-[472px] bg-white"
-						style={{ margin: "auto" }}
+						className="w-[609px] h-[849px]"
+						style={{
+							margin: "auto",
+							position: "absolute",
+							left: 0,
+							top: 0,
+							zIndex: 1,
+						}}
 					/>
 				</div>
 				{!playbackResult && (

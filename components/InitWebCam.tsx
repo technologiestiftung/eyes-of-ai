@@ -29,13 +29,13 @@ class InitWebCam extends Component<Props, State> {
 			audio: false,
 			video: {
 				facingMode: "user",
-				// Magic width, height calculation assuming we have a grid of 5x6
+				// Magic width, height of video assuming screen size of 1024x1280
 				// TODO: doublecheck how to do this responsively without magic
 				width: {
-					ideal: ((1024 / 5.0) * 3.0 - 40) * 2,
+					ideal: 609,
 				},
 				height: {
-					ideal: ((1280 / 6.0) * 4.0 * 0.6 - 40) * 2,
+					ideal: 849,
 				},
 			},
 		};
