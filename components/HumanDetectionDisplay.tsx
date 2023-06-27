@@ -36,6 +36,7 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 	const playbackResult = useEyesOfAIStore((state) => state.playbackResult);
 	const [recording, setRecording] = useState(false);
 	const meshZoom = useEyesOfAIStore((state) => state.meshZoom);
+	const playbackZoom = useEyesOfAIStore((state) => state.playbackZoom);
 
 	useEffect(() => {
 		if (canvasRef.current) {
@@ -59,14 +60,14 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 			ctx.save();
 
 			const faceBox = resultToRender.face[0].box;
-			const scaleFactor = playbackResult ? 1.3 : meshZoom;
+			const scaleFactor = playbackResult ? playbackZoom : meshZoom;
 			const translateX = faceBox[0] + faceBox[2] / 2.0;
 			const translateY = faceBox[1] + faceBox[3] / 2.0;
-			ctx.scale(meshZoom, meshZoom);
+			ctx.scale(scaleFactor, scaleFactor);
 			ctx.translate(-translateX, -translateY);
 			ctx.translate(
-				canvasDrawWidth / meshZoom / 2.0,
-				canvasDrawHeight / meshZoom / 2.0
+				canvasDrawWidth / scaleFactor / 2.0,
+				canvasDrawHeight / scaleFactor / 2.0
 			);
 
 			detectedHuman.draw.face(
@@ -96,6 +97,8 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 		standStillDetected,
 		canvasDrawWidth,
 		canvasDrawHeight,
+		playbackZoom,
+		meshZoom,
 	]);
 
 	useEffect(() => {
