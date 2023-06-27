@@ -6,8 +6,7 @@
 
 # Through the eyes of AI
 
-An OpenAI-based prototype that uses the Dall-E API to create parametrically personalized image of it's users.
-More info coming soon...
+An OpenAI-based prototype that uses the Dall-E 2 API to create parametrically personalized image of it's users. We use a face/human recognition library to analyze faces and get basic interpretation of the image. Currently we use emotions, age, gender and gaze directions. We also extract the dominant colors from the image. This is then used to generate a text that is used to generate an image with Dall-E 2.
 
 ## Prerequisites
 
