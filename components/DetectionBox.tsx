@@ -48,7 +48,7 @@ const DetectionBox: React.FC<Props> = ({
 				></DetectionLabel>
 				<DetectionLabel
 					label={"emotion"}
-					value={detectionFacts.coreEmotions[0]}
+					value={detectionFacts.coreEmotions.slice(0, 2).join(", ")}
 				></DetectionLabel>
 				<DetectionLabel
 					label={"erkannt als"}
