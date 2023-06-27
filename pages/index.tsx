@@ -9,6 +9,7 @@ import HumanDetection from "../components/HumanDetection";
 import HumanDetectionDisplay from "../components/HumanDetectionDisplay";
 import InitWebCam from "../components/InitWebCam";
 import Loading from "../components/Loading";
+import ParameterSetting from "../components/ParameterSetting";
 import useColorThief from "../hooks/useColorThief";
 import useDetectionText from "../hooks/useDetectionText";
 import useGeneratedImage from "../hooks/useGeneratedImage";
@@ -16,11 +17,16 @@ import usePaginatedImages from "../hooks/usePaginatedImages";
 import usePrompt from "../hooks/usePrompt";
 import useVideoData from "../hooks/useVideoData";
 import { Database } from "../lib/database";
-import { STANDSTILL_THRESHOLD_MS, useEyesOfAIStore } from "../store";
+import { useEyesOfAIStore } from "../store";
 import styles from "../styles/elements.module.css";
 import { LocalizedPrompt } from "./api/prompt";
-
 type Image = Database["public"]["Tables"]["eotai_images"]["Row"];
+
+interface ControlKeyMapping {
+	setParameter: (paramter: number) => void;
+	parameter: number;
+	step: number;
+}
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
 	const token = context.res.req.headers["x-csrf-token"] as string;
@@ -30,8 +36,26 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 const Page: React.FC<
 	InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ csrf }) => {
-	const EXPIRATION_SECONDS = 20;
-
+	const [standstillThresholdMs, setStandstillThresholdMs] = useEyesOfAIStore(
+		(state) => [state.standstillThresholdMs, state.setStandstillThresholdMs]
+	);
+	const [rotationThresholdDegrees, setRotationThresholdDegrees] =
+		useEyesOfAIStore((state) => [
+			state.rotationThresholdDegrees,
+			state.setRotationThresholdDegrees,
+		]);
+	const [distanceThresholdMeters, setDistanceThresholdMeters] =
+		useEyesOfAIStore((state) => [
+			state.distanceThresholdMeters,
+			state.setDistanceThresholdMeters,
+		]);
+	const [meshZoom, setMeshZoom] = useEyesOfAIStore((state) => [
+		state.meshZoom,
+		state.setMeshZoom,
+	]);
+	const [expirationSeconds, setExpirationSeconds] = useEyesOfAIStore(
+		(state) => [state.expirationSeconds, state.setExpirationSeconds]
+	);
 	const videoRef = useRef<HTMLVideoElement | undefined>(undefined);
 	const triggered = useEyesOfAIStore((state) => state.trigger);
 	const humanDetected = useEyesOfAIStore((state) => state.humanDetected);
@@ -46,7 +70,7 @@ const Page: React.FC<
 	const msInStandStill = useEyesOfAIStore((state) => state.msInStandStill);
 	const standStillProgress = Math.min(
 		100,
-		msInStandStill / STANDSTILL_THRESHOLD_MS
+		msInStandStill / standstillThresholdMs
 	);
 	const [canvasWidth, setCanvasWidth] = useState(0);
 	const [canvasHeight, setCanvasHeight] = useState(0);
@@ -76,6 +100,36 @@ const Page: React.FC<
 
 	const initializing = !webcamReady || !humanLibraryReady;
 
+	const keyMapping = {
+		d: {
+			parameter: distanceThresholdMeters,
+			setParameter: setDistanceThresholdMeters,
+			step: 0.1,
+		} as ControlKeyMapping,
+		r: {
+			parameter: rotationThresholdDegrees,
+			setParameter: setRotationThresholdDegrees,
+			step: 0.01,
+		} as ControlKeyMapping,
+		m: {
+			parameter: meshZoom,
+			setParameter: setMeshZoom,
+			step: 0.1,
+		} as ControlKeyMapping,
+		s: {
+			parameter: standstillThresholdMs,
+			setParameter: setStandstillThresholdMs,
+			step: 1000.0,
+		} as ControlKeyMapping,
+		e: {
+			parameter: expirationSeconds,
+			setParameter: setExpirationSeconds,
+			step: 1.0,
+		} as ControlKeyMapping,
+	};
+
+	const [lockedKey, setLockedKey] = useState<string>();
+
 	useEffect(() => {
 		fetchPaginatedImages(page, PAGE_SIZE, (data) => {
 			setAllImageData((prevImageData) => prevImageData.concat(data));
@@ -100,8 +154,8 @@ const Page: React.FC<
 			if (imageGenerationTime) {
 				const elapsed =
 					(new Date().getTime() - imageGenerationTime.getTime()) / 1000.0;
-				const progress = Math.min(1, elapsed / EXPIRATION_SECONDS);
-				setExpirationProgress(EXPIRATION_SECONDS - elapsed);
+				const progress = Math.min(1, elapsed / expirationSeconds);
+				setExpirationProgress(expirationSeconds - elapsed);
 				if (progress >= 1) {
 					resetUxFlow();
 				}
@@ -111,7 +165,7 @@ const Page: React.FC<
 		return () => {
 			clearInterval(interval);
 		};
-	}, [imageGenerationTime, resetDetection, resetUxFlow]);
+	}, [expirationSeconds, imageGenerationTime, resetDetection, resetUxFlow]);
 
 	const humanLibraryReadyCallback = useCallback(() => {
 		setHumanLibraryReady(true);
@@ -154,7 +208,31 @@ const Page: React.FC<
 	]);
 
 	return (
-		<div>
+		<div
+			tabIndex={0}
+			onKeyDown={(e) => {
+				if (e.key === "Enter") {
+					setLockedKey(undefined);
+					return;
+				}
+				if (Object.keys(keyMapping).indexOf(e.key) !== -1) {
+					setLockedKey(e.key);
+				} else if (lockedKey && (e.key === "+" || e.key === "-")) {
+					const map = keyMapping[lockedKey];
+					if (e.key === "+") {
+						map.setParameter(map.parameter + map.step);
+					} else if (e.key === "-") {
+						map.setParameter(map.parameter - map.step);
+					}
+				}
+			}}
+		>
+			{lockedKey && (
+				<ParameterSetting
+					label={lockedKey}
+					value={keyMapping[lockedKey].parameter}
+				/>
+			)}
 			{/* Placeholders for capturing webcam video */}
 			<video
 				hidden

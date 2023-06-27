@@ -1,7 +1,7 @@
 import Human, { FaceResult, Result } from "@vladmandic/human";
 import React, { useEffect, useRef, useState } from "react";
 import { DetectionFacts } from "../hooks/useDetectionText";
-import { STANDSTILL_THRESHOLD_MS, useEyesOfAIStore } from "../store";
+import { useEyesOfAIStore } from "../store";
 import DetectionBox from "./DetectionBox";
 import UserHintBox from "./UserHintBox";
 
@@ -22,6 +22,10 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 	standStillDetected,
 	standStillProgress,
 }) => {
+	const standstillThresholdMs = useEyesOfAIStore(
+		(state) => state.standstillThresholdMs
+	);
+
 	const showRecordingDevFeature = false;
 	const canvasRef = useRef<HTMLCanvasElement | undefined>(undefined);
 	const divRef = useRef<HTMLDivElement | undefined>(undefined);
@@ -31,6 +35,7 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 	const result = useEyesOfAIStore((state) => state.result);
 	const playbackResult = useEyesOfAIStore((state) => state.playbackResult);
 	const [recording, setRecording] = useState(false);
+	const meshZoom = useEyesOfAIStore((state) => state.meshZoom);
 
 	useEffect(() => {
 		if (canvasRef.current) {
@@ -50,20 +55,18 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 
 			var ctx = canvasRef.current.getContext("2d");
 			ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-			ctx.fillStyle = "#ffffff";
-			ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
 			ctx.save();
 
 			const faceBox = resultToRender.face[0].box;
-			const scaleFactor = 2.0;
+			const scaleFactor = playbackResult ? 1.3 : meshZoom;
 			const translateX = faceBox[0] + faceBox[2] / 2.0;
 			const translateY = faceBox[1] + faceBox[3] / 2.0;
-			ctx.scale(scaleFactor, scaleFactor);
+			ctx.scale(meshZoom, meshZoom);
 			ctx.translate(-translateX, -translateY);
 			ctx.translate(
-				canvasDrawWidth / scaleFactor / 2.0,
-				canvasDrawHeight / scaleFactor / 2.0
+				canvasDrawWidth / meshZoom / 2.0,
+				canvasDrawHeight / meshZoom / 2.0
 			);
 
 			detectedHuman.draw.face(
@@ -104,13 +107,13 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 	}, [recording, result]);
 
 	const secondsLeftUntilTrigger = Math.round(
-		STANDSTILL_THRESHOLD_MS / 1000.0 -
-			(standStillProgress / 1000.0) * STANDSTILL_THRESHOLD_MS
+		standstillThresholdMs / 1000.0 -
+			(standStillProgress / 1000.0) * standstillThresholdMs
 	);
 
 	return (
 		<>
-			<div className="w-full h-full">
+			<div className="w-full h-full" style={{ position: "relative" }}>
 				{playbackResult ? (
 					<div className="grid place-items-center text-3xl font-bold w-full h-[20%]"></div>
 				) : (
@@ -141,8 +144,14 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 					<canvas
 						id="canvas"
 						ref={canvasRef}
-						className="w-[572px] h-[472px] bg-white"
-						style={{ margin: "auto" }}
+						className="w-[609px] h-[849px]"
+						style={{
+							margin: "auto",
+							position: "absolute",
+							left: 0,
+							top: 0,
+							zIndex: 1,
+						}}
 					/>
 				</div>
 				{!playbackResult && (

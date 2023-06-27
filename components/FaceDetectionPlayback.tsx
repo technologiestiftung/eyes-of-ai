@@ -1,5 +1,5 @@
 import { Result } from "@vladmandic/human";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import useDump from "../hooks/useDump";
 import { useEyesOfAIStore } from "../store";
 

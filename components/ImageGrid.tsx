@@ -26,6 +26,7 @@ const ImageGrid: React.FC<Props> = ({ showCaption, showMoreButton }) => {
 	const onShowMoreClick = () => {
 		setPage(page + 1);
 	};
+
 	return (
 		<>
 			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 bg-white text-black">
@@ -44,7 +45,7 @@ const ImageGrid: React.FC<Props> = ({ showCaption, showMoreButton }) => {
 					</div>
 				))}
 				{showMoreButton && onShowMoreClick && (
-					<div className="p-4 text-white">
+					<div className="p-4 text-black font-bold">
 						<button onClick={onShowMoreClick}>Show more</button>
 					</div>
 				)}
