@@ -1,11 +1,12 @@
 import React from "react";
+import { ControlKeyMapping } from "../pages";
 
 interface Props {
-	label: string;
-	value: number;
+	keyShortcut: string;
+	controlKeyMapping: ControlKeyMapping;
 }
 
-const UserHintBox: React.FC<Props> = ({ label, value }) => {
+const UserHintBox: React.FC<Props> = ({ keyShortcut, controlKeyMapping }) => {
 	return (
 		<>
 			<div
@@ -14,11 +15,12 @@ const UserHintBox: React.FC<Props> = ({ label, value }) => {
 					zIndex: 100,
 					left: 0,
 					top: 0,
-					fontSize: 80,
+					fontSize: 60,
 					backgroundColor: "red",
 				}}
 			>
-				{label}={Math.round(value * 100) / 100}
+				{controlKeyMapping.parameterName} ={" "}
+				{Math.round(controlKeyMapping.parameter * 100) / 100}
 			</div>
 		</>
 	);

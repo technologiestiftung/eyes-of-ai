@@ -22,7 +22,8 @@ import styles from "../styles/elements.module.css";
 import { LocalizedPrompt } from "./api/prompt";
 type Image = Database["public"]["Tables"]["eotai_images"]["Row"];
 
-interface ControlKeyMapping {
+export interface ControlKeyMapping {
+	parameterName: string;
 	setParameter: (paramter: number) => void;
 	parameter: number;
 	step: number;
@@ -53,6 +54,11 @@ const Page: React.FC<
 		state.meshZoom,
 		state.setMeshZoom,
 	]);
+	const [playbackZoom, setPlaybackZoom] = useEyesOfAIStore((state) => [
+		state.playbackZoom,
+		state.setPlaybackZoom,
+	]);
+
 	const [expirationSeconds, setExpirationSeconds] = useEyesOfAIStore(
 		(state) => [state.expirationSeconds, state.setExpirationSeconds]
 	);
@@ -102,29 +108,40 @@ const Page: React.FC<
 
 	const keyMapping = {
 		d: {
+			parameterName: "distance threshold (meters)",
 			parameter: distanceThresholdMeters,
 			setParameter: setDistanceThresholdMeters,
 			step: 0.1,
 		} as ControlKeyMapping,
 		r: {
+			parameterName: "rotation threshold (degrees)",
 			parameter: rotationThresholdDegrees,
 			setParameter: setRotationThresholdDegrees,
 			step: 0.01,
 		} as ControlKeyMapping,
 		m: {
+			parameterName: "face mesh zoom",
 			parameter: meshZoom,
 			setParameter: setMeshZoom,
 			step: 0.1,
 		} as ControlKeyMapping,
 		s: {
+			parameterName: "standstill threshold (ms)",
 			parameter: standstillThresholdMs,
 			setParameter: setStandstillThresholdMs,
 			step: 1000.0,
 		} as ControlKeyMapping,
 		e: {
+			parameterName: "image expiration (seconds)",
 			parameter: expirationSeconds,
 			setParameter: setExpirationSeconds,
 			step: 1.0,
+		} as ControlKeyMapping,
+		p: {
+			parameterName: "playback zoom",
+			parameter: playbackZoom,
+			setParameter: setPlaybackZoom,
+			step: 0.1,
 		} as ControlKeyMapping,
 	};
 
@@ -229,8 +246,8 @@ const Page: React.FC<
 		>
 			{lockedKey && (
 				<ParameterSetting
-					label={lockedKey}
-					value={keyMapping[lockedKey].parameter}
+					controlKeyMapping={keyMapping[lockedKey]}
+					keyShortcut={lockedKey}
 				/>
 			)}
 			{/* Placeholders for capturing webcam video */}

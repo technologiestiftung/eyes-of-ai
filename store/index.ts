@@ -29,6 +29,9 @@ export type EyesOfAIStore = {
 	meshZoom: number;
 	setMeshZoom: (meshZoom: number) => void;
 
+	playbackZoom: number;
+	setPlaybackZoom: (playbackZoom: number) => void;
+
 	expirationSeconds: number;
 	setExpirationSeconds: (expirationSeconds: number) => void;
 
@@ -95,6 +98,9 @@ export const useEyesOfAIStore = create<EyesOfAIStore>()((set, get) => ({
 
 	meshZoom: 1.5,
 	setMeshZoom: (meshZoom) => set(() => ({ meshZoom })),
+
+	playbackZoom: 1.3,
+	setPlaybackZoom: (playbackZoom) => set(() => ({ playbackZoom })),
 
 	expirationSeconds: 20,
 	setExpirationSeconds: (resetSeconds) =>
