@@ -123,7 +123,7 @@ const HumanDetectionDisplay: React.FC<Props> = ({
 					<UserHintBox
 						label={"nicht bewegen"}
 						labelRight={
-							standStillDetected ? `${secondsLeftUntilTrigger} Sekunden` : ""
+							standStillDetected ? `${secondsLeftUntilTrigger}s` : ""
 						}
 					></UserHintBox>
 				)}
