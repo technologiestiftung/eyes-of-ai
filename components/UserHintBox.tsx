@@ -14,7 +14,7 @@ const UserHintBox: React.FC<Props> = ({ label, labelRight }) => {
 			>
 				<div className={`text-center h-[20%] ${styles.defaultColor}`}>
 					<div className="text-3xl">{label}</div>
-					<div className="text-xl">{labelRight}</div>
+					<div className="text-3xl">{labelRight}</div>
 				</div>
 			</div>
 		</>

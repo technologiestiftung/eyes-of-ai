@@ -24,8 +24,8 @@ const GeneratedImageDisplay: React.FC<Props> = ({
 		return (
 			<div className="w-full h-full">
 				<UserHintBox
-					label={"ki malt dich"}
-					labelRight={undefined}
+					label={"gesicht erfasst"}
+					labelRight={"ki malt dich"}
 				></UserHintBox>
 				<div className="h-[60%] flex items-center justify-center ">
 					<Loading></Loading>
