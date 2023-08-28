@@ -90,7 +90,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
 
       - name: Build base and push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           build-args: |
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ env.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
