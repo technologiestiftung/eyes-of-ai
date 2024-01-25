@@ -31,20 +31,20 @@
 	},
 	"homepage": "https://github.com/technologiestiftung/eyes-of-ai#readme",
 	"dependencies": {
-		"@supabase/supabase-js": "2.24.0",
-		"@tensorflow/tfjs-node": "4.6.0",
-		"@vladmandic/human": "3.0.6",
+		"@supabase/supabase-js": "2.33.1",
+		"@tensorflow/tfjs-node": "4.10.0",
+		"@vladmandic/human": "3.0.7",
 		"@vladmandic/human-models": "3.0.4",
 		"base64-arraybuffer": "1.0.2",
-		"dotenv": "16.0.3",
-		"edge-csrf": "1.0.3",
-		"next": "13.4.4",
-		"openai": "3.2.1",
+		"dotenv": "16.3.1",
+		"edge-csrf": "1.0.4",
+		"next": "13.4.19",
+		"openai": "3.3.0",
 		"react": "18.2.0",
 		"react-cookie": "4.1.1",
 		"react-dom": "18.2.0",
 		"uuid": "9.0.0",
-		"zustand": "4.3.8"
+		"zustand": "4.4.1"
 	},
 	"devDependencies": {
 		"@technologiestiftung/semantic-release-config": "1.2.3",
